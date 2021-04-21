@@ -96,9 +96,13 @@ function renderer.render_diagnostics(view, text, items)
         local sign = signs[string.lower(diag.type)]
         if not sign then sign = diag.type end
 
-        text:render("    " .. sign .. "  ", "Sign" .. diag.type)
+        local indent = "     "
+        if config.options.indent_lines then indent = " │   " end
+
+        text:render(indent, "Indent")
+        text:render(sign .. "  ", "Sign" .. diag.type)
         text:render(diag.text, "Text" .. diag.type, " ")
-        text:render(diag.type, diag.type, " ")
+        -- text:render(diag.type, diag.type, " ")
 
         if diag.source then text:render(diag.source, "Source", " ") end
         if diag.code then

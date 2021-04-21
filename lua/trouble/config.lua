@@ -17,6 +17,7 @@ local defaults = {
         p = "preview",
         P = "toggle_preview"
     },
+    indent_lines = false,
     auto_open = false,
     auto_close = true,
     auto_preview = false,

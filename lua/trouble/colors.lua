@@ -21,7 +21,8 @@ local links = {
     FoldIcon = "CursorLineNr",
     Normal = "Normal",
     Count = "TabLineSel",
-    Preview = "Search"
+    Preview = "Search",
+    Indent = "LineNr"
 }
 
 function M.setup()
