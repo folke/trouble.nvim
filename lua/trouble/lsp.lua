@@ -83,7 +83,7 @@ function M.get_signs()
                                 .text)
         end)
         if not status then sign = v:sub(1, 1) end
-        signs[v] = sign
+        signs[string.lower(v)] = sign
     end
     return signs
 end

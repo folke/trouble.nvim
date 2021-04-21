@@ -19,7 +19,9 @@ local defaults = {
     },
     auto_open = false,
     auto_close = true,
-    auto_preview = false
+    auto_preview = false,
+    signs = {error = "", warning = "", hint = "", information = ""},
+    use_lsp_diagnostic_signs = false
 }
 
 ---@type Options

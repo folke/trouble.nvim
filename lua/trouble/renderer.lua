@@ -16,6 +16,14 @@ local function get_icon(file)
     return icons.get_icon(fname, ext, {default = true})
 end
 
+local function update_signs()
+    if config.options.use_lsp_diagnostic_signs then
+        signs = lsp.get_signs()
+    else
+        signs = config.options.signs
+    end
+end
+
 ---@param view View
 function renderer.render(view, opts)
     opts = opts or {}
@@ -32,7 +40,7 @@ function renderer.render(view, opts)
     end
 
     -- Update lsp signs
-    signs = lsp.get_signs()
+    update_signs()
 
     local text = Text:new()
     view.items = {}
@@ -85,7 +93,7 @@ function renderer.render_diagnostics(view, text, items)
     for _, diag in ipairs(items) do
         view.items[text.lineNr] = diag
 
-        local sign = signs[diag.type]
+        local sign = signs[string.lower(diag.type)]
         if not sign then sign = diag.type end
 
         text:render("    " .. sign .. "  ", "Sign" .. diag.type)
