@@ -1,0 +1,2 @@
+# lsp-trouble.nvim
+
