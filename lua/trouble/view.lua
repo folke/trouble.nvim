@@ -143,7 +143,7 @@ function View:setup(opts)
     vim.api.nvim_exec([[
       augroup LspTroubleHighlights
         autocmd! * <buffer>
-        autocmd CursorMoved <buffer> nested lua require("trouble").action("preview")
+        autocmd CursorMoved <buffer> nested lua require("trouble").action("auto_preview")
         autocmd BufEnter <buffer> lua require("trouble").action("on_enter")
         autocmd BufLeave <buffer> lua require("trouble").action("on_leave")
       augroup END
@@ -164,12 +164,14 @@ function View:on_enter()
     }
 end
 
-function View:on_leave()
+function View:on_leave() self:close_preview() end
+
+function View:close_preview()
     -- Clear preview highlights
     for buf, _ in pairs(buffersHl) do clear_hl(buf) end
     buffersHl = {}
 
-    -- Reset parent stats
+    -- Reset parent state
     if self.parent_state then
         vim.api.nvim_win_set_buf(self.parent, self.parent_state.buf)
         vim.api.nvim_win_set_cursor(self.parent, self.parent_state.cursor)

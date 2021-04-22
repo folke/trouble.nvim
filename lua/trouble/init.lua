@@ -78,7 +78,19 @@ function Trouble.action(action)
     if action == "next" then view:next_item() end
     if action == "previous" then view:previous_item() end
 
+    if action == "toggle_preview" then
+        config.options.auto_preview = not config.options.auto_preview
+        if not config.options.auto_preview then
+            view:close_preview()
+        else
+            action = "preview"
+        end
+    end
+    if action == "auto_preview" and config.options.auto_preview then
+        action = "preview"
+    end
     if action == "preview" then view:preview() end
+
     if Trouble[action] then Trouble[action]() end
 end
 
