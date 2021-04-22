@@ -27,12 +27,16 @@ end
 ---@param view View
 function renderer.render(view, opts)
     opts = opts or {}
-    local diagnostics = lsp.diagnostics(config.options)
+    local lsp_opts = {}
+    if config.options.mode == "document" then
+        lsp_opts.bufnr = vim.api.nvim_win_get_buf(view.parent)
+    end
+    local diagnostics = lsp.diagnostics(lsp_opts)
     local grouped = lsp.group(diagnostics)
+    local count = util.count(grouped)
 
     -- check for auto close
     if opts.auto and config.options.auto_close then
-        local count = util.count(grouped)
         if count == 0 then
             view:close()
             return
@@ -44,6 +48,8 @@ function renderer.render(view, opts)
 
     local text = Text:new()
     view.items = {}
+
+    text:nl()
 
     -- render file groups
     for filename, items in pairs(grouped) do
@@ -60,7 +66,7 @@ end
 ---@param items Diagnostics[]
 ---@param filename string
 function renderer.render_file(view, text, filename, items)
-    view.items[text.lineNr] = {filename = filename, is_file = true}
+    view.items[text.lineNr + 1] = {filename = filename, is_file = true}
 
     local count = util.count(items)
 
@@ -91,7 +97,7 @@ end
 ---@param items Diagnostics[]
 function renderer.render_diagnostics(view, text, items)
     for _, diag in ipairs(items) do
-        view.items[text.lineNr] = diag
+        view.items[text.lineNr + 1] = diag
 
         local sign = signs[string.lower(diag.type)]
         if not sign then sign = diag.type end

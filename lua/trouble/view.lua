@@ -5,15 +5,21 @@ local folds = require("trouble.folds")
 local highlight = vim.api.nvim_buf_add_highlight
 
 ---@class View
----@field handle number
+---@field buf number
 ---@field win number
 ---@field items Diagnostics[]
 ---@field folded table<string, boolean>
+---@field parent number
+---@field float number
 local View = {}
 View.__index = View
 
+local buffersHl = {}
+
 local function clear_hl(bufnr)
-    vim.api.nvim_buf_clear_namespace(bufnr, config.namespace, 0, -1)
+    if vim.api.nvim_buf_is_valid(bufnr) then
+        vim.api.nvim_buf_clear_namespace(bufnr, config.namespace, 0, -1)
+    end
 end
 
 ---Find a rogue LspTrouble buffer that might have been spawned by i.e. a session.
@@ -41,10 +47,12 @@ local function wipe_rogue_buffer()
     end
 end
 
-function View:new()
+function View:new(opts)
+    opts = opts or {}
     local this = {
-        handle = vim.api.nvim_get_current_buf(),
-        win = vim.api.nvim_get_current_win()
+        buf = vim.api.nvim_get_current_buf(),
+        win = opts.win or vim.api.nvim_get_current_win(),
+        parent = opts.parent
     }
     setmetatable(this, self)
     return this
@@ -54,7 +62,7 @@ function View:set_option(name, value, win)
     if win then
         return vim.api.nvim_win_set_option(self.win, name, value)
     else
-        return vim.api.nvim_buf_set_option(self.handle, name, value)
+        return vim.api.nvim_buf_set_option(self.buf, name, value)
     end
 end
 
@@ -63,20 +71,20 @@ function View:render(text)
     self:unlock()
     self:set_lines(text.lines)
     self:lock()
-    clear_hl(self.handle)
+    clear_hl(self.buf)
     for _, data in ipairs(text.hl) do
-        highlight(self.handle, config.namespace, data.group, data.line,
-                  data.from, data.to)
+        highlight(self.buf, config.namespace, data.group, data.line, data.from,
+                  data.to)
     end
 end
 
 function View:clear()
-    return vim.api.nvim_buf_set_lines(self.handle, 0, -1, false, {})
+    return vim.api.nvim_buf_set_lines(self.buf, 0, -1, false, {})
 end
 
 function View:unlock()
-    self:set_option("readonly", false)
     self:set_option("modifiable", true)
+    self:set_option("readonly", false)
 end
 
 function View:lock()
@@ -88,22 +96,23 @@ function View:set_lines(lines, first, last, strict)
     first = first or 0
     last = last or -1
     strict = strict or false
-    return vim.api.nvim_buf_set_lines(self.handle, first, last, strict, lines)
+    return vim.api.nvim_buf_set_lines(self.buf, first, last, strict, lines)
 end
 
 function View:is_valid()
-    return vim.api.nvim_buf_is_valid(self.handle) and
-               vim.api.nvim_buf_is_loaded(self.handle)
+    return vim.api.nvim_buf_is_valid(self.buf) and
+               vim.api.nvim_buf_is_loaded(self.buf)
 end
 
 function View:update(opts) renderer.render(self, opts) end
 
 function View:setup(opts)
+    opts = opts or {}
     vim.cmd("setlocal nonu")
     vim.cmd("setlocal nornu")
-    if not pcall(vim.api.nvim_buf_set_name, self.handle, 'LspTrouble') then
+    if not pcall(vim.api.nvim_buf_set_name, self.buf, 'LspTrouble') then
         wipe_rogue_buffer()
-        vim.api.nvim_buf_set_name(self.handle, 'LspTrouble')
+        vim.api.nvim_buf_set_name(self.buf, 'LspTrouble')
     end
     self:set_option("bufhidden", "wipe")
     self:set_option("filetype", "LspTrouble")
@@ -119,10 +128,10 @@ function View:setup(opts)
     self:set_option("foldcolumn", "0", true)
     self:set_option("foldlevel", 3, true)
     self:set_option("foldenable", false, true)
-    self:set_option("winhl", "Normal:LspTroubleNormal", true)
+    self:set_option("winhighlight", "Normal:LspTroubleNormal", true)
 
     for key, action in pairs(config.options.actions) do
-        vim.api.nvim_buf_set_keymap(self.handle, "n", key,
+        vim.api.nvim_buf_set_keymap(self.buf, "n", key,
                                     [[<cmd>lua require("trouble").action("]] ..
                                         action .. [[")<cr>]],
                                     {silent = true, noremap = true})
@@ -133,59 +142,157 @@ function View:setup(opts)
     vim.api.nvim_exec([[
       augroup LspTroubleHighlights
         autocmd! * <buffer>
-        autocmd CursorMoved <buffer> lua require("trouble").action("auto_preview")
+        autocmd CursorMoved <buffer> lua require("trouble").action("preview")
+        autocmd BufEnter <buffer> lua require("trouble").action("on_enter")
+        autocmd BufLeave <buffer> lua require("trouble").action("on_leave")
       augroup END
     ]], false)
 
+    if not opts.parent then self:on_enter() end
     self:lock()
     self:update(opts)
+    self:next_item()
+    self:next_item()
 end
 
-function View:focus()
-    vim.api.nvim_set_current_win(self.win)
-    vim.cmd(":buffer " .. self.handle)
+function View:on_enter()
+    self.parent = vim.fn.win_getid(vim.fn.winnr('#'))
+    self.parent_state = {
+        buf = vim.api.nvim_win_get_buf(self.parent),
+        cursor = vim.api.nvim_win_get_cursor(self.parent)
+    }
 end
 
-function View:close() vim.api.nvim_buf_delete(self.handle, {}) end
+function View:on_leave()
+    -- Clear preview highlights
+    for buf, _ in pairs(buffersHl) do clear_hl(buf) end
+    buffersHl = {}
+
+    -- Reset parent stats
+    if self.parent_state then
+        vim.api.nvim_win_set_buf(self.parent, self.parent_state.buf)
+        vim.api.nvim_win_set_cursor(self.parent, self.parent_state.cursor)
+        self.parent_state = nil
+    end
+end
+
+function View:on_win_enter()
+    local current_win = vim.api.nvim_get_current_win()
+    local current_buf = vim.api.nvim_get_current_buf()
+
+    -- update parent when needed
+    if current_win ~= self.parent and current_win ~= self.win then
+        self.parent = current_win
+    end
+
+    -- update diagnostics
+    if current_win == self.parent and self:is_valid() then self:update() end
+
+    -- check if another buffer took over our window
+    local parent = self.parent
+    if current_win == self.win and current_buf ~= self.buf then
+        -- open the buffer in the parent
+        vim.api.nvim_win_set_buf(parent, current_buf)
+        -- HACK: somw window local settings need to be reset
+        vim.api.nvim_win_set_option(parent, "winhl", "")
+        -- close the current trouble window
+        vim.api.nvim_win_close(self.win, false)
+        -- open a new trouble window
+        require("trouble").open()
+        -- switch back to the opened window / buffer
+        View.switch_to(parent, current_buf)
+        -- util.warn("win_enter pro")
+    end
+end
+
+function View:focus() View.switch_to(self.win, self.buf) end
+
+function View.switch_to(win, buf)
+    if win then
+        vim.api.nvim_set_current_win(win)
+        if buf then vim.api.nvim_win_set_buf(win, buf) end
+    end
+end
+
+function View:switch_to_parent()
+    -- vim.cmd("wincmd p")
+    View.switch_to(self.parent)
+end
+
+function View:close() vim.api.nvim_buf_delete(self.buf, {}) end
 
 function View.create(opts)
-    vim.cmd("below new")
-    vim.cmd("wincmd J")
-    local buffer = View:new()
+    opts = opts or {}
+    if opts.win then
+        View.switch_to(opts.win)
+        vim.cmd("enew")
+    else
+        vim.cmd("below new")
+        vim.cmd("wincmd J")
+    end
+    local buffer = View:new(opts)
     buffer:setup(opts)
 
-    if opts and opts.auto then vim.cmd("wincmd p") end
+    if opts and opts.auto then View.switch_to_parent() end
     return buffer
 end
 
+function View:get_cursor() return vim.api.nvim_win_get_cursor(self.win) end
+function View:get_line() return self:get_cursor()[1] end
+function View:get_col() return self:get_cursor()[2] end
+
 function View:current_item()
-    local line = vim.fn.line(".")
-    local item = self.items[line - 1]
+    local line = self:get_line()
+    local item = self.items[line]
     return item
 end
 
-function View:jump()
-    local item = self:current_item()
+function View:next_item()
+    local line = self:get_line()
+    for i = line + 1, vim.api.nvim_buf_line_count(self.buf), 1 do
+        if self.items[i] then
+            vim.api.nvim_win_set_cursor(self.win, {i, self:get_col()})
+            return
+        end
+    end
+end
+
+function View:previous_item()
+    local line = self:get_line()
+    for i = line - 1, 0, -1 do
+        if self.items[i] then
+            vim.api.nvim_win_set_cursor(self.win, {i, self:get_col()})
+            return
+        end
+    end
+end
+
+function View:jump(opts)
+    opts = opts or {}
+    local item = opts.item or self:current_item()
     if not item then return end
 
     if item.is_file == true then
         folds.toggle(item.filename)
         self:update()
     else
-        vim.cmd("wincmd p")
-        vim.cmd("buffer " .. item.bufnr)
-        vim.fn.cursor(item.lnum, item.col)
+        View.switch_to(opts.win or self.parent, item.bufnr)
+        vim.api.nvim_win_set_cursor(self.parent,
+                                    {item.start.line + 1, item.start.character})
     end
 end
 
+-- TODO: nvim_open_window
 function View:preview()
     local item = self:current_item()
     if not item then return end
 
     if item.is_file ~= true then
-        self:jump()
-        self:focus()
+        vim.api.nvim_win_set_buf(self.parent, item.bufnr)
+        vim.api.nvim_win_set_cursor(self.parent,
+                                    {item.start.line, item.start.character})
         clear_hl(item.bufnr)
+        buffersHl[item.bufnr] = true
         for row = item.start.line, item.finish.line, 1 do
             local col_start = 0
             local col_end = -1

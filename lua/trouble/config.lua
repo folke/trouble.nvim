@@ -6,21 +6,24 @@ M.namespace = vim.api.nvim_create_namespace('LspTrouble')
 local defaults = {
     height = 10,
     icons = true,
+    mode = "document", -- "workspace" or "document"
     fold_open = "",
     fold_closed = "",
     actions = {
         ["<cr>"] = "jump",
+        ["<tab>"] = "jump",
+        ["<esc>"] = "cancel",
         q = "close",
         r = "refresh",
         zR = "open_folds",
         zM = "close_folds",
-        p = "preview",
-        P = "toggle_preview"
+        j = "next",
+        k = "previous",
+        m = "toggle_mode"
     },
     indent_lines = false,
     auto_open = false,
     auto_close = true,
-    auto_preview = false,
     signs = {error = "", warning = "", hint = "", information = ""},
     use_lsp_diagnostic_signs = false
 }

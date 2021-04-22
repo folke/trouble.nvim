@@ -45,20 +45,27 @@ function Trouble.refresh(opts)
 end
 
 function Trouble.action(action)
+    if action == "toggle_mode" then
+        if config.options.mode == "document" then
+            config.options.mode = "workspace"
+        else
+            config.options.mode = "document"
+        end
+        action = "refresh"
+    end
+
+    if view and action == "on_win_enter" then view:on_win_enter() end
     if not is_open() then return end
     if action == "jump" then view:jump() end
     if action == "open_folds" then Trouble.refresh({open_folds = true}) end
     if action == "close_folds" then Trouble.refresh({close_folds = true}) end
+    if action == "on_enter" then view:on_enter() end
+    if action == "on_leave" then view:on_leave() end
+    if action == "cancel" then view:switch_to_parent() end
+    if action == "next" then view:next_item() end
+    if action == "previous" then view:previous_item() end
 
-    if action == "toggle_preview" then
-        config.options.auto_preview = not config.options.auto_preview
-        if config.options.auto_preview then action = "auto_preview" end
-    end
-
-    if action == "preview" or
-        (action == "auto_preview" and config.options.auto_preview) then
-        view:preview()
-    end
+    if action == "preview" then view:preview() end
     if Trouble[action] then Trouble[action]() end
 end
 
