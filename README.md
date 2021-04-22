@@ -1,7 +1,7 @@
 
 # 🚦 LSP Trouble
 
-A pretty diagnostics list to help your solve all the trouble your code is causing.
+A pretty diagnostics list to help you solve all the trouble your code is causing.
 
 ![LSP Trouble Screenshot](./media/shot.png)
 
