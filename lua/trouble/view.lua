@@ -1,7 +1,6 @@
 local renderer = require("trouble.renderer")
 local config = require("trouble.config")
 local folds = require("trouble.folds")
-local pfiletype = require('plenary.filetype')
 
 local highlight = vim.api.nvim_buf_add_highlight
 local buf_opt = vim.api.nvim_buf_get_option
