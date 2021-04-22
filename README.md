@@ -3,6 +3,8 @@
 
 A pretty diagnostics list to help your solve all the trouble your code is causing.
 
+![LSP Trouble Screenshot](./media/shot.png)
+
 ## ✨ Features
 
 * pretty list of LSP Diagnostics
@@ -27,6 +29,7 @@ Install the plugin with your preferred package manager:
 ### [vim-plug](https://github.com/junegunn/vim-plug)
 
 ```vim
+" Vim Script
 Plug 'kyazdani42/nvim-web-devicons'
 Plug 'folke/lsp-trouble.nvim'
 
@@ -42,6 +45,7 @@ EOF
 ### [packer](https://github.com/wbthomason/packer.nvim)
 
 ```lua
+-- Lua
 use {
   "folke/lsp-trouble.nvim",
   requires = "kyazdani42/nvim-web-devicons",
@@ -126,11 +130,12 @@ Trouble comes with the following commands:
 Example keybinding of `<leader>xx` that toggles the trouble list:
 
 ```vim
+-- Vim Script
 nnoremap <leader>xx <cmd>LspTroubleToggle<cr>
 ```
 
 ```lua
--- bind <leader>xx to open LSP Trouble
+-- Lua
 vim.api.nvim_set_keymap("n", "<leader>xx", "<cmd>LspTroubleToggle<cr>",
   {silent = true, noremap = true}
 )
