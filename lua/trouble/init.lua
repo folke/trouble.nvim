@@ -20,6 +20,11 @@ end
 function Trouble.close() if is_open() then view:close() end end
 
 function Trouble.open(opts)
+    opts = opts or {}
+    if opts.mode and (opts.mode ~= config.options.mode) then
+        Trouble.action("toggle_mode")
+    end
+
     if is_open() then
         view:focus()
     else
@@ -27,7 +32,15 @@ function Trouble.open(opts)
     end
 end
 
-function Trouble.toggle()
+function Trouble.toggle(opts)
+    opts = opts or {}
+
+    if opts.mode and (opts.mode ~= config.options.mode) then
+        Trouble.action("toggle_mode")
+        Trouble.open()
+        return
+    end
+
     if is_open() then
         Trouble.close()
     else

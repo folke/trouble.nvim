@@ -123,8 +123,12 @@ Trouble comes with the following defaults:
 Trouble comes with the following commands:
 
 * **LspTroubleOpen**: open the list
+* **LspTroubleWorkspaceOpen**: set mode to "workspace" and open the list
+* **LspTroubleDocumentOpen**: set mode to "document" and open the list
 * **LspTroubleClose**: close the list
 * **LspTroubleToggle**: toggle the list
+* **LspTroubleWorkspaceToggle**: set mode to "workspace" and toggle the list (remains open if mode changes)
+* **LspTroubleDocumentToggle**: set mode to "document" and toggle the list (remains open if mode changes)
 * **LspTroubleRefresh**: manually refresh
 
 Example keybinding of `<leader>xx` that toggles the trouble list:
