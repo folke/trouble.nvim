@@ -25,6 +25,10 @@ local links = {
     Indent = "LineNr"
 }
 
+-- for key, value in pairs(links) do
+--     print("| **LspTrouble" .. key .. "* | " .. value .. " |")
+-- end
+
 function M.setup()
     for k, v in pairs(links) do
         vim.api.nvim_command('hi def link LspTrouble' .. k .. ' ' .. v)

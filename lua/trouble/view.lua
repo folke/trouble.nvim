@@ -130,7 +130,7 @@ function View:setup(opts)
     self:set_option("foldenable", false, true)
     self:set_option("winhighlight", "Normal:LspTroubleNormal", true)
 
-    for key, action in pairs(config.options.actions) do
+    for action, key in pairs(config.options.action_keys) do
         vim.api.nvim_buf_set_keymap(self.buf, "n", key,
                                     [[<cmd>lua require("trouble").action("]] ..
                                         action .. [[")<cr>]],
