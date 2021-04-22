@@ -1,8 +1,10 @@
 local renderer = require("trouble.renderer")
 local config = require("trouble.config")
 local folds = require("trouble.folds")
+local pfiletype = require('plenary.filetype')
 
 local highlight = vim.api.nvim_buf_add_highlight
+local buf_opt = vim.api.nvim_buf_get_option
 
 ---@class View
 ---@field buf number
@@ -142,7 +144,7 @@ function View:setup(opts)
     vim.api.nvim_exec([[
       augroup LspTroubleHighlights
         autocmd! * <buffer>
-        autocmd CursorMoved <buffer> lua require("trouble").action("preview")
+        autocmd CursorMoved <buffer> nested lua require("trouble").action("preview")
         autocmd BufEnter <buffer> lua require("trouble").action("on_enter")
         autocmd BufLeave <buffer> lua require("trouble").action("on_leave")
       augroup END
@@ -279,10 +281,15 @@ function View:jump(opts)
         View.switch_to(opts.win or self.parent, item.bufnr)
         vim.api.nvim_win_set_cursor(self.parent,
                                     {item.start.line + 1, item.start.character})
+
+        -- edit the buffer if it was a temp one
+        if item.fixed == true then
+            vim.cmd "e"
+            item.fixed = nil
+        end
     end
 end
 
--- TODO: nvim_open_window
 function View:preview()
     local item = self:current_item()
     if not item then return end
@@ -290,7 +297,18 @@ function View:preview()
     if item.is_file ~= true then
         vim.api.nvim_win_set_buf(self.parent, item.bufnr)
         vim.api.nvim_win_set_cursor(self.parent,
-                                    {item.start.line, item.start.character})
+                                    {item.start.line + 1, item.start.character})
+        -- center the buffer vertically
+        vim.api.nvim_buf_call(item.bufnr, function() vim.cmd "norm! zz" end)
+
+        -- check if this is a temp buffer created by lsp diag
+        -- if so, then trigger BufRead to fix syntax etc
+        if item.fixed ~= true and buf_opt(item.bufnr, "buflisted") == false then
+            vim.api.nvim_buf_call(item.bufnr,
+                                  function() vim.cmd "do BufRead" end)
+            item.fixed = true
+        end
+
         clear_hl(item.bufnr)
         buffersHl[item.bufnr] = true
         for row = item.start.line, item.finish.line, 1 do

@@ -17,6 +17,7 @@ local function preprocess_diag(diag, bufnr)
 
     ---@class Diagnostics
     ---@field is_file boolean
+    ---@field fixed boolean
     local ret
     ret = {
         bufnr = bufnr,
