@@ -3,7 +3,6 @@ local config = require("trouble.config")
 local folds = require("trouble.folds")
 
 local highlight = vim.api.nvim_buf_add_highlight
-local buf_opt = vim.api.nvim_buf_get_option
 
 ---@class View
 ---@field buf number
@@ -12,10 +11,13 @@ local buf_opt = vim.api.nvim_buf_get_option
 ---@field folded table<string, boolean>
 ---@field parent number
 ---@field float number
+---@field loading_preview boolean
 local View = {}
 View.__index = View
 
-local buffersHl = {}
+-- keep track of buffers with added highlights
+-- highlights are cleared on BufLeave of LspTrouble
+local hl_bufs = {}
 
 local function clear_hl(bufnr)
     if vim.api.nvim_buf_is_valid(bufnr) then
@@ -143,7 +145,7 @@ function View:setup(opts)
     vim.api.nvim_exec([[
       augroup LspTroubleHighlights
         autocmd! * <buffer>
-        autocmd CursorMoved <buffer> nested lua require("trouble").action("auto_preview")
+        autocmd CursorMoved <buffer> ++nested lua require("trouble").action("auto_preview")
         autocmd BufEnter <buffer> lua require("trouble").action("on_enter")
         autocmd BufLeave <buffer> lua require("trouble").action("on_leave")
       augroup END
@@ -157,6 +159,8 @@ function View:setup(opts)
 end
 
 function View:on_enter()
+    if self.loading_preview then return end
+
     self.parent = vim.fn.win_getid(vim.fn.winnr('#'))
     self.parent_state = {
         buf = vim.api.nvim_win_get_buf(self.parent),
@@ -167,9 +171,11 @@ end
 function View:on_leave() self:close_preview() end
 
 function View:close_preview()
+    if self.loading_preview then return end
+
     -- Clear preview highlights
-    for buf, _ in pairs(buffersHl) do clear_hl(buf) end
-    buffersHl = {}
+    for buf, _ in pairs(hl_bufs) do clear_hl(buf) end
+    hl_bufs = {}
 
     -- Reset parent state
     if self.parent_state then
@@ -180,6 +186,8 @@ function View:close_preview()
 end
 
 function View:on_win_enter()
+    if self.loading_preview then return end
+
     local current_win = vim.api.nvim_get_current_win()
     local current_buf = vim.api.nvim_get_current_buf()
 
@@ -279,39 +287,34 @@ function View:jump(opts)
         folds.toggle(item.filename)
         self:update()
     else
-        View.switch_to(opts.win or self.parent, item.bufnr)
+        View.switch_to(opts.win or self.parent)
+        vim.cmd("edit #" .. item.bufnr)
         vim.api.nvim_win_set_cursor(self.parent,
                                     {item.start.line + 1, item.start.character})
-
-        -- edit the buffer if it was a temp one
-        if item.fixed == true then
-            vim.cmd "e"
-            item.fixed = nil
-        end
     end
 end
 
 function View:preview()
+    if self.loading_preview == true then return end
+
     local item = self:current_item()
     if not item then return end
 
     if item.is_file ~= true then
-        vim.api.nvim_win_set_buf(self.parent, item.bufnr)
+        self.loading_preview = true
+
+        vim.api.nvim_set_current_win(self.parent)
+
+        vim.cmd("buffer " .. item.bufnr)
+        vim.cmd("norm! zz")
+        vim.api.nvim_set_current_win(self.win)
+        vim.api.nvim_set_current_buf(self.buf)
+
         vim.api.nvim_win_set_cursor(self.parent,
                                     {item.start.line + 1, item.start.character})
-        -- center the buffer vertically
-        vim.api.nvim_buf_call(item.bufnr, function() vim.cmd "norm! zz" end)
-
-        -- check if this is a temp buffer created by lsp diag
-        -- if so, then trigger BufRead to fix syntax etc
-        if item.fixed ~= true and buf_opt(item.bufnr, "buflisted") == false then
-            vim.api.nvim_buf_call(item.bufnr,
-                                  function() vim.cmd "do BufRead" end)
-            item.fixed = true
-        end
 
         clear_hl(item.bufnr)
-        buffersHl[item.bufnr] = true
+        hl_bufs[item.bufnr] = true
         for row = item.start.line, item.finish.line, 1 do
             local col_start = 0
             local col_end = -1
@@ -324,6 +327,8 @@ function View:preview()
             highlight(item.bufnr, config.namespace, "LspTroublePreview", row,
                       col_start, col_end)
         end
+
+        self.loading_preview = false
     end
 end
 

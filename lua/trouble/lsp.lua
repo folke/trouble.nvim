@@ -8,6 +8,9 @@ local lsp_type_diagnostic = {
     [4] = "Hint"
 }
 
+-- based on the Telescope diagnostics code
+-- see https://github.com/nvim-telescope/telescope.nvim/blob/0d6cd47990781ea760dd3db578015c140c7b9fa7/lua/telescope/utils.lua#L85
+
 local function preprocess_diag(diag, bufnr)
     local filename = vim.api.nvim_buf_get_name(bufnr)
     local start = diag.range['start']
