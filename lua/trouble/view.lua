@@ -306,7 +306,8 @@ function View:preview()
         vim.api.nvim_set_current_win(self.parent)
 
         vim.cmd("buffer " .. item.bufnr)
-        vim.cmd("norm! zz")
+        -- Center preview line on screen and open enough folds to show it
+        vim.cmd("norm! zz zv")
         vim.api.nvim_set_current_win(self.win)
         vim.api.nvim_set_current_buf(self.buf)
 
