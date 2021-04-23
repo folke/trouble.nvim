@@ -20,6 +20,7 @@ A pretty diagnostics list to help you solve all the trouble your code is causing
 * Properly configured Neovim LSP client
 * [nvim-web-devicons](https://github.com/kyazdani42/nvim-web-devicons) is optional to enable file icons
 * a theme with properly configured highlight groups for Neovim LSP Diagnostics
+* or install 🌈  [lsp-colors](https://github.com/folke/lsp-colors.nvim) to automatically create the missing highlight groups
 * a [patched font](https://www.nerdfonts.com/) for the default severity and fold icons
 
 ## 📦 Installation
