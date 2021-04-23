@@ -244,7 +244,7 @@ function View.create(opts)
     local buffer = View:new(opts)
     buffer:setup(opts)
 
-    if opts and opts.auto then View.switch_to_parent() end
+    if opts and opts.auto then buffer:switch_to_parent() end
     return buffer
 end
 
