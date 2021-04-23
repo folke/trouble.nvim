@@ -10,7 +10,12 @@ local renderer = {}
 local signs = {}
 
 local function get_icon(file)
-    local icons, _ = require('nvim-web-devicons')
+    local ok, icons = pcall(require, 'nvim-web-devicons')
+    if not ok then
+        util.warn(
+            "'nvim-web-devicons' is not installed. Install it, or set icons=false in your configuration to disable this message")
+        return ""
+    end
     local fname = vim.fn.fnamemodify(file, ":t")
     local ext = vim.fn.fnamemodify(file, ":e")
     return icons.get_icon(fname, ext, {default = true})
