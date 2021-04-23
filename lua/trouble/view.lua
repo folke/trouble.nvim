@@ -288,7 +288,11 @@ function View:jump(opts)
         self:update()
     else
         View.switch_to(opts.win or self.parent)
-        vim.cmd("edit #" .. item.bufnr)
+        if vim.api.nvim_buf_get_option(item.bufnr, "buflisted") == false then
+            vim.cmd("edit #" .. item.bufnr)
+        else
+            vim.cmd("buffer " .. item.bufnr)
+        end
         vim.api.nvim_win_set_cursor(self.parent,
                                     {item.start.line + 1, item.start.character})
     end
