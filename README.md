@@ -90,7 +90,7 @@ Trouble comes with the following defaults:
     auto_open = false, -- automatically open the list when you have diagnostics
     auto_close = false, -- automatically close the list when you have no diagnostics
     auto_preview = true, -- automatically preview the location of the diagnostic. <esc> to close preview and go back
-    default_fold = "open", -- default fold state of a file trouble list at creation (either "open" or "close")
+    auto_fold = false, -- automatically fold a file trouble list at creation
     signs = {
         -- icons / text used for a diagnostic
         error = "",
