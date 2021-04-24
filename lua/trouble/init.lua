@@ -48,6 +48,23 @@ function Trouble.toggle(opts)
     end
 end
 
+function Trouble.help()
+    local lines = {"# Key Bindings"}
+    local height = 1
+    for command, key in pairs(config.options.action_keys) do
+        if type(key) == "table" then key = table.concat(key, " | ") end
+        table.insert(lines, " * **" .. key .. "** " .. command:gsub("_", " "))
+        height = height + 1
+    end
+    -- help
+    vim.lsp.util.open_floating_preview(lines, "markdown", {
+        border = "single",
+        height = 20,
+        offset_y = -2,
+        offset_x = 2
+    })
+end
+
 function Trouble.refresh(opts)
     if is_open() then
         view:update(opts)
