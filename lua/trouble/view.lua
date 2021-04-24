@@ -133,11 +133,14 @@ function View:setup(opts)
     self:set_option("foldenable", false, true)
     self:set_option("winhighlight", "Normal:LspTroubleNormal", true)
 
-    for action, key in pairs(config.options.action_keys) do
-        vim.api.nvim_buf_set_keymap(self.buf, "n", key,
-                                    [[<cmd>lua require("trouble").action("]] ..
-                                        action .. [[")<cr>]],
-                                    {silent = true, noremap = true})
+    for action, keys in pairs(config.options.action_keys) do
+        if type(keys) == "string" then keys = {keys} end
+        for _, key in pairs(keys) do
+            vim.api.nvim_buf_set_keymap(self.buf, "n", key,
+                                        [[<cmd>lua require("trouble").action("]] ..
+                                            action .. [[")<cr>]],
+                                        {silent = true, noremap = true})
+        end
     end
 
     vim.api.nvim_win_set_height(self.win, config.options.height)
