@@ -83,6 +83,7 @@ Trouble comes with the following defaults:
         close_folds = "zM", -- close all folds
         cancel = "<esc>", -- cancel the preview and get back to your last window / buffer / cursor
         open_folds = "zR", -- open all folds
+        toggle_filefold = "za", -- toggle fold of current file
         previous = "k", -- preview item
         next = "j" -- next item
     },

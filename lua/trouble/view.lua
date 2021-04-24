@@ -298,6 +298,11 @@ function View:jump(opts)
     end
 end
 
+function View:toggle_filefold()
+    folds.toggle(self:current_item().filename)
+    self:update()
+end
+
 function View:preview()
     if self.loading_preview == true then return end
 

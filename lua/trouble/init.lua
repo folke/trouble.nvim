@@ -72,6 +72,7 @@ function Trouble.action(action)
     if action == "jump" then view:jump() end
     if action == "open_folds" then Trouble.refresh({open_folds = true}) end
     if action == "close_folds" then Trouble.refresh({close_folds = true}) end
+    if action == "toggle_filefold" then view:toggle_filefold() end
     if action == "on_enter" then view:on_enter() end
     if action == "on_leave" then view:on_leave() end
     if action == "cancel" then view:switch_to_parent() end
