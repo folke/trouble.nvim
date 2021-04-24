@@ -75,14 +75,14 @@ Trouble comes with the following defaults:
     fold_closed = "", -- icon used for closed folds
     action_keys = { -- key mappings for actions in the trouble list
         close = "q", -- close the list
+        cancel = "<esc>", -- cancel the preview and get back to your last window / buffer / cursor
         refresh = "r", -- manually refresh
-        jump = "<cr>", -- jump to the diagnostic or open / close folds
+        jump = {"<cr>", "<tab>"}, -- jump to the diagnostic or open / close folds
         toggle_mode = "m", -- toggle between "workspace" and "document" mode
         toggle_preview = "P", -- toggle auto_preview
         preview = "p", -- preview the diagnostic location
-        close_folds = "zM", -- close all folds
-        cancel = "<esc>", -- cancel the preview and get back to your last window / buffer / cursor
-        open_folds = "zR", -- open all folds
+        close_folds = {"zM", "zm"}, -- close all folds
+        open_folds = {"zR", "zr"}, -- open all folds
         previous = "k", -- preview item
         next = "j" -- next item
     },
