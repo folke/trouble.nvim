@@ -83,7 +83,7 @@ Trouble comes with the following defaults:
         preview = "p", -- preview the diagnostic location
         close_folds = {"zM", "zm"}, -- close all folds
         open_folds = {"zR", "zr"}, -- open all folds
-        toggle_filefold = "za", -- toggle fold of current file
+        toggle_fold = {"zA", "za"}, -- toggle fold of current file
         previous = "k", -- preview item
         next = "j" -- next item
     },

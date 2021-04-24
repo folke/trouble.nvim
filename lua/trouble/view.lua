@@ -301,7 +301,7 @@ function View:jump(opts)
     end
 end
 
-function View:toggle_filefold()
+function View:toggle_fold()
     folds.toggle(self:current_item().filename)
     self:update()
 end
