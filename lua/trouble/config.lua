@@ -26,6 +26,7 @@ local defaults = {
     auto_open = false, -- automatically open the list when you have diagnostics
     auto_close = false, -- automatically close the list when you have no diagnostics
     auto_preview = true, -- automatyically preview the location of the diagnostic. <esc> to close preview and go back to last window
+    default_fold = "open", -- default fold state of a file trouble list at creation (either "open" or "close")
     signs = {
         -- icons / text used for a diagnostic
         error = "",
