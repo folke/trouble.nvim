@@ -5,6 +5,24 @@ A pretty diagnostics list to help you solve all the trouble your code is causing
 
 ![LSP Trouble Screenshot](./media/shot.png)
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+# Table of contents
+- [✨ Features](#-features)
+- [⚡️ Requirements](#%EF%B8%8F-requirements)
+- [📦 Installation](#-installation)
+  - [vim-plug](#vim-plug)
+  - [packer](#packer)
+- [⚙️ Configuration](#-configuration)
+  - [Setup](#setup)
+  - [Close if LspTrouble is the last window](#close-if-lsptrouble-is-the-last-window)
+- [🚀 Usage](#-usage)
+  - [Commands](#commands)
+- [🎨 Colors](#-colors)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## ✨ Features
 
 * pretty list of LSP Diagnostics
@@ -120,6 +138,14 @@ Trouble comes with the following defaults:
     },
     use_lsp_diagnostic_signs = false -- enabling this will use the signs defined in your lsp client
 }
+```
+
+### Close if LspTrouble is the last window
+You can use the following to close LspTrouble automatically if it's the last
+window:
+
+```vim
+autocmd WinEnter * if winnr('$') == 1 && &ft == 'LspTrouble' | q | endif
 ```
 
 ## 🚀 Usage
