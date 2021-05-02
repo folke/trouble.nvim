@@ -16,4 +16,16 @@ end
 function M.warn(msg) M.log(msg, "WarningMsg") end
 
 function M.debug(msg) if config.options.debug then M.log(msg) end end
+
+function M.debounce(ms, fn)
+    local timer = vim.loop.new_timer()
+    return function(...)
+        local argv = {...}
+        timer:start(ms, 0, function()
+            timer:stop()
+            vim.schedule_wrap(fn)(unpack(argv))
+        end)
+    end
+end
+
 return M

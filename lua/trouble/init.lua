@@ -65,9 +65,19 @@ function Trouble.help()
     })
 end
 
+local updater = util.debounce(100, function()
+    util.debug("refresh: auto")
+    view:update({auto = true})
+end)
+
 function Trouble.refresh(opts)
     if is_open() then
-        view:update(opts)
+        if opts and opts.auto then
+            updater()
+        else
+            util.debug("refresh")
+            view:update(opts)
+        end
     elseif opts.auto and config.options.auto_open then
         local count = util.count(lsp.diagnostics())
         if count > 0 then Trouble.open(opts) end
