@@ -4,6 +4,7 @@ M.namespace = vim.api.nvim_create_namespace('LspTrouble')
 
 ---@class Options
 local defaults = {
+    debug = true,
     height = 10, -- height of the trouble list
     icons = true, -- use devicons for filenames
     mode = "workspace", -- "workspace" or "document"
