@@ -78,6 +78,7 @@ Trouble comes with the following defaults:
         cancel = "<esc>", -- cancel the preview and get back to your last window / buffer / cursor
         refresh = "r", -- manually refresh
         jump = {"<cr>", "<tab>"}, -- jump to the diagnostic or open / close folds
+        jump_close = {"o"}, -- jump to the diagnostic and close the list
         toggle_mode = "m", -- toggle between "workspace" and "document" mode
         toggle_preview = "P", -- toggle auto_preview
         preview = "p", -- preview the diagnostic location
