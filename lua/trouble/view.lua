@@ -281,6 +281,19 @@ function View:previous_item()
     end
 end
 
+function View:hover(opts)
+    opts = opts or {}
+    local item = opts.item or self:current_item()
+    if not (item and item.full_text) then return end
+
+    local lines = {}
+    for line in item.full_text:gmatch("([^\n]*)\n?") do
+        table.insert(lines, line)
+    end
+
+    vim.lsp.util.open_floating_preview(lines, "plaintext", {border = "single"})
+end
+
 function View:jump(opts)
     opts = opts or {}
     local item = opts.item or self:current_item()

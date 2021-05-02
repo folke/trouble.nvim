@@ -86,6 +86,7 @@ function Trouble.action(action)
 
     if view and action == "on_win_enter" then view:on_win_enter() end
     if not is_open() then return end
+    if action == "hover" then view:hover() end
     if action == "jump" then view:jump() end
     if action == "jump_close" then
         view:jump()

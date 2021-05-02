@@ -31,6 +31,7 @@ local function preprocess_diag(diag, bufnr)
         finish = finish,
         -- remove line break to avoid display issues
         text = vim.trim(diag.message:gsub("[\n]", "")),
+        full_text = vim.trim(diag.message),
         type = lsp_type_diagnostic[diag.severity] or lsp_type_diagnostic[1],
         code = diag.code,
         source = diag.source,
