@@ -1,6 +1,7 @@
 local renderer = require("trouble.renderer")
 local config = require("trouble.config")
 local folds = require("trouble.folds")
+local util = require("trouble.util")
 
 local highlight = vim.api.nvim_buf_add_highlight
 
@@ -107,9 +108,13 @@ function View:is_valid()
                vim.api.nvim_buf_is_loaded(self.buf)
 end
 
-function View:update(opts) renderer.render(self, opts) end
+function View:update(opts)
+    util.debug("update")
+    renderer.render(self, opts)
+end
 
 function View:setup(opts)
+    util.debug("setup")
     opts = opts or {}
     vim.cmd("setlocal nonu")
     vim.cmd("setlocal nornu")
@@ -163,6 +168,7 @@ end
 
 function View:on_enter()
     if self.loading_preview then return end
+    util.debug("on_enter")
 
     self.parent = vim.fn.win_getid(vim.fn.winnr('#'))
     self.parent_state = {
@@ -171,7 +177,11 @@ function View:on_enter()
     }
 end
 
-function View:on_leave() self:close_preview() end
+function View:on_leave()
+    if self.loading_preview then return end
+    util.debug("on_leave")
+    self:close_preview()
+end
 
 function View:close_preview()
     if self.loading_preview then return end
@@ -189,6 +199,8 @@ function View:close_preview()
 end
 
 function View:on_win_enter()
+    -- util.debug("on_win_enter")
+
     if self.loading_preview then return end
 
     local current_win = vim.api.nvim_get_current_win()
@@ -197,10 +209,14 @@ function View:on_win_enter()
     -- update parent when needed
     if current_win ~= self.parent and current_win ~= self.win then
         self.parent = current_win
+        -- update diagnostics to match the window we are viewing
+        if self:is_valid() then
+            vim.defer_fn(function()
+                util.debug("update_on_win_enter")
+                self:update()
+            end, 100)
+        end
     end
-
-    -- update diagnostics
-    if current_win == self.parent and self:is_valid() then self:update() end
 
     -- check if another buffer took over our window
     local parent = self.parent
@@ -321,6 +337,7 @@ end
 
 function View:preview()
     if self.loading_preview == true then return end
+    util.debug("preview")
 
     local item = self:current_item()
     if not item then return end
@@ -331,13 +348,13 @@ function View:preview()
         vim.api.nvim_set_current_win(self.parent)
 
         vim.cmd("buffer " .. item.bufnr)
+        vim.api.nvim_win_set_cursor(self.parent,
+                                    {item.start.line + 1, item.start.character})
+
         -- Center preview line on screen and open enough folds to show it
         vim.cmd("norm! zz zv")
         vim.api.nvim_set_current_win(self.win)
         vim.api.nvim_set_current_buf(self.buf)
-
-        vim.api.nvim_win_set_cursor(self.parent,
-                                    {item.start.line + 1, item.start.character})
 
         clear_hl(item.bufnr)
         hl_bufs[item.bufnr] = true
