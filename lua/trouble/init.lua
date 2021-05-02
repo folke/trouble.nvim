@@ -87,6 +87,10 @@ function Trouble.action(action)
     if view and action == "on_win_enter" then view:on_win_enter() end
     if not is_open() then return end
     if action == "jump" then view:jump() end
+    if action == "jump_close" then
+        view:jump()
+        Trouble.close()
+    end
     if action == "open_folds" then Trouble.refresh({open_folds = true}) end
     if action == "close_folds" then Trouble.refresh({close_folds = true}) end
     if action == "toggle_fold" then view:toggle_fold() end
