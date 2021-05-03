@@ -1,15 +1,17 @@
 local util = require("trouble.util")
 local qf = require("trouble.providers.qf")
-local M = {}
-
+local telescope = require("trouble.providers.telescope")
 local lsp = require("trouble.providers.lsp")
+
+local M = {}
 
 M.providers = {
     lsp_workspace_diagnostics = lsp.diagnostics,
     lsp_document_diagnostics = lsp.diagnostics,
     lsp_references = lsp.references,
     quickfix = qf.qflist,
-    loclist = qf.loclist
+    loclist = qf.loclist,
+    telescope = telescope.telescope
 }
 
 ---@param options Options

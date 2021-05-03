@@ -1,7 +1,7 @@
 
 # 🚦 Trouble
 
-A pretty diagnostics, references, quickfix and location list to help you solve all the trouble your code is causing.
+A pretty diagnostics, references, telescope and quickfix and location list to help you solve all the trouble your code is causing.
 
 ![LSP Trouble Screenshot](./media/shot.png)
 
@@ -12,6 +12,7 @@ A pretty diagnostics, references, quickfix and location list to help you solve a
   - LSP references
   - quickfix list
   - location list
+  - Telescope search results
 * automatically updates on new diagnostics
 * toggle **diagnostics** mode between **workspace** or **document**
 * **interactive preview** in your last accessed window
@@ -173,6 +174,28 @@ vim.api.nvim_set_keymap("n", "gR", "<cmd>LspTrouble lsp_references<cr>",
   {silent = true, noremap = true}
 )
 ```
+
+### Telescope
+
+You can easily open any search results in **Trouble**, by defining a custom action:
+
+```lua
+local actions = require("telescope.actions")
+local trouble = require("trouble.providers.telescope")
+
+local telescope = require("telescope")
+
+telescope.setup {
+  defaults = {
+    mappings = {
+      i = { ["<c-t>"] = trouble.open_with_trouble },
+      n = { ["<c-t>"] = trouble.open_with_trouble },
+    },
+  },
+}
+```
+
+When you open telescope, you can now hit `<c-t>` to open the results in **Trouble**
 
 ## 🎨 Colors
 
