@@ -167,7 +167,17 @@ end
 function View:on_enter()
     util.debug("on_enter")
 
-    self.parent = vim.fn.win_getid(vim.fn.winnr('#'))
+    self.parent = self.parent or vim.fn.win_getid(vim.fn.winnr('#'))
+
+    if (not self:is_valid_parent(self.parent)) or self.parent == self.win then
+        for _, win in pairs(vim.api.nvim_list_wins()) do
+            if self:is_valid_parent(win) and win ~= self.win then
+                self.parent = win
+                break
+            end
+        end
+    end
+
     self.parent_state = {
         buf = vim.api.nvim_win_get_buf(self.parent),
         cursor = vim.api.nvim_win_get_cursor(self.parent)
@@ -186,11 +196,15 @@ function View:close_preview()
     hl_bufs = {}
 
     -- Reset parent state
-    if self.parent_state then
+    local valid_win = vim.api.nvim_win_is_valid(self.parent)
+    local valid_buf = vim.api.nvim_buf_is_valid(self.parent_state.buf)
+
+    if self.parent_state and valid_buf and valid_win then
         vim.api.nvim_win_set_buf(self.parent, self.parent_state.buf)
         vim.api.nvim_win_set_cursor(self.parent, self.parent_state.cursor)
-        self.parent_state = nil
     end
+
+    self.parent_state = nil
 end
 
 function View:is_float(win)
@@ -198,13 +212,22 @@ function View:is_float(win)
     return opts and opts.relative and opts.relative ~= ""
 end
 
+function View:is_valid_parent(win)
+    -- dont do anything for floating windows
+    if View:is_float(win) then return false end
+    local buf = vim.api.nvim_win_get_buf(win)
+    -- Skip special buffers
+    if vim.api.nvim_buf_get_option(buf, "buftype") ~= "" then return false end
+
+    return true
+end
+
 function View:on_win_enter()
     util.debug("on_win_enter")
 
     local current_win = vim.api.nvim_get_current_win()
 
-    -- dont do anything for floating windows
-    if self:is_float(current_win) then return end
+    if not self:is_valid_parent(current_win) then return end
 
     local current_buf = vim.api.nvim_get_current_buf()
 
@@ -359,6 +382,9 @@ function View:preview()
         vim.api.nvim_buf_call(item.bufnr, function()
             -- Center preview line on screen and open enough folds to show it
             vim.cmd("norm! zz zv")
+            if vim.api.nvim_buf_get_option(item.bufnr, "filetype") == "" then
+                vim.cmd("do BufRead")
+            end
         end)
 
         clear_hl(item.bufnr)
