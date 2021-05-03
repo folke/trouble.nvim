@@ -19,6 +19,7 @@ function Text:nl()
 end
 
 function Text:render(str, group, opts)
+    str = str:gsub("[\n]", " ")
     if type(opts) == "string" then opts = {append = opts} end
     opts = opts or {}
 
