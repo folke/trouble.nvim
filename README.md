@@ -1,7 +1,7 @@
 
 # 🚦 Trouble
 
-A pretty diagnostics, references, telescope and quickfix and location list to help you solve all the trouble your code is causing.
+A pretty list for showing diagnostics, references, telescope results, quickfix and location lists to help you solve all the trouble your code is causing.
 
 ![LSP Trouble Screenshot](./media/shot.png)
 
@@ -12,7 +12,7 @@ A pretty diagnostics, references, telescope and quickfix and location list to he
   - LSP references
   - quickfix list
   - location list
-  - Telescope search results
+  - [Telescope](https://github.com/nvim-telescope/telescope.nvim) search results
 * automatically updates on new diagnostics
 * toggle **diagnostics** mode between **workspace** or **document**
 * **interactive preview** in your last accessed window
