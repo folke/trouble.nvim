@@ -1,13 +1,15 @@
 local M = {}
 
-M.namespace = vim.api.nvim_create_namespace('LspTrouble')
+M.namespace = vim.api.nvim_create_namespace("LspTrouble")
 
 ---@class Options
+---@field buf number|nil
+---@field win number|nil
 local defaults = {
-    debug = true,
+    debug = false,
     height = 10, -- height of the trouble list
     icons = true, -- use devicons for filenames
-    mode = "workspace", -- "workspace" or "document"
+    mode = "lsp_workspace_diagnostics", -- "lsp_workspace_diagnostics", "lsp_document_diagnostics", "quickfix", "lsp_references", "loclist"
     fold_open = "", -- icon used for open folds
     fold_closed = "", -- icon used for closed folds
     action_keys = { -- key mappings for actions in the trouble list
@@ -36,7 +38,8 @@ local defaults = {
         error = "",
         warning = "",
         hint = "",
-        information = ""
+        information = "",
+        other = "﫠"
     },
     use_lsp_diagnostic_signs = false -- enabling this will use the signs defined in your lsp client
 }
@@ -47,6 +50,15 @@ M.options = {}
 ---@return Options
 function M.setup(options)
     M.options = vim.tbl_deep_extend("force", {}, defaults, options or {})
+    M.fix_mode(M.options)
+end
+
+function M.fix_mode(opts)
+    if opts.mode == "workspace" then
+        opts.mode = "lsp_workspace_diagnostics"
+    elseif opts.mode == "document" then
+        opts.mode = "lsp_document_diagnostics"
+    end
 end
 
 M.setup()

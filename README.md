@@ -1,15 +1,19 @@
 
-# 🚦 LSP Trouble
+# 🚦 Trouble
 
-A pretty diagnostics list to help you solve all the trouble your code is causing.
+A pretty diagnostics, references, quickfix and location list to help you solve all the trouble your code is causing.
 
 ![LSP Trouble Screenshot](./media/shot.png)
 
 ## ✨ Features
 
-* pretty list of LSP Diagnostics
+* pretty list of:
+  - LSP Diagnostics
+  - LSP references
+  - quickfix list
+  - location list
 * automatically updates on new diagnostics
-* toggle mode between **workspace** or **document**
+* toggle **diagnostics** mode between **workspace** or **document**
 * **interactive preview** in your last accessed window
 * *cancel* preview or *jump* to the location
 * configurable actions, signs, highlights,...
@@ -69,8 +73,8 @@ Trouble comes with the following defaults:
 ```lua
 {
     height = 10, -- height of the trouble list
-    icons = true, -- use dev-icons for filenames
-    mode = "workspace", -- "workspace" or "document"
+    icons = true, -- use devicons for filenames
+    mode = "lsp_workspace_diagnostics", -- "lsp_workspace_diagnostics", "lsp_document_diagnostics", "quickfix", "lsp_references", "loclist"
     fold_open = "", -- icon used for open folds
     fold_closed = "", -- icon used for closed folds
     action_keys = { -- key mappings for actions in the trouble list
@@ -79,9 +83,9 @@ Trouble comes with the following defaults:
         refresh = "r", -- manually refresh
         jump = {"<cr>", "<tab>"}, -- jump to the diagnostic or open / close folds
         jump_close = {"o"}, -- jump to the diagnostic and close the list
-        hover = "K", -- opens a small poup with the full multiline message
-        toggle_mode = "m", -- toggle between "workspace" and "document" mode
+        toggle_mode = "m", -- toggle between "workspace" and "document" diagnostics mode
         toggle_preview = "P", -- toggle auto_preview
+        hover = "K", -- opens a small poup with the full multiline message
         preview = "p", -- preview the diagnostic location
         close_folds = {"zM", "zm"}, -- close all folds
         open_folds = {"zR", "zr"}, -- open all folds
@@ -92,14 +96,15 @@ Trouble comes with the following defaults:
     indent_lines = true, -- add an indent guide below the fold icons
     auto_open = false, -- automatically open the list when you have diagnostics
     auto_close = false, -- automatically close the list when you have no diagnostics
-    auto_preview = true, -- automatically preview the location of the diagnostic. <esc> to close preview and go back
+    auto_preview = true, -- automatyically preview the location of the diagnostic. <esc> to close preview and go back to last window
     auto_fold = false, -- automatically fold a file trouble list at creation
     signs = {
         -- icons / text used for a diagnostic
         error = "",
         warning = "",
         hint = "",
-        information = ""
+        information = "",
+        other = "﫠"
     },
     use_lsp_diagnostic_signs = false -- enabling this will use the signs defined in your lsp client
 }
@@ -130,25 +135,41 @@ Trouble comes with the following defaults:
 
 Trouble comes with the following commands:
 
-* **LspTroubleOpen**: open the list
-* **LspTroubleWorkspaceOpen**: set mode to "workspace" and open the list
-* **LspTroubleDocumentOpen**: set mode to "document" and open the list
-* **LspTroubleClose**: close the list
-* **LspTroubleToggle**: toggle the list
-* **LspTroubleWorkspaceToggle**: set mode to "workspace" and toggle the list (remains open if mode changes)
-* **LspTroubleDocumentToggle**: set mode to "document" and toggle the list (remains open if mode changes)
-* **LspTroubleRefresh**: manually refresh
+* `LspTrouble [provider]`: open the list
+* `LspTroubleClose [provider]`: close the list
+* `LspTroubleToggle [provider]`: toggle the list
+* `LspTroubleRefresh`: manually refresh the active list
 
-Example keybinding of `<leader>xx` that toggles the trouble list:
+Example keybindings:
 
 ```vim
 -- Vim Script
 nnoremap <leader>xx <cmd>LspTroubleToggle<cr>
+nnoremap <leader>xw <cmd>LspTroubleToggle lsp_workspace_diagnostics<cr>
+nnoremap <leader>xd <cmd>LspTroubleToggle lsp_document_diagnostics<cr>
+nnoremap <leader>xq <cmd>LspTroubleToggle quickfix<cr>
+nnoremap <leader>xl <cmd>LspTroubleToggle loclist<cr>
+nnoremap gR <cmd>LspTroubleToggle lsp_references<cr>
 ```
 
 ```lua
 -- Lua
 vim.api.nvim_set_keymap("n", "<leader>xx", "<cmd>LspTroubleToggle<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "<leader>xw", "<cmd>LspTroubleToggle lsp_workspace_diagnostics<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "<leader>xd", "<cmd>LspTroubleToggle lsp_document_diagnostics<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "<leader>xl", "<cmd>LspTroubleToggle loclist<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "<leader>xq", "<cmd>LspTroubleToggle quickfix<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "gR", "<cmd>LspTrouble lsp_references<cr>",
   {silent = true, noremap = true}
 )
 ```
@@ -172,6 +193,7 @@ The table below shows all the highlight groups defined for LSP Trouble with thei
 | *LspTroubleIndent*          | LineNr                           |
 | *LspTroubleSource*          | Comment                          |
 | *LspTroubleSignHint*        | LspDiagnosticsSignHint           |
+| *LspTroubleSignOther*       | LspTroubleSignInformation        |
 | *LspTroubleFoldIcon*        | CursorLineNr                     |
 | *LspTroubleTextWarning*     | LspTroubleText                   |
 | *LspTroubleCode*            | Comment                          |

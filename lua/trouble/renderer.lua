@@ -1,4 +1,4 @@
-local lsp = require("trouble.lsp")
+local providers = require("trouble.providers")
 local util = require("trouble.util")
 local config = require("trouble.config")
 local Text = require("trouble.text")
@@ -10,7 +10,7 @@ local renderer = {}
 local signs = {}
 
 local function get_icon(file)
-    local ok, icons = pcall(require, 'nvim-web-devicons')
+    local ok, icons = pcall(require, "nvim-web-devicons")
     if not ok then
         util.warn(
             "'nvim-web-devicons' is not installed. Install it, or set icons=false in your configuration to disable this message")
@@ -22,53 +22,52 @@ local function get_icon(file)
 end
 
 local function update_signs()
+    signs = config.options.signs
     if config.options.use_lsp_diagnostic_signs then
-        signs = lsp.get_signs()
-    else
-        signs = config.options.signs
+        local lsp_signs = require("trouble.providers.lsp").get_signs()
+        signs = vim.tbl_deep_extend("force", {}, signs, lsp_signs)
     end
 end
 
 ---@param view View
 function renderer.render(view, opts)
     opts = opts or {}
-    local lsp_opts = {}
-    if config.options.mode == "document" then
-        lsp_opts.bufnr = vim.api.nvim_win_get_buf(view.parent)
-    end
-    local diagnostics = lsp.diagnostics(lsp_opts)
-    local grouped = lsp.group(diagnostics)
-    local count = util.count(grouped)
+    local buf = vim.api.nvim_win_get_buf(view.parent)
+    providers.get(view.parent, buf, function(items)
+        local grouped = providers.group(items)
+        local count = util.count(grouped)
 
-    -- check for auto close
-    if opts.auto and config.options.auto_close then
-        if count == 0 then
-            view:close()
-            return
+        -- check for auto close
+        if opts.auto and config.options.auto_close then
+            if count == 0 then
+                view:close()
+                return
+            end
         end
-    end
 
-    -- Update lsp signs
-    update_signs()
+        -- Update lsp signs
+        update_signs()
 
-    local text = Text:new()
-    view.items = {}
+        local text = Text:new()
+        view.items = {}
 
-    text:nl()
+        text:nl()
 
-    -- render file groups
-    for filename, items in pairs(grouped) do
-        if opts.open_folds then folds.open(filename) end
-        if opts.close_folds then folds.close(filename) end
-        renderer.render_file(view, text, filename, items)
-    end
+        -- render file groups
+        for filename, group_items in pairs(grouped) do
+            if opts.open_folds then folds.open(filename) end
+            if opts.close_folds then folds.close(filename) end
+            renderer.render_file(view, text, filename, group_items)
+        end
 
-    view:render(text)
+        view:render(text)
+        if opts.focus then view:focus() end
+    end, config.options)
 end
 
 ---@param view View
 ---@param text Text
----@param items Diagnostics[]
+---@param items Item[]
 ---@param filename string
 function renderer.render_file(view, text, filename, items)
     view.items[text.lineNr + 1] = {filename = filename, is_file = true}
@@ -99,7 +98,7 @@ end
 
 ---@param view View
 ---@param text Text
----@param items Diagnostics[]
+---@param items Item[]
 function renderer.render_diagnostics(view, text, items)
     for _, diag in ipairs(items) do
         view.items[text.lineNr + 1] = diag

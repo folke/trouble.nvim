@@ -8,11 +8,10 @@ local highlight = vim.api.nvim_buf_add_highlight
 ---@class View
 ---@field buf number
 ---@field win number
----@field items Diagnostics[]
+---@field items Item[]
 ---@field folded table<string, boolean>
 ---@field parent number
 ---@field float number
----@field loading_preview boolean
 local View = {}
 View.__index = View
 
@@ -56,7 +55,8 @@ function View:new(opts)
     local this = {
         buf = vim.api.nvim_get_current_buf(),
         win = opts.win or vim.api.nvim_get_current_win(),
-        parent = opts.parent
+        parent = opts.parent,
+        items = {}
     }
     setmetatable(this, self)
     return this
@@ -153,8 +153,8 @@ function View:setup(opts)
     vim.api.nvim_exec([[
       augroup LspTroubleHighlights
         autocmd! * <buffer>
-        autocmd CursorMoved <buffer> ++nested lua require("trouble").action("auto_preview")
         autocmd BufEnter <buffer> lua require("trouble").action("on_enter")
+        autocmd CursorMoved <buffer> lua require("trouble").action("auto_preview")
         autocmd BufLeave <buffer> lua require("trouble").action("on_leave")
       augroup END
     ]], false)
@@ -162,12 +162,9 @@ function View:setup(opts)
     if not opts.parent then self:on_enter() end
     self:lock()
     self:update(opts)
-    self:next_item()
-    self:next_item()
 end
 
 function View:on_enter()
-    if self.loading_preview then return end
     util.debug("on_enter")
 
     self.parent = vim.fn.win_getid(vim.fn.winnr('#'))
@@ -178,13 +175,11 @@ function View:on_enter()
 end
 
 function View:on_leave()
-    if self.loading_preview then return end
     util.debug("on_leave")
     self:close_preview()
 end
 
 function View:close_preview()
-    if self.loading_preview then return end
 
     -- Clear preview highlights
     for buf, _ in pairs(hl_bufs) do clear_hl(buf) end
@@ -198,12 +193,19 @@ function View:close_preview()
     end
 end
 
-function View:on_win_enter()
-    -- util.debug("on_win_enter")
+function View:is_float(win)
+    local opts = vim.api.nvim_win_get_config(win)
+    return opts and opts.relative and opts.relative ~= ""
+end
 
-    if self.loading_preview then return end
+function View:on_win_enter()
+    util.debug("on_win_enter")
 
     local current_win = vim.api.nvim_get_current_win()
+
+    -- dont do anything for floating windows
+    if self:is_float(current_win) then return end
+
     local current_buf = vim.api.nvim_get_current_buf()
 
     -- update parent when needed
@@ -235,7 +237,14 @@ function View:on_win_enter()
     end
 end
 
-function View:focus() View.switch_to(self.win, self.buf) end
+function View:focus()
+    View.switch_to(self.win, self.buf)
+    local line = self:get_line()
+    if line == 1 then
+        self:next_item()
+        self:next_item()
+    end
+end
 
 function View.switch_to(win, buf)
     if win then
@@ -336,25 +345,21 @@ function View:toggle_fold()
 end
 
 function View:preview()
-    if self.loading_preview == true then return end
     util.debug("preview")
 
     local item = self:current_item()
     if not item then return end
 
     if item.is_file ~= true then
-        self.loading_preview = true
 
-        vim.api.nvim_set_current_win(self.parent)
-
-        vim.cmd("buffer " .. item.bufnr)
+        vim.api.nvim_win_set_buf(self.parent, item.bufnr)
         vim.api.nvim_win_set_cursor(self.parent,
                                     {item.start.line + 1, item.start.character})
 
-        -- Center preview line on screen and open enough folds to show it
-        vim.cmd("norm! zz zv")
-        vim.api.nvim_set_current_win(self.win)
-        vim.api.nvim_set_current_buf(self.buf)
+        vim.api.nvim_buf_call(item.bufnr, function()
+            -- Center preview line on screen and open enough folds to show it
+            vim.cmd("norm! zz zv")
+        end)
 
         clear_hl(item.bufnr)
         hl_bufs[item.bufnr] = true
@@ -370,8 +375,6 @@ function View:preview()
             highlight(item.bufnr, config.namespace, "LspTroublePreview", row,
                       col_start, col_end)
         end
-
-        self.loading_preview = false
     end
 end
 

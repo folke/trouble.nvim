@@ -22,7 +22,8 @@ local links = {
     Normal = "Normal",
     Count = "TabLineSel",
     Preview = "Search",
-    Indent = "LineNr"
+    Indent = "LineNr",
+    SignOther = "LspTroubleSignInformation"
 }
 
 function M.setup()

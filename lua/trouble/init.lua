@@ -2,7 +2,6 @@ local View = require("trouble.view")
 local config = require("trouble.config")
 local colors = require("trouble.colors")
 local util = require("trouble.util")
-local lsp = require("trouble.lsp")
 
 colors.setup()
 
@@ -19,24 +18,32 @@ end
 
 function Trouble.close() if is_open() then view:close() end end
 
-function Trouble.open(opts)
+local function get_opts(opts)
     opts = opts or {}
+    if type(opts) == "string" then opts = {mode = opts} end
+    config.fix_mode(opts)
+    return opts
+end
+
+function Trouble.open(opts)
+    opts = get_opts(opts)
     if opts.mode and (opts.mode ~= config.options.mode) then
-        Trouble.action("toggle_mode")
+        config.options.mode = opts.mode
     end
+    opts.focus = true
 
     if is_open() then
-        view:focus()
+        Trouble.refresh(opts)
     else
         view = View.create(opts)
     end
 end
 
 function Trouble.toggle(opts)
-    opts = opts or {}
+    opts = get_opts(opts)
 
     if opts.mode and (opts.mode ~= config.options.mode) then
-        Trouble.action("toggle_mode")
+        config.options.mode = opts.mode
         Trouble.open()
         return
     end
@@ -71,25 +78,46 @@ local updater = util.debounce(100, function()
 end)
 
 function Trouble.refresh(opts)
+    opts = opts or {}
+
+    -- dont do an update if this is an automated refresh from a different provider
+    if opts.auto then
+        if opts.provider == "diagnostics" and config.options.mode ==
+            "lsp_document_diagnostics" then
+            opts.provider = "lsp_document_diagnostics"
+        elseif opts.provider == "diagnostics" and config.options.mode ==
+            "lsp_workspace_diagnostics" then
+            opts.provider = "lsp_workspace_diagnostics"
+        elseif opts.provider == "qf" and config.options.mode == "quickfix" then
+            opts.provider = "quickfix"
+        elseif opts.provider == "qf" and config.options.mode == "loclist" then
+            opts.provider = "loclist"
+        end
+        if opts.provider ~= config.options.mode then return end
+    end
+
     if is_open() then
-        if opts and opts.auto then
+        if opts.auto then
             updater()
         else
             util.debug("refresh")
             view:update(opts)
         end
-    elseif opts.auto and config.options.auto_open then
-        local count = util.count(lsp.diagnostics())
-        if count > 0 then Trouble.open(opts) end
+    elseif opts.auto and config.options.auto_open and opts.mode ==
+        config.options.mode then
+        local items = require("trouble.providers").get(
+                          vim.api.nvim_get_current_win(),
+                          vim.api.nvim_get_current_buf(), config.options)
+        if #items > 0 then Trouble.open(opts) end
     end
 end
 
 function Trouble.action(action)
     if action == "toggle_mode" then
-        if config.options.mode == "document" then
-            config.options.mode = "workspace"
-        else
-            config.options.mode = "document"
+        if config.options.mode == "lsp_document_diagnostics" then
+            config.options.mode = "lsp_workspace_diagnostics"
+        elseif config.options.mode == "lsp_workspace_diagnostics" then
+            config.options.mode = "lsp_document_diagnostics"
         end
         action = "refresh"
     end
