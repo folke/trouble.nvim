@@ -10,8 +10,8 @@ function M.get_list(winid)
 
     local ret = {}
     for _, item in pairs(list.items) do
-        local row = item.lnum - 1
-        local col = item.col - 1
+        local row = (item.lnum == 0 and 1 or item.lnum) - 1
+        local col = (item.col == 0 and 1 or item.col) - 1
 
         local pitem = {
             row = row,
