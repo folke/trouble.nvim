@@ -26,6 +26,9 @@ function M.get_list(winid)
 
         table.insert(ret, util.process_item(pitem, item.bufnr))
     end
+    if #ret == 0 then
+        util.warn("the " .. (winid and "loclist" or "qflist") .. " is empty")
+    end
     return ret
 end
 

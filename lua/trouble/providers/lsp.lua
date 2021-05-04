@@ -11,7 +11,9 @@ function M.diagnostics(win, buf, cb, options)
     local buffer_diags = buf and {[buf] = vim.lsp.diagnostic.get(buf, nil)} or
                              vim.lsp.diagnostic.get_all()
 
-    cb(util.locations_to_items(buffer_diags, 1))
+    local items = util.locations_to_items(buffer_diags, 1)
+    if #items == 0 then util.warn("no diagnostics found") end
+    cb(items)
 end
 
 ---@return Item[]
@@ -23,6 +25,10 @@ function M.references(win, buf, cb, options)
                     function(err, method, result, client_id, bufnr, config)
         if err then
             util.error("an error happened getting references: " .. err)
+            return cb({})
+        end
+        if result == nil or #result == 0 then
+            util.warn("No referenes found")
             return cb({})
         end
         local ret = util.locations_to_items({result}, 0)
@@ -42,8 +48,8 @@ function M.definitions(win, buf, cb, options)
             return cb({})
         end
         if result == nil or #result == 0 then
-           util.warn("No definitions found")
-           return cb({})
+            util.warn("No definitions found")
+            return cb({})
         end
         for _, value in ipairs(result) do
             value.uri = value.targetUri

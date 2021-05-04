@@ -1,3 +1,4 @@
+local util = require("trouble.util")
 local M = {}
 
 M.results = {}
@@ -5,7 +6,6 @@ M.results = {}
 function M.open_with_trouble(prompt_bufnr, mode)
     local action_state = require('telescope.actions.state')
     local actions = require('telescope.actions')
-    local util = require("trouble.util")
     local picker = action_state.get_current_picker(prompt_bufnr)
     local manager = picker.manager
 
@@ -36,6 +36,12 @@ function M.open_with_trouble(prompt_bufnr, mode)
     require("trouble").open({mode = "telescope"})
 end
 
-function M.telescope(win, buf, cb, options) cb(M.results) end
+function M.telescope(win, buf, cb, options)
+    if #M.results == 0 then
+        util.warn(
+            "No Telescope results found. Open Telescopen and send results to Trouble first. Refer to the documentation for more info.")
+    end
+    cb(M.results)
+end
 
 return M

@@ -136,10 +136,19 @@ Trouble comes with the following defaults:
 
 Trouble comes with the following commands:
 
-* `LspTrouble [provider]`: open the list
-* `LspTroubleClose [provider]`: close the list
-* `LspTroubleToggle [provider]`: toggle the list
+* `LspTrouble [mode]`: open the list
+* `LspTroubleClose [mode]`: close the list
+* `LspTroubleToggle [mode]`: toggle the list
 * `LspTroubleRefresh`: manually refresh the active list
+
+Modes:
+
+* **lsp_document_diagnostics:** document diagnostics from the builtin LSP client
+* **lsp_workspace_diagnostics:** workspace diagnostics from the builtin LSP client
+* **lsp_references:** references of the word under the cursor from the builtin LSP client
+* **lsp_definitions:** definitions of the word under the cursor from the builtin LSP client
+* **quickfix:** [quickfix](https://neovim.io/doc/user/quickfix.html) items
+* **loclist:** items from the window's [location list](https://neovim.io/doc/user/quickfix.html)
 
 Example keybindings:
 
