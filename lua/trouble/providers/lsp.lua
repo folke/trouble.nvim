@@ -30,6 +30,30 @@ function M.references(win, buf, cb, options)
     end)
 end
 
+---@return Item[]
+function M.definitions(win, buf, cb, options)
+    local method = "textDocument/definition"
+    local params = util.make_position_params(win, buf)
+    params.context = {includeDeclaration = true}
+    lsp.buf_request(buf, method, params,
+                    function(err, method, result, client_id, bufnr, config)
+        if err then
+            util.error("an error happened getting references: " .. err)
+            return cb({})
+        end
+        if result == nil or #result == 0 then
+           util.warn("No definitions found")
+           return cb({})
+        end
+        for _, value in ipairs(result) do
+            value.uri = value.targetUri
+            value.range = value.targetSelectionRange
+        end
+        local ret = util.locations_to_items({result}, 0)
+        cb(ret)
+    end)
+end
+
 function M.get_signs()
     local signs = {}
     for _, v in pairs(util.severity) do
