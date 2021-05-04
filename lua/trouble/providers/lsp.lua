@@ -38,7 +38,7 @@ function M.definitions(win, buf, cb, options)
     lsp.buf_request(buf, method, params,
                     function(err, method, result, client_id, bufnr, config)
         if err then
-            util.error("an error happened getting references: " .. err)
+            util.error("an error happened getting definitions: " .. err)
             return cb({})
         end
         if result == nil or #result == 0 then
