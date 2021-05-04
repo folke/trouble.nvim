@@ -9,6 +9,7 @@ M.providers = {
     lsp_workspace_diagnostics = lsp.diagnostics,
     lsp_document_diagnostics = lsp.diagnostics,
     lsp_references = lsp.references,
+    lsp_definitions = lsp.definitions,
     quickfix = qf.qflist,
     loclist = qf.loclist,
     telescope = telescope.telescope
