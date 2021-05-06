@@ -136,7 +136,10 @@ function View:setup(opts)
     self:set_option("foldcolumn", "0", true)
     self:set_option("foldlevel", 3, true)
     self:set_option("foldenable", false, true)
-    self:set_option("winhighlight", "Normal:LspTroubleNormal", true)
+    self:set_option("winhighlight",
+                    "Normal:LspTroubleNormal,EndOfBuffer:LspTroubleNormal,SignColumn:LspTroubleNormal",
+                    true)
+    self:set_option("fcs", "eob: ", true)
 
     for action, keys in pairs(config.options.action_keys) do
         if type(keys) == "string" then keys = {keys} end
