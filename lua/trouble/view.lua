@@ -181,6 +181,8 @@ function View:on_enter()
         end
     end
 
+    if not vim.api.nvim_win_is_valid(self.parent) then return self:close() end
+
     self.parent_state = {
         buf = vim.api.nvim_win_get_buf(self.parent),
         cursor = vim.api.nvim_win_get_cursor(self.parent)
@@ -216,6 +218,7 @@ function View:is_float(win)
 end
 
 function View:is_valid_parent(win)
+    if not vim.api.nvim_win_is_valid(win) then return false end
     -- dont do anything for floating windows
     if View:is_float(win) then return false end
     local buf = vim.api.nvim_win_get_buf(win)
@@ -229,6 +232,11 @@ function View:on_win_enter()
     util.debug("on_win_enter")
 
     local current_win = vim.api.nvim_get_current_win()
+
+    if vim.fn.winnr('$') == 1 and current_win == self.win then
+        vim.cmd [[q]]
+        return
+    end
 
     if not self:is_valid_parent(current_win) then return end
 
@@ -371,6 +379,7 @@ function View:toggle_fold()
 end
 
 function View:preview()
+    if not vim.api.nvim_win_is_valid(self.parent) then return end
     util.debug("preview")
 
     local item = self:current_item()
