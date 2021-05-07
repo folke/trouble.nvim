@@ -115,7 +115,9 @@ function renderer.render_diagnostics(view, text, items)
         -- text:render(diag.type, diag.type, " ")
 
         if diag.source then text:render(diag.source, "Source") end
-        if diag.code then text:render("(" .. diag.code .. ")", "Code") end
+        if diag.code and diag.code ~= vim.NIL then
+            text:render("(" .. diag.code .. ")", "Code")
+        end
 
         text:render(" ")
 
