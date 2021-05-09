@@ -7,7 +7,7 @@ local M = {}
 ---@param options Options
 ---@return Item[]
 function M.diagnostics(win, buf, cb, options)
-    if options.mode == "lsp_document_diagnostics" then buf = nil end
+    if options.mode == "lsp_workspace_diagnostics" then buf = nil end
     local buffer_diags = buf and {[buf] = vim.lsp.diagnostic.get(buf, nil)} or
                              vim.lsp.diagnostic.get_all()
 
