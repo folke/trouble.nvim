@@ -383,7 +383,7 @@ function View:toggle_fold()
     self:update()
 end
 
-function View:preview()
+function View:_preview()
     if not vim.api.nvim_win_is_valid(self.parent) then return end
     util.debug("preview")
 
@@ -420,5 +420,9 @@ function View:preview()
         end
     end
 end
+
+-- View.preview = View._preview
+
+View.preview = util.throttle(50, View._preview)
 
 return View
