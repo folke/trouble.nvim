@@ -296,7 +296,15 @@ function View:switch_to_parent()
     View.switch_to(self.parent)
 end
 
-function View:close() vim.api.nvim_buf_delete(self.buf, {}) end
+function View:close()
+    util.debug("close")
+    if vim.api.nvim_win_is_valid(self.win) then
+        vim.api.nvim_win_close(self.win, {})
+    end
+    if vim.api.nvim_buf_is_valid(self.buf) then
+        vim.api.nvim_buf_delete(self.buf, {})
+    end
+end
 
 function View.create(opts)
     opts = opts or {}
