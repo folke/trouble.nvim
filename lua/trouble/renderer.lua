@@ -103,14 +103,16 @@ function renderer.render_diagnostics(view, text, items)
     for _, diag in ipairs(items) do
         view.items[text.lineNr + 1] = diag
 
-        local sign = signs[string.lower(diag.type)]
+        local sign = diag.sign or signs[string.lower(diag.type)]
         if not sign then sign = diag.type end
 
         local indent = "     "
         if config.options.indent_lines then indent = " │   " end
 
+        local sign_hl = diag.sign_hl or ("LspTroubleSign" .. diag.type)
+
         text:render(indent, "Indent")
-        text:render(sign .. "  ", "Sign" .. diag.type)
+        text:render(sign .. "  ", sign_hl, {exact = true})
         text:render(diag.text, "Text" .. diag.type, " ")
         -- text:render(diag.type, diag.type, " ")
 

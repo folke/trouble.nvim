@@ -21,6 +21,14 @@ function M.get(win, buf, cb, options)
     local provider = M.providers[name]
 
     if not provider then
+        local ok, mod = pcall(require, "trouble.providers." .. name)
+        if ok then
+            M.providers[name] = mod
+            provider = mod
+        end
+    end
+
+    if not provider then
         util.error(("invalid provider %q"):format(name))
         return {}
     end

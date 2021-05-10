@@ -79,6 +79,8 @@ function M.process_item(item, bufnr)
         col = col + 1,
         start = start,
         finish = finish,
+        sign = item.sign,
+        sign_hl = item.sign_hl,
         -- remove line break to avoid display issues
         text = vim.trim(item.message:gsub("[\n]", "")):sub(0, vim.o.columns),
         line = line,
