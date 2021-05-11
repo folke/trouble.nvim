@@ -109,7 +109,7 @@ function renderer.render_diagnostics(view, text, items)
         local indent = "     "
         if config.options.indent_lines then indent = " │   " end
 
-        local sign_hl = diag.sign_hl or ("LspTroubleSign" .. diag.type)
+        local sign_hl = diag.sign_hl or ("TroubleSign" .. diag.type)
 
         text:render(indent, "Indent")
         text:render(sign .. "  ", sign_hl, {exact = true})

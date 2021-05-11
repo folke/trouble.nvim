@@ -16,7 +16,7 @@ local View = {}
 View.__index = View
 
 -- keep track of buffers with added highlights
--- highlights are cleared on BufLeave of LspTrouble
+-- highlights are cleared on BufLeave of Trouble
 local hl_bufs = {}
 
 local function clear_hl(bufnr)
@@ -25,15 +25,15 @@ local function clear_hl(bufnr)
     end
 end
 
----Find a rogue LspTrouble buffer that might have been spawned by i.e. a session.
+---Find a rogue Trouble buffer that might have been spawned by i.e. a session.
 local function find_rogue_buffer()
     for _, v in ipairs(vim.api.nvim_list_bufs()) do
-        if vim.fn.bufname(v) == "LspTrouble" then return v end
+        if vim.fn.bufname(v) == "Trouble" then return v end
     end
     return nil
 end
 
----Find pre-existing LspTrouble buffer, delete its windows then wipe it.
+---Find pre-existing Trouble buffer, delete its windows then wipe it.
 ---@private
 local function wipe_rogue_buffer()
     local bn = find_rogue_buffer()
@@ -118,12 +118,12 @@ function View:setup(opts)
     opts = opts or {}
     vim.cmd("setlocal nonu")
     vim.cmd("setlocal nornu")
-    if not pcall(vim.api.nvim_buf_set_name, self.buf, 'LspTrouble') then
+    if not pcall(vim.api.nvim_buf_set_name, self.buf, 'Trouble') then
         wipe_rogue_buffer()
-        vim.api.nvim_buf_set_name(self.buf, 'LspTrouble')
+        vim.api.nvim_buf_set_name(self.buf, 'Trouble')
     end
     self:set_option("bufhidden", "wipe")
-    self:set_option("filetype", "LspTrouble")
+    self:set_option("filetype", "Trouble")
     self:set_option("buftype", "nofile")
     self:set_option("swapfile", false)
     self:set_option("buflisted", false)
@@ -137,7 +137,7 @@ function View:setup(opts)
     self:set_option("foldlevel", 3, true)
     self:set_option("foldenable", false, true)
     self:set_option("winhighlight",
-                    "Normal:LspTroubleNormal,EndOfBuffer:LspTroubleNormal,SignColumn:LspTroubleNormal",
+                    "Normal:TroubleNormal,EndOfBuffer:TroubleNormal,SignColumn:TroubleNormal",
                     true)
     self:set_option("fcs", "eob: ", true)
 
@@ -158,7 +158,7 @@ function View:setup(opts)
     end
 
     vim.api.nvim_exec([[
-      augroup LspTroubleHighlights
+      augroup TroubleHighlights
         autocmd! * <buffer>
         autocmd BufEnter <buffer> lua require("trouble").action("on_enter")
         autocmd CursorMoved <buffer> lua require("trouble").action("auto_preview")
@@ -423,7 +423,7 @@ function View:_preview()
             if row == item.finish.line then
                 col_end = item.finish.character
             end
-            highlight(item.bufnr, config.namespace, "LspTroublePreview", row,
+            highlight(item.bufnr, config.namespace, "TroublePreview", row,
                       col_start, col_end)
         end
     end

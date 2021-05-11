@@ -24,7 +24,7 @@ function Text:render(str, group, opts)
     opts = opts or {}
 
     if group then
-        if opts.exact ~= true then group = "LspTrouble" .. group end
+        if opts.exact ~= true then group = "Trouble" .. group end
         local from = string.len(self.current)
         ---@class Highlight
         local hl

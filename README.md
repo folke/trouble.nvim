@@ -37,7 +37,7 @@ Install the plugin with your preferred package manager:
 ```vim
 " Vim Script
 Plug 'kyazdani42/nvim-web-devicons'
-Plug 'folke/lsp-trouble.nvim'
+Plug 'folke/trouble.nvim'
 
 lua << EOF
   require("trouble").setup {
@@ -53,7 +53,7 @@ EOF
 ```lua
 -- Lua
 use {
-  "folke/lsp-trouble.nvim",
+  "folke/trouble.nvim",
   requires = "kyazdani42/nvim-web-devicons",
   config = function()
     require("trouble").setup {
@@ -138,10 +138,10 @@ Trouble comes with the following defaults:
 
 Trouble comes with the following commands:
 
-* `LspTrouble [mode]`: open the list
-* `LspTroubleClose [mode]`: close the list
-* `LspTroubleToggle [mode]`: toggle the list
-* `LspTroubleRefresh`: manually refresh the active list
+* `Trouble [mode]`: open the list
+* `TroubleClose [mode]`: close the list
+* `TroubleToggle [mode]`: toggle the list
+* `TroubleRefresh`: manually refresh the active list
 
 Modes:
 
@@ -156,32 +156,32 @@ Example keybindings:
 
 ```vim
 -- Vim Script
-nnoremap <leader>xx <cmd>LspTroubleToggle<cr>
-nnoremap <leader>xw <cmd>LspTroubleToggle lsp_workspace_diagnostics<cr>
-nnoremap <leader>xd <cmd>LspTroubleToggle lsp_document_diagnostics<cr>
-nnoremap <leader>xq <cmd>LspTroubleToggle quickfix<cr>
-nnoremap <leader>xl <cmd>LspTroubleToggle loclist<cr>
-nnoremap gR <cmd>LspTroubleToggle lsp_references<cr>
+nnoremap <leader>xx <cmd>TroubleToggle<cr>
+nnoremap <leader>xw <cmd>TroubleToggle lsp_workspace_diagnostics<cr>
+nnoremap <leader>xd <cmd>TroubleToggle lsp_document_diagnostics<cr>
+nnoremap <leader>xq <cmd>TroubleToggle quickfix<cr>
+nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
+nnoremap gR <cmd>TroubleToggle lsp_references<cr>
 ```
 
 ```lua
 -- Lua
-vim.api.nvim_set_keymap("n", "<leader>xx", "<cmd>LspTroubleToggle<cr>",
+vim.api.nvim_set_keymap("n", "<leader>xx", "<cmd>Trouble<cr>",
   {silent = true, noremap = true}
 )
-vim.api.nvim_set_keymap("n", "<leader>xw", "<cmd>LspTroubleToggle lsp_workspace_diagnostics<cr>",
+vim.api.nvim_set_keymap("n", "<leader>xw", "<cmd>Trouble lsp_workspace_diagnostics<cr>",
   {silent = true, noremap = true}
 )
-vim.api.nvim_set_keymap("n", "<leader>xd", "<cmd>LspTroubleToggle lsp_document_diagnostics<cr>",
+vim.api.nvim_set_keymap("n", "<leader>xd", "<cmd>Trouble lsp_document_diagnostics<cr>",
   {silent = true, noremap = true}
 )
-vim.api.nvim_set_keymap("n", "<leader>xl", "<cmd>LspTroubleToggle loclist<cr>",
+vim.api.nvim_set_keymap("n", "<leader>xl", "<cmd>Trouble loclist<cr>",
   {silent = true, noremap = true}
 )
-vim.api.nvim_set_keymap("n", "<leader>xq", "<cmd>LspTroubleToggle quickfix<cr>",
+vim.api.nvim_set_keymap("n", "<leader>xq", "<cmd>Trouble quickfix<cr>",
   {silent = true, noremap = true}
 )
-vim.api.nvim_set_keymap("n", "gR", "<cmd>LspTrouble lsp_references<cr>",
+vim.api.nvim_set_keymap("n", "gR", "<cmd>Trouble lsp_references<cr>",
   {silent = true, noremap = true}
 )
 ```
@@ -214,26 +214,26 @@ The table below shows all the highlight groups defined for LSP Trouble with thei
 
 | Highlight Group             | Defaults to                      |
 | --------------------------- | -------------------------------- |
-| *LspTroubleCount*           | TabLineSel                       |
-| *LspTroubleError*           | LspDiagnosticsDefaultError       |
-| *LspTroubleNormal*          | Normal                           |
-| *LspTroubleTextInformation* | LspTroubleText                   |
-| *LspTroubleSignWarning*     | LspDiagnosticsSignWarning        |
-| *LspTroubleLocation*        | LineNr                           |
-| *LspTroubleWarning*         | LspDiagnosticsDefaultWarning     |
-| *LspTroublePreview*         | Search                           |
-| *LspTroubleTextError*       | LspTroubleText                   |
-| *LspTroubleSignInformation* | LspDiagnosticsSignInformation    |
-| *LspTroubleIndent*          | LineNr                           |
-| *LspTroubleSource*          | Comment                          |
-| *LspTroubleSignHint*        | LspDiagnosticsSignHint           |
-| *LspTroubleSignOther*       | LspTroubleSignInformation        |
-| *LspTroubleFoldIcon*        | CursorLineNr                     |
-| *LspTroubleTextWarning*     | LspTroubleText                   |
-| *LspTroubleCode*            | Comment                          |
-| *LspTroubleInformation*     | LspDiagnosticsDefaultInformation |
-| *LspTroubleSignError*       | LspDiagnosticsSignError          |
-| *LspTroubleFile*            | Directory                        |
-| *LspTroubleHint*            | LspDiagnosticsDefaultHint        |
-| *LspTroubleTextHint*        | LspTroubleText                   |
-| *LspTroubleText*            | Normal                           |
+| *TroubleCount*           | TabLineSel                       |
+| *TroubleError*           | LspDiagnosticsDefaultError       |
+| *TroubleNormal*          | Normal                           |
+| *TroubleTextInformation* | TroubleText                   |
+| *TroubleSignWarning*     | LspDiagnosticsSignWarning        |
+| *TroubleLocation*        | LineNr                           |
+| *TroubleWarning*         | LspDiagnosticsDefaultWarning     |
+| *TroublePreview*         | Search                           |
+| *TroubleTextError*       | TroubleText                   |
+| *TroubleSignInformation* | LspDiagnosticsSignInformation    |
+| *TroubleIndent*          | LineNr                           |
+| *TroubleSource*          | Comment                          |
+| *TroubleSignHint*        | LspDiagnosticsSignHint           |
+| *TroubleSignOther*       | TroubleSignInformation        |
+| *TroubleFoldIcon*        | CursorLineNr                     |
+| *TroubleTextWarning*     | TroubleText                   |
+| *TroubleCode*            | Comment                          |
+| *TroubleInformation*     | LspDiagnosticsDefaultInformation |
+| *TroubleSignError*       | LspDiagnosticsSignError          |
+| *TroubleFile*            | Directory                        |
+| *TroubleHint*            | LspDiagnosticsDefaultHint        |
+| *TroubleTextHint*        | TroubleText                   |
+| *TroubleText*            | Normal                           |

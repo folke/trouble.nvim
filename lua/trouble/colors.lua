@@ -29,6 +29,7 @@ local links = {
 function M.setup()
     for k, v in pairs(links) do
         vim.api.nvim_command('hi def link LspTrouble' .. k .. ' ' .. v)
+        vim.api.nvim_command('hi def link Trouble' .. k .. ' LspTrouble' .. k)
     end
 end
 

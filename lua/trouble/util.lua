@@ -10,7 +10,7 @@ end
 
 function M.log(msg, hl)
     hl = hl or "MsgArea"
-    vim.api.nvim_echo({{'[LspTrouble] ', hl}, {msg}}, true, {})
+    vim.api.nvim_echo({{'[Trouble] ', hl}, {msg}}, true, {})
 end
 
 function M.warn(msg) M.log(msg, "WarningMsg") end

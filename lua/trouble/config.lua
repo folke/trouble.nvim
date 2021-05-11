@@ -1,6 +1,6 @@
 local M = {}
 
-M.namespace = vim.api.nvim_create_namespace("LspTrouble")
+M.namespace = vim.api.nvim_create_namespace("Trouble")
 
 ---@class Options
 ---@field buf number|nil
