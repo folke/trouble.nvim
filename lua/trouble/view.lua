@@ -149,6 +149,7 @@ function View:setup(opts)
       vim.api.nvim_buf_set_keymap(self.buf, "n", key, [[<cmd>lua require("trouble").action("]] .. action .. [[")<cr>]], {
         silent = true,
         noremap = true,
+        nowait = true,
       })
     end
   end
