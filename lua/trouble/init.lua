@@ -113,15 +113,12 @@ function Trouble.refresh(opts)
       util.debug("refresh")
       view:update(opts)
     end
-  elseif opts.auto and config.options.auto_open and opts.mode == config.options.mode then
-    local items = require("trouble.providers").get(
-      vim.api.nvim_get_current_win(),
-      vim.api.nvim_get_current_buf(),
-      config.options
-    )
-    if #items > 0 then
-      Trouble.open(opts)
-    end
+  elseif opts.auto and config.options.auto_open and opts.provider == config.options.mode then
+    require("trouble.providers").get(vim.api.nvim_get_current_win(), vim.api.nvim_get_current_buf(), function(results)
+      if #results > 0 then
+        Trouble.open(opts)
+      end
+    end, config.options)
   end
 end
 
