@@ -13,9 +13,6 @@ function M.diagnostics(_win, buf, cb, options)
   local buffer_diags = buf and { [buf] = vim.lsp.diagnostic.get(buf, nil) } or vim.lsp.diagnostic.get_all()
 
   local items = util.locations_to_items(buffer_diags, 1)
-  if #items == 0 then
-    util.warn("no diagnostics found")
-  end
   cb(items)
 end
 
@@ -30,7 +27,6 @@ function M.references(win, buf, cb, _options)
       return cb({})
     end
     if result == nil or #result == 0 then
-      util.warn("No referenes found")
       return cb({})
     end
     local ret = util.locations_to_items({ result }, 0)
@@ -49,7 +45,6 @@ function M.definitions(win, buf, cb, _options)
       return cb({})
     end
     if result == nil or #result == 0 then
-      util.warn("No definitions found")
       return cb({})
     end
     for _, value in ipairs(result) do

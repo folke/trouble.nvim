@@ -33,6 +33,9 @@ function renderer.render(view, opts)
   opts = opts or {}
   local buf = vim.api.nvim_win_get_buf(view.parent)
   providers.get(view.parent, buf, function(items)
+    if #items == 0 then
+      util.warn("no results")
+    end
     local grouped = providers.group(items)
     local count = util.count(grouped)
 
