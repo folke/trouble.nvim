@@ -76,16 +76,18 @@ function M.process_item(item, bufnr)
   local row = start.line
   local col = start.character
 
-  local line
-  if vim.lsp.util.get_line then
-    line = vim.lsp.util.get_line(uri, row)
-  else
-    -- load the buffer when needed
-    vim.fn.bufload(bufnr)
-    line = (vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false) or { "" })[1]
-  end
+  if not item.message then
+    local line
+    if vim.lsp.util.get_line then
+      line = vim.lsp.util.get_line(uri, row)
+    else
+      -- load the buffer when needed
+      vim.fn.bufload(bufnr)
+      line = (vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false) or { "" })[1]
+    end
 
-  item.message = item.message or line or ""
+    item.message = item.message or line or ""
+  end
 
   ---@class Item
   ---@field is_file boolean
@@ -102,7 +104,6 @@ function M.process_item(item, bufnr)
     sign_hl = item.sign_hl,
     -- remove line break to avoid display issues
     text = vim.trim(item.message:gsub("[\n]", "")):sub(0, vim.o.columns),
-    line = line,
     full_text = vim.trim(item.message),
     type = M.severity[item.severity] or M.severity[0],
     code = item.code,
