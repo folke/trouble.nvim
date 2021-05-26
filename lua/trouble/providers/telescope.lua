@@ -33,7 +33,7 @@ function M.open_with_trouble(prompt_bufnr, _mode)
   end
 
   actions.close(prompt_bufnr)
-  require("trouble").open({ mode = "telescope" })
+  require("trouble").open("telescope")
 end
 
 function M.telescope(_win, _buf, cb, _options)
