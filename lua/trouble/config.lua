@@ -9,6 +9,7 @@ M.namespace = vim.api.nvim_create_namespace("Trouble")
 -- TODO: make it possible to have multiple trouble lists open at the same time
 local defaults = {
   debug = false,
+  cmd_options = {},
   position = "bottom", -- position of the list can be: bottom, top, left, right
   height = 10, -- height of the trouble list when position is top or bottom
   width = 50, -- width of the list when position is left or right

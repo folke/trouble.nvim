@@ -24,17 +24,29 @@ function Trouble.close()
   end
 end
 
-local function get_opts(opts)
-  opts = opts or {}
-  if type(opts) == "string" then
-    opts = { mode = opts }
+local function get_opts(...)
+  local args = { ... }
+  local opts = {}
+  for key, value in pairs(args) do
+    if type(key) == "number" then
+      local k, v = value:match("^(.*)=(.*)$")
+      if k then
+        opts[k] = v
+      elseif opts.mode then
+        util.error("unknown option " .. value)
+      else
+        opts.mode = value
+      end
+    end
   end
+  opts = opts or {}
   config.fix_mode(opts)
+  config.options.cmd_options = opts
   return opts
 end
 
-function Trouble.open(opts)
-  opts = get_opts(opts)
+function Trouble.open(...)
+  local opts = get_opts(...)
   if opts.mode and (opts.mode ~= config.options.mode) then
     config.options.mode = opts.mode
   end
@@ -47,8 +59,8 @@ function Trouble.open(opts)
   end
 end
 
-function Trouble.toggle(opts)
-  opts = get_opts(opts)
+function Trouble.toggle(...)
+  local opts = get_opts(...)
 
   if opts.mode and (opts.mode ~= config.options.mode) then
     config.options.mode = opts.mode
