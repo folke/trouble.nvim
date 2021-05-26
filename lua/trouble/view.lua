@@ -217,7 +217,7 @@ function View:close_preview()
 
   -- Reset parent state
   local valid_win = vim.api.nvim_win_is_valid(self.parent)
-  local valid_buf = vim.api.nvim_buf_is_valid(self.parent_state.buf)
+  local valid_buf = self.parent_state and vim.api.nvim_buf_is_valid(self.parent_state.buf)
 
   if self.parent_state and valid_buf and valid_win then
     vim.api.nvim_win_set_buf(self.parent, self.parent_state.buf)
