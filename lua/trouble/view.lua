@@ -409,6 +409,9 @@ function View:jump(opts)
     self:update()
   else
     View.switch_to(opts.win or self.parent)
+    if opts.precmd then
+      vim.cmd(opts.precmd)
+    end
     if vim.api.nvim_buf_get_option(item.bufnr, "buflisted") == false then
       vim.cmd("edit #" .. item.bufnr)
     else
