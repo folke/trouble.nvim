@@ -1,6 +1,4 @@
 local util = require("trouble.util")
-local action_state = require("telescope.actions.state")
-local actions = require("telescope.actions")
 
 local M = {}
 
@@ -31,12 +29,13 @@ end
 
 --- Shows all Telescope results in Trouble.
 function M.open_with_trouble(prompt_bufnr, _mode)
+  local action_state = require("telescope.actions.state")
+  local actions = require("telescope.actions")
   local picker = action_state.get_current_picker(prompt_bufnr)
   local manager = picker.manager
 
   M.results = {}
   for item in manager:iter() do
-
     table.insert(M.results, item_to_result(item))
   end
 
@@ -46,6 +45,8 @@ end
 
 --- Shows the selected Telescope results in Trouble.
 function M.open_selected_with_trouble(prompt_bufnr, _mode)
+  local action_state = require("telescope.actions.state")
+  local actions = require("telescope.actions")
   local picker = action_state.get_current_picker(prompt_bufnr)
 
   M.results = {}
@@ -60,8 +61,9 @@ end
 --- Shows the selected Telescope results in Trouble.
 --- If no results are currently selected, shows all of them.
 function M.smart_open_with_trouble(prompt_bufnr, _mode)
+  local action_state = require("telescope.actions.state")
   local picker = action_state.get_current_picker(prompt_bufnr)
-  if table.getn(picker:get_multi_selection()) > 0 then
+  if #picker:get_multi_selection() > 0 then
     M.open_selected_with_trouble(prompt_bufnr, _mode)
   else
     M.open_with_trouble(prompt_bufnr, _mode)
