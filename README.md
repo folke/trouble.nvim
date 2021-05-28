@@ -81,6 +81,8 @@ Trouble comes with the following defaults:
     fold_open = "", -- icon used for open folds
     fold_closed = "", -- icon used for closed folds
     action_keys = { -- key mappings for actions in the trouble list
+        -- map to {} to remove a mapping, for example:
+        -- close = {},
         close = "q", -- close the list
         cancel = "<esc>", -- cancel the preview and get back to your last window / buffer / cursor
         refresh = "r", -- manually refresh
