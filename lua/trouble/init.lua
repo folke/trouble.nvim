@@ -211,4 +211,12 @@ function Trouble.action(action)
   end
 end
 
+function Trouble.get_items()
+  if view ~= nil then
+    return view.items
+  else
+    return {}
+  end
+end
+
 return Trouble
