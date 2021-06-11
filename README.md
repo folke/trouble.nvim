@@ -10,6 +10,8 @@ A pretty list for showing diagnostics, references, telescope results, quickfix a
 * pretty list of:
   - LSP Diagnostics
   - LSP references
+  - LSP implementations
+  - LSP definitions
   - quickfix list
   - location list
   - [Telescope](https://github.com/nvim-telescope/telescope.nvim) search results
