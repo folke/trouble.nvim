@@ -35,6 +35,24 @@ function M.references(win, buf, cb, _options)
 end
 
 ---@return Item[]
+function M.implementations(win, buf, cb, _options)
+  local method = "textDocument/implementation"
+  local params = util.make_position_params(win, buf)
+  params.context = { includeDeclaration = true }
+  lsp.buf_request(buf, method, params, function(err, _method, result, _client_id, _bufnr, _config)
+    if err then
+      util.error("an error happened getting implementation: " .. err)
+      return cb({})
+    end
+    if result == nil or #result == 0 then
+      return cb({})
+    end
+    local ret = util.locations_to_items({ result }, 0)
+    cb(ret)
+  end)
+end
+
+---@return Item[]
 function M.definitions(win, buf, cb, _options)
   local method = "textDocument/definition"
   local params = util.make_position_params(win, buf)
