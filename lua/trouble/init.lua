@@ -40,6 +40,8 @@ local function get_opts(...)
       else
         opts.mode = value
       end
+    else
+      opts[key] = value
     end
   end
   opts = opts or {}
