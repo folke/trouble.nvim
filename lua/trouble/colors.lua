@@ -10,9 +10,9 @@ local links = {
   SignInformation = "LspDiagnosticsSignInformation",
   SignHint = "LspDiagnosticsSignHint",
   TextError = "LspTroubleText",
-  TextWarning = "LspTroubleText",
-  TextInformation = "LspTroubleText",
-  TextHint = "LspTroubleText",
+  TextWarning = "TroubleText",
+  TextInformation = "TroubleText",
+  TextHint = "TroubleText",
   Text = "Normal",
   File = "Directory",
   Source = "Comment",
@@ -23,13 +23,16 @@ local links = {
   Count = "TabLineSel",
   Preview = "Search",
   Indent = "LineNr",
-  SignOther = "LspTroubleSignInformation",
+  SignOther = "TroubleSignInformation",
 }
 
 function M.setup()
   for k, v in pairs(links) do
-    vim.api.nvim_command("hi def link LspTrouble" .. k .. " " .. v)
-    vim.api.nvim_command("hi def link Trouble" .. k .. " LspTrouble" .. k)
+    if vim.fn.hlexists("LspTrouble" .. k) == 1 then
+      vim.api.nvim_command("hi def link Trouble" .. k .. " LspTrouble" .. k)
+    else
+      vim.api.nvim_command("hi def link Trouble" .. k .. " " .. v)
+    end
   end
 end
 
