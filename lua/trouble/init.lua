@@ -151,7 +151,7 @@ function Trouble.action(action)
     view:on_win_enter()
   end
   if not is_open() then
-    return
+    return Trouble
   end
   if action == "hover" then
     view:hover()
@@ -212,6 +212,7 @@ function Trouble.action(action)
   if Trouble[action] then
     Trouble[action]()
   end
+  return Trouble
 end
 
 function Trouble.get_items()
