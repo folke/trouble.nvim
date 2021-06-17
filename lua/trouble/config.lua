@@ -2,7 +2,7 @@ local M = {}
 
 M.namespace = vim.api.nvim_create_namespace("Trouble")
 
----@class Options
+---@class TroubleOptions
 ---@field buf number|nil
 ---@field win number|nil
 -- TODO: make some options configurable per mode
@@ -52,10 +52,10 @@ local defaults = {
   use_lsp_diagnostic_signs = false, -- enabling this will use the signs defined in your lsp client
 }
 
----@type Options
+---@type TroubleOptions
 M.options = {}
+---@return TroubleOptions
 
----@return Options
 function M.setup(options)
   M.options = vim.tbl_deep_extend("force", {}, defaults, options or {})
   M.fix_mode(M.options)

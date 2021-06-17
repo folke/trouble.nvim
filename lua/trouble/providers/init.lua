@@ -16,7 +16,7 @@ M.providers = {
   telescope = telescope.telescope,
 }
 
----@param options Options
+---@param options TroubleOptions
 function M.get(win, buf, cb, options)
   local name = options.mode
   local provider = M.providers[name]

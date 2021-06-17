@@ -4,7 +4,7 @@ local util = require("trouble.util")
 ---@class Lsp
 local M = {}
 
----@param options Options
+---@param options TroubleOptions
 ---@return Item[]
 function M.diagnostics(_win, buf, cb, options)
   if options.mode == "lsp_workspace_diagnostics" then
