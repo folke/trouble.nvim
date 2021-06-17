@@ -193,6 +193,18 @@ vim.api.nvim_set_keymap("n", "gR", "<cmd>Trouble lsp_references<cr>",
 )
 ```
 
+### API
+
+You can use the following functions in your keybindings:
+
+```lua
+-- jump to the next item, skipping the groups
+require("trouble").next({skip_groups = true, jump = true});
+
+-- jump to the previous item, skipping the groups
+require("trouble").previous({skip_groups = true, jump = true});
+```
+
 ### Telescope
 
 You can easily open any search results in **Trouble**, by defining a custom action:

@@ -217,6 +217,18 @@ function Trouble.action(action)
   return Trouble
 end
 
+function Trouble.next(opts)
+  if view then
+    view:next_item(opts)
+  end
+end
+
+function Trouble.previous(opts)
+  if view then
+    view:previous_item(opts)
+  end
+end
+
 function Trouble.get_items()
   if view ~= nil then
     return view.items
