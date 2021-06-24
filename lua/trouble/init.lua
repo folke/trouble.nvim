@@ -191,9 +191,11 @@ function Trouble.action(action)
   end
   if action == "next" then
     view:next_item()
+    return Trouble
   end
   if action == "previous" then
     view:previous_item()
+    return Trouble
   end
 
   if action == "toggle_preview" then

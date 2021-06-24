@@ -366,7 +366,7 @@ function View:next_item(opts)
   opts = opts or { skip_groups = false }
   local line = self:get_line()
   for i = line + 1, vim.api.nvim_buf_line_count(self.buf), 1 do
-    if self.items[i] and (not opts.skip_groups or not self.items[i].is_file) then
+    if self.items[i] and not (opts.skip_groups and self.items[i].is_file) then
       vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
       if opts.jump then
         self:jump()
@@ -380,7 +380,7 @@ function View:previous_item(opts)
   opts = opts or { skip_groups = false }
   local line = self:get_line()
   for i = line - 1, 0, -1 do
-    if self.items[i] and (not opts.skip_groups or not self.items[i].is_file) then
+    if self.items[i] and not (opts.skip_groups and self.items[i].is_file) then
       vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
       if opts.jump then
         self:jump()
