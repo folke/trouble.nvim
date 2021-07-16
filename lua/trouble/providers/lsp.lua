@@ -66,8 +66,8 @@ function M.definitions(win, buf, cb, _options)
       return cb({})
     end
     for _, value in ipairs(result) do
-      value.uri = value.targetUri
-      value.range = value.targetSelectionRange
+      value.uri = value.targetUri or value.uri
+      value.range = value.targetSelectionRange or value.range
     end
     local ret = util.locations_to_items({ result }, 0)
     cb(ret)
