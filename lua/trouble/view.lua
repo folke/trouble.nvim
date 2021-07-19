@@ -56,11 +56,20 @@ end
 
 function View:new(opts)
   opts = opts or {}
+
+  local group
+  if opts.group ~= nil then
+    group = opts.group
+  else
+    group = config.options.group
+  end
+
   local this = {
     buf = vim.api.nvim_get_current_buf(),
     win = opts.win or vim.api.nvim_get_current_win(),
     parent = opts.parent,
     items = {},
+    group = group,
   }
   setmetatable(this, self)
   return this

@@ -55,7 +55,9 @@ function renderer.render(view, opts)
     local text = Text:new()
     view.items = {}
 
-    text:nl()
+    if config.options.padding == 1 then
+      text:nl()
+    end
 
     -- render file groups
     for filename, group_items in pairs(grouped) do
@@ -82,24 +84,26 @@ end
 function renderer.render_file(view, text, filename, items)
   view.items[text.lineNr + 1] = { filename = filename, is_file = true }
 
-  local count = util.count(items)
+  if view.group == true then
+    local count = util.count(items)
 
-  text:render(" ")
+    text:render(" ")
 
-  if folds.is_folded(filename) then
-    text:render(config.options.fold_closed, "FoldIcon", " ")
-  else
-    text:render(config.options.fold_open, "FoldIcon", " ")
+    if folds.is_folded(filename) then
+      text:render(config.options.fold_closed, "FoldIcon", " ")
+    else
+      text:render(config.options.fold_open, "FoldIcon", " ")
+    end
+
+    if config.options.icons then
+      local icon, icon_hl = get_icon(filename)
+      text:render(icon, icon_hl, { exact = true, append = " " })
+    end
+
+    text:render(vim.fn.fnamemodify(filename, ":p:."), "File", " ")
+    text:render(" " .. count .. " ", "Count")
+    text:nl()
   end
-
-  if config.options.icons then
-    local icon, icon_hl = get_icon(filename)
-    text:render(icon, icon_hl, { exact = true, append = " " })
-  end
-
-  text:render(vim.fn.fnamemodify(filename, ":p:."), "File", " ")
-  text:render(" " .. count .. " ", "Count")
-  text:nl()
 
   if not folds.is_folded(filename) then
     renderer.render_diagnostics(view, text, items)
@@ -119,8 +123,15 @@ function renderer.render_diagnostics(view, text, items)
     end
 
     local indent = "     "
-    if config.options.indent_lines then
-      indent = " │   "
+    if config.options.padding == 1 then
+      indent = "  "
+      if config.options.indent_lines then
+        indent = "│ "
+      end
+    else
+      if config.options.indent_lines then
+        indent = " │   "
+      end
     end
 
     local sign_hl = diag.sign_hl or ("TroubleSign" .. diag.type)
