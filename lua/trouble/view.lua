@@ -42,7 +42,7 @@ local function wipe_rogue_buffer()
   if bn then
     local win_ids = vim.fn.win_findbuf(bn)
     for _, id in ipairs(win_ids) do
-      if vim.fn.win_gettype(id) ~= "autocmd" then
+      if vim.fn.win_gettype(id) ~= "autocmd" and vim.api.nvim_win_is_valid(id) then
         vim.api.nvim_win_close(id, true)
       end
     end
@@ -185,6 +185,7 @@ function View:on_enter()
   self.parent = self.parent or vim.fn.win_getid(vim.fn.winnr("#"))
 
   if (not self:is_valid_parent(self.parent)) or self.parent == self.win then
+    util.debug("not valid parent")
     for _, win in pairs(vim.api.nvim_list_wins()) do
       if self:is_valid_parent(win) and win ~= self.win then
         self.parent = win
@@ -438,12 +439,12 @@ function View:_preview()
   if not vim.api.nvim_win_is_valid(self.parent) then
     return
   end
-  util.debug("preview")
 
   local item = self:current_item()
   if not item then
     return
   end
+  util.debug("preview")
 
   if item.is_file ~= true then
     vim.api.nvim_win_set_buf(self.parent, item.bufnr)

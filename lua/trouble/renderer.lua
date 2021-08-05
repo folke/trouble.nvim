@@ -12,7 +12,9 @@ local signs = {}
 local function get_icon(file)
   local ok, icons = pcall(require, "nvim-web-devicons")
   if not ok then
-    util.warn("'nvim-web-devicons' is not installed. Install it, or set icons=false in your configuration to disable this message")
+    util.warn(
+      "'nvim-web-devicons' is not installed. Install it, or set icons=false in your configuration to disable this message"
+    )
     return ""
   end
   local fname = vim.fn.fnamemodify(file, ":t")
@@ -28,7 +30,7 @@ local function update_signs()
   end
 end
 
----@param view View
+---@param view TroubleView
 function renderer.render(view, opts)
   opts = opts or {}
   local buf = vim.api.nvim_win_get_buf(view.parent)
