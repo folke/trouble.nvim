@@ -59,7 +59,7 @@ function Trouble.open(...)
 
   if is_open() then
     Trouble.refresh(opts)
-  elseif not opts.auto and config.options.auto_jump then
+  elseif not opts.auto and vim.tbl_contains(config.options.auto_jump, opts.mode) then
     require("trouble.providers").get(vim.api.nvim_get_current_win(), vim.api.nvim_get_current_buf(), function(results)
       if #results == 1 then
         util.jump_to_item(opts.win, opts.precmd, results[1])
