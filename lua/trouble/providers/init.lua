@@ -46,7 +46,7 @@ function M.get(win, buf, cb, options)
         return a.severity < b.severity
       end
     end)
-    cb(items)
+    cb(items, msg)
   end, options)
 end
 

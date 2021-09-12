@@ -34,7 +34,7 @@ end
 function renderer.render(view, opts)
   opts = opts or {}
   local buf = vim.api.nvim_win_get_buf(view.parent)
-  providers.get(view.parent, buf, function(items)
+  providers.get(view.parent, buf, function(items, message)
     if #items == 0 then
       util.warn("no results")
     end
@@ -55,6 +55,7 @@ function renderer.render(view, opts)
     local text = Text:new()
     view.items = {}
 
+    text:msg(message or "")
     text:nl()
 
     -- render file groups
