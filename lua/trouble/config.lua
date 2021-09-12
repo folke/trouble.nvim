@@ -1,3 +1,5 @@
+local severity = require("trouble.severity")
+
 local M = {}
 
 M.namespace = vim.api.nvim_create_namespace("Trouble")
@@ -35,6 +37,10 @@ local defaults = {
     toggle_fold = { "zA", "za" }, -- toggle fold of current file
     previous = "k", -- preview item
     next = "j", -- next item
+    incr_min_severity = {"+", "="}, -- increase the minimum severity, or enables if disabled
+    decr_min_severity = {"-", "_"}, -- decrease the minimum severity, or disable if below Information
+    incr_cascading_severity = ")", -- increase the cascading severity threshold, enables if disabled
+    decr_cascading_severity = "(", -- decrease the cascading severity threshold, or disables
   },
   indent_lines = true, -- add an indent guide below the fold icons
   auto_open = false, -- automatically open the list when you have diagnostics
@@ -50,6 +56,14 @@ local defaults = {
     other = "﫠",
   },
   use_lsp_diagnostic_signs = false, -- enabling this will use the signs defined in your lsp client
+  min_severity = nil, -- setting to "Information", "Warning", or "Error" will filter out any less severe LSP diagnostics
+  cascading_severity_threshold = nil, -- with this set, attempts to display one severity of LSP diagnostic at a time.
+                                      -- useful if you want to deal with errors (that stop your code compiling) before
+                                      -- dealing with warnings etc. set to "Hint" to simply enable; set to a higher
+                                      -- severity to display that and all lower severities in one layer.
+                                      -- for example, set to "Information" and once you get rid of errors, and then
+                                      -- get rid of warnings, you are shown info and hints.
+
 }
 
 ---@type TroubleOptions
@@ -59,6 +73,7 @@ M.options = {}
 function M.setup(options)
   M.options = vim.tbl_deep_extend("force", {}, defaults, options or {})
   M.fix_mode(M.options)
+  severity.fix_config(M.options)
 end
 
 function M.fix_mode(opts)

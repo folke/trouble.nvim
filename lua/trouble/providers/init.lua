@@ -2,6 +2,7 @@ local util = require("trouble.util")
 local qf = require("trouble.providers.qf")
 local telescope = require("trouble.providers.telescope")
 local lsp = require("trouble.providers.lsp")
+local severity = require("trouble.severity")
 
 local M = {}
 
@@ -35,6 +36,9 @@ function M.get(win, buf, cb, options)
   end
 
   provider(win, buf, function(items)
+    local msg = nil
+    items, msg = severity.filter_severities(options, items)
+    -- sort them by severity and then line number
     table.sort(items, function(a, b)
       if a.severity == b.severity then
         return a.lnum < b.lnum
@@ -42,7 +46,7 @@ function M.get(win, buf, cb, options)
         return a.severity < b.severity
       end
     end)
-    cb(items)
+    cb(items, msg)
   end, options)
 end
 
