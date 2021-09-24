@@ -71,8 +71,9 @@ M.severity = {
 function M.process_item(item, bufnr)
   local filename = vim.api.nvim_buf_get_name(bufnr)
   local uri = vim.uri_from_bufnr(bufnr)
-  local start = item.range["start"]
-  local finish = item.range["end"]
+  local range = item.range or item.targetRange
+  local start = range["start"]
+  local finish = range["end"]
   local row = start.line
   local col = start.character
 
@@ -121,7 +122,8 @@ function M.locations_to_items(results, default_severity)
   for bufnr, locs in pairs(results or {}) do
     for _, loc in pairs(locs.result or locs) do
       if not vim.tbl_isempty(loc) then
-        local buf = loc.uri and vim.uri_to_bufnr(loc.uri) or bufnr
+        local uri = loc.uri or loc.targetUri
+        local buf = uri and vim.uri_to_bufnr(uri) or bufnr
         loc.severity = loc.severity or default_severity
         table.insert(ret, M.process_item(loc, buf))
       end
