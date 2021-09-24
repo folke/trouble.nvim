@@ -71,7 +71,7 @@ M.severity = {
 function M.process_item(item, bufnr)
   local filename = vim.api.nvim_buf_get_name(bufnr)
   local uri = vim.uri_from_bufnr(bufnr)
-  local range = item.range or item.targetRange
+  local range = item.range or item.targetSelectionRange
   local start = range["start"]
   local finish = range["end"]
   local row = start.line
