@@ -16,12 +16,18 @@ function M.diagnostics(_win, buf, cb, options)
   cb(items)
 end
 
+local function lsp_buf_request(buf, method, params, handler)
+  lsp.buf_request(buf, method, params, function(err, m, result)
+    handler(err, method == m and result or m)
+  end)
+end
+
 ---@return Item[]
 function M.references(win, buf, cb, _options)
   local method = "textDocument/references"
   local params = util.make_position_params(win, buf)
   params.context = { includeDeclaration = true }
-  lsp.buf_request(buf, method, params, function(err, _method, result, _client_id, _bufnr, _config)
+  lsp_buf_request(buf, method, params, function(err, result)
     if err then
       util.error("an error happened getting references: " .. err)
       return cb({})
@@ -39,7 +45,7 @@ function M.implementations(win, buf, cb, _options)
   local method = "textDocument/implementation"
   local params = util.make_position_params(win, buf)
   params.context = { includeDeclaration = true }
-  lsp.buf_request(buf, method, params, function(err, _method, result, _client_id, _bufnr, _config)
+  lsp_buf_request(buf, method, params, function(err, result)
     if err then
       util.error("an error happened getting implementation: " .. err)
       return cb({})
@@ -57,7 +63,7 @@ function M.definitions(win, buf, cb, _options)
   local method = "textDocument/definition"
   local params = util.make_position_params(win, buf)
   params.context = { includeDeclaration = true }
-  lsp.buf_request(buf, method, params, function(err, _method, result, _client_id, _bufnr, _config)
+  lsp_buf_request(buf, method, params, function(err, result)
     if err then
       util.error("an error happened getting definitions: " .. err)
       return cb({})
