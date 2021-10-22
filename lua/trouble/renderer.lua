@@ -123,15 +123,8 @@ function renderer.render_diagnostics(view, text, items)
     end
 
     local indent = "     "
-    if config.options.padding == 1 then
-      indent = "  "
-      if config.options.indent_lines then
-        indent = "│ "
-      end
-    else
-      if config.options.indent_lines then
-        indent = " │   "
-      end
+    if config.options.indent_lines then
+      indent = " │   "
     end
 
     local sign_hl = diag.sign_hl or ("TroubleSign" .. diag.type)
