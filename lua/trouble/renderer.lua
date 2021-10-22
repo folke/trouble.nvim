@@ -56,7 +56,7 @@ function renderer.render(view, opts)
     local text = Text:new()
     view.items = {}
 
-    if config.options.padding == 1 then
+    if config.options.padding then
       text:nl()
     end
 
