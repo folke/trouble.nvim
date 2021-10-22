@@ -69,14 +69,14 @@ function Trouble.toggle(...)
 
   if opts.mode and (opts.mode ~= config.options.mode) then
     config.options.mode = opts.mode
-    Trouble.open()
+    Trouble.open(...)
     return
   end
 
   if is_open() then
     Trouble.close()
   else
-    Trouble.open()
+    Trouble.open(...)
   end
 end
 
