@@ -231,7 +231,7 @@ function View:close_preview()
   local valid_buf = self.parent_state and vim.api.nvim_buf_is_valid(self.parent_state.buf)
 
   if self.parent_state and valid_buf and valid_win then
-    View.switch_to(self.parent, self.parent_state.buf)
+    vim.api.nvim_win_set_buf(self.parent, self.parent_state.buf)
     vim.api.nvim_win_set_cursor(self.parent, self.parent_state.cursor)
   end
 
