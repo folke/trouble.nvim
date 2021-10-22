@@ -229,30 +229,30 @@ When you open telescope, you can now hit `<c-t>` to open the results in **Troubl
 
 ## 🎨 Colors
 
-The table below shows all the highlight groups defined for LSP Trouble with their default link.
+The table below shows all the highlight groups defined for Trouble.
 
-| Highlight Group             | Defaults to                      |
-| --------------------------- | -------------------------------- |
-| *TroubleCount*           | TabLineSel                       |
-| *TroubleError*           | LspDiagnosticsDefaultError       |
-| *TroubleNormal*          | Normal                           |
-| *TroubleTextInformation* | TroubleText                   |
-| *TroubleSignWarning*     | LspDiagnosticsSignWarning        |
-| *TroubleLocation*        | LineNr                           |
-| *TroubleWarning*         | LspDiagnosticsDefaultWarning     |
-| *TroublePreview*         | Search                           |
-| *TroubleTextError*       | TroubleText                   |
-| *TroubleSignInformation* | LspDiagnosticsSignInformation    |
-| *TroubleIndent*          | LineNr                           |
-| *TroubleSource*          | Comment                          |
-| *TroubleSignHint*        | LspDiagnosticsSignHint           |
-| *TroubleSignOther*       | TroubleSignInformation        |
-| *TroubleFoldIcon*        | CursorLineNr                     |
-| *TroubleTextWarning*     | TroubleText                   |
-| *TroubleCode*            | Comment                          |
-| *TroubleInformation*     | LspDiagnosticsDefaultInformation |
-| *TroubleSignError*       | LspDiagnosticsSignError          |
-| *TroubleFile*            | Directory                        |
-| *TroubleHint*            | LspDiagnosticsDefaultHint        |
-| *TroubleTextHint*        | TroubleText                   |
-| *TroubleText*            | Normal                           |
+| Highlight Group            |
+| --------------------------- |
+| *TroubleCount*          |
+| *TroubleError*          |
+| *TroubleNormal*         |
+| *TroubleTextInformation*|
+| *TroubleSignWarning*    |
+| *TroubleLocation*       |
+| *TroubleWarning*        |
+| *TroublePreview*        |
+| *TroubleTextError*      |
+| *TroubleSignInformation*|
+| *TroubleIndent*         |
+| *TroubleSource*         |
+| *TroubleSignHint*       |
+| *TroubleSignOther*      |
+| *TroubleFoldIcon*       |
+| *TroubleTextWarning*    |
+| *TroubleCode*           |
+| *TroubleInformation*    |
+| *TroubleSignError*      |
+| *TroubleFile*           |
+| *TroubleHint*           |
+| *TroubleTextHint*       |
+| *TroubleText*           |
