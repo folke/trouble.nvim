@@ -30,7 +30,7 @@ function M.references(win, buf, cb, _options)
   params.context = { includeDeclaration = true }
   lsp_buf_request(buf, method, params, function(err, result)
     if err then
-      util.error("an error happened getting references: " .. err)
+      util.error("an error happened getting references: " .. err.message)
       return cb({})
     end
     if result == nil or #result == 0 then
@@ -48,7 +48,7 @@ function M.implementations(win, buf, cb, _options)
   params.context = { includeDeclaration = true }
   lsp_buf_request(buf, method, params, function(err, result)
     if err then
-      util.error("an error happened getting implementation: " .. err)
+      util.error("an error happened getting implementation: " .. err.message)
       return cb({})
     end
     if result == nil or #result == 0 then
@@ -66,7 +66,7 @@ function M.definitions(win, buf, cb, _options)
   params.context = { includeDeclaration = true }
   lsp_buf_request(buf, method, params, function(err, result)
     if err then
-      util.error("an error happened getting definitions: " .. err)
+      util.error("an error happened getting definitions: " .. err.message)
       return cb({})
     end
     if result == nil or #result == 0 then
