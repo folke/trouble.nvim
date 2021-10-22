@@ -83,14 +83,16 @@ end
 function M.get_signs()
   local signs = {}
   for _, v in pairs(util.severity) do
-    -- pcall to catch entirely unbound or cleared out sign hl group
-    local status, sign = pcall(function()
-      return vim.trim(vim.fn.sign_getdefined(util.get_severity_label(v, "Sign"))[1].text)
-    end)
-    if not status then
-      sign = v:sub(1, 1)
+    if v ~= "Other" then
+      -- pcall to catch entirely unbound or cleared out sign hl group
+      local status, sign = pcall(function()
+        return vim.trim(vim.fn.sign_getdefined(util.get_severity_label(v, "Sign"))[1].text)
+      end)
+      if not status then
+        sign = v:sub(1, 1)
+      end
+      signs[string.lower(v)] = sign
     end
-    signs[string.lower(v)] = sign
   end
   return signs
 end
