@@ -65,6 +65,23 @@ M.severity = {
   [4] = "Hint",
 }
 
+-- returns a hl or sign label for the givin severity and type
+-- correctly handles new names introduced in vim.diagnostic
+function M.get_severity_label(severity, type)
+  local label = severity
+  local prefix = "LspDiagnostics" .. (type or "Default")
+
+  if vim.diagnostic then
+    prefix = type and ("Diagnostic" .. type) or "Diagnostic"
+    label = ({
+      Warning = "Warn",
+      Information = "Info",
+    })[severity] or severity
+  end
+
+  return prefix .. label
+end
+
 -- based on the Telescope diagnostics code
 -- see https://github.com/nvim-telescope/telescope.nvim/blob/0d6cd47990781ea760dd3db578015c140c7b9fa7/lua/telescope/utils.lua#L85
 
