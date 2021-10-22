@@ -28,11 +28,7 @@ local links = {
 
 function M.setup()
   for k, v in pairs(links) do
-    if vim.fn.hlexists("LspTrouble" .. k) == 1 then
-      vim.api.nvim_command("hi def link Trouble" .. k .. " LspTrouble" .. k)
-    else
-      vim.api.nvim_command("hi def link Trouble" .. k .. " " .. v)
-    end
+    vim.api.nvim_command("hi def link Trouble" .. k .. " " .. v)
   end
 end
 
