@@ -1,15 +1,9 @@
+local util = require("trouble.util")
+
 local M = {}
 
 local links = {
-  Error = "LspDiagnosticsDefaultError",
-  Warning = "LspDiagnosticsDefaultWarning",
-  Information = "LspDiagnosticsDefaultInformation",
-  Hint = "LspDiagnosticsDefaultHint",
-  SignError = "LspDiagnosticsSignError",
-  SignWarning = "LspDiagnosticsSignWarning",
-  SignInformation = "LspDiagnosticsSignInformation",
-  SignHint = "LspDiagnosticsSignHint",
-  TextError = "LspTroubleText",
+  TextError = "TroubleText",
   TextWarning = "TroubleText",
   TextInformation = "TroubleText",
   TextHint = "TroubleText",
@@ -29,6 +23,11 @@ local links = {
 function M.setup()
   for k, v in pairs(links) do
     vim.api.nvim_command("hi def link Trouble" .. k .. " " .. v)
+  end
+
+  for _, severity in pairs(util.severity) do
+    vim.api.nvim_command("hi def link Trouble" .. severity .. " " .. util.get_severity_label(severity))
+    vim.api.nvim_command("hi def link TroubleSign" .. severity .. " " .. util.get_severity_label(severity, "Sign"))
   end
 end
 
