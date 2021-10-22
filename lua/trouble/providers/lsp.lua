@@ -10,7 +10,8 @@ function M.diagnostics(_win, buf, cb, options)
   if options.mode == "lsp_workspace_diagnostics" then
     buf = nil
   end
-  local buffer_diags = buf and { [buf] = vim.lsp.diagnostic.get(buf, nil) } or vim.lsp.diagnostic.get_all()
+  local diag = vim.diagnostic or vim.lsp.diagnostic
+  local buffer_diags = buf and { [buf] = diag.get(buf, nil) } or diag.get_all()
 
   local items = util.locations_to_items(buffer_diags, 1)
   cb(items)
