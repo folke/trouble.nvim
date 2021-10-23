@@ -2,6 +2,7 @@ local util = require("trouble.util")
 local qf = require("trouble.providers.qf")
 local telescope = require("trouble.providers.telescope")
 local lsp = require("trouble.providers.lsp")
+local neorg = require('trouble.providers.neorg')
 
 local M = {}
 
@@ -14,6 +15,7 @@ M.providers = {
   quickfix = qf.qflist,
   loclist = qf.loclist,
   telescope = telescope.telescope,
+  neorg_traverse_headings = neorg.traverse_headings,
 }
 
 ---@param options TroubleOptions
