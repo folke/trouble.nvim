@@ -11,6 +11,7 @@ A pretty list for showing diagnostics, references, telescope results, quickfix a
   - LSP references
   - LSP implementations
   - LSP definitions
+  - LSP type definitions
   - quickfix list
   - location list
   - [Telescope](https://github.com/nvim-telescope/telescope.nvim) search results
@@ -158,6 +159,7 @@ Modes:
 - **lsp_workspace_diagnostics:** workspace diagnostics from the builtin LSP client
 - **lsp_references:** references of the word under the cursor from the builtin LSP client
 - **lsp_definitions:** definitions of the word under the cursor from the builtin LSP client
+* **lsp_type_definitions:** tupe definitions of the word under the cursor from the builtin LSP client
 - **quickfix:** [quickfix](https://neovim.io/doc/user/quickfix.html) items
 - **loclist:** items from the window's [location list](https://neovim.io/doc/user/quickfix.html)
 
