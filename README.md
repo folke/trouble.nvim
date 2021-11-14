@@ -197,15 +197,58 @@ vim.api.nvim_set_keymap("n", "gR", "<cmd>Trouble lsp_references<cr>",
 
 ### API
 
-You can use the following functions in your keybindings:
+API functions can be called as `require("trouble").api_function(opts)`. The Trouble window must be opened, but focus is not required. These functions can be used in keybindings.
+
+#### `next` / `previous`
+
+Jump to the next/previous item on the list.
+
+`opts`:
+  - `target`: string list (`"group_any"`, `"group_folded"`, `"group_unfolded"`, `"item_any"`, `"item_error"`, `"item_warning"`, `"item_information"`, `"item_hint"`, `"item_other"`)
+  - `jump`: boolean
+
+Examples:
 
 ```lua
--- jump to the next item, skipping the groups
-require("trouble").next({skip_groups = true, jump = true});
+-- select and jump to the next item, skipping the groups
+require("trouble").next({target = {"item_any"}, jump = true})
 
--- jump to the previous item, skipping the groups
-require("trouble").previous({skip_groups = true, jump = true});
+-- select the next item or a group if it was folded
+require("trouble").next({target = {"item_any", "group_folded"}})
+
+-- select previous "error" item or "warning" item
+require("trouble").previous({target = {"item_error", "item_warning"}})
 ```
+
+Example keybindings:
+
+```vim
+" Vim Script
+" Global
+nnoremap [t <cmd>lua require("trouble").previous({target = {"item_any"}, jump = true})<cr>
+nnoremap ]t <cmd>lua require("trouble").next({target = {"item_any"}, jump = true})<cr>
+" Trouble buffer
+autocmd FileType Trouble nnoremap <buffer> <c-k> <cmd>lua require("trouble").previous({target = {"item_error", "item_warning"}})<cr>
+autocmd FileType Trouble nnoremap <buffer> <c-j> <cmd>lua require("trouble").next({target = {"item_error", "item_warning"}})<cr>
+```
+
+```lua
+-- Lua
+-- Global
+vim.api.nvim_set_keymap("n", "[t", '<cmd>lua require("trouble").previous({target = {"item_any"}, jump = true})<cr>',
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "]t", '<cmd>lua require("trouble").next({target = {"item_any"}, jump = true})<cr>',
+  {silent = true, noremap = true}
+)
+-- Trouble buffer
+vim.api.nvim_command([[
+autocmd FileType Trouble nnoremap <buffer> <c-k> <cmd>lua require("trouble").previous({target = {"item_error", "item_warning"}})<cr>
+autocmd FileType Trouble nnoremap <buffer> <c-j> <cmd>lua require("trouble").next({target = {"item_error", "item_warning"}})<cr>
+]])
+```
+
+Make sure they don't clash with Trouble's `action_keys` keybindings.
 
 ### Telescope
 

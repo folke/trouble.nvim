@@ -374,29 +374,55 @@ function View:current_item()
 end
 
 function View:next_item(opts)
-  opts = opts or { skip_groups = false }
+  opts = opts or { target = { "group_any", "item_any" } }
+  -- deprecated
+  if opts.skip_groups then
+    opts.target = { "item_any" }
+  end
+
   local line = self:get_line()
   for i = line + 1, vim.api.nvim_buf_line_count(self.buf), 1 do
-    if self.items[i] and not (opts.skip_groups and self.items[i].is_file) then
-      vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
-      if opts.jump then
-        self:jump()
+    local item = self.items[i]
+    if item then
+      if item.is_file and (vim.tbl_contains(opts.target, "group_any") or
+        vim.tbl_contains(opts.target, "group_folded") and folds.is_folded(item.filename) or
+        vim.tbl_contains(opts.target, "group_unfolded") and not folds.is_folded(item.filename)) or
+        not item.is_file and (vim.tbl_contains(opts.target, "item_any") or
+        vim.tbl_contains(opts.target, "item_" .. string.lower(util.severity[item.severity])))
+      then
+        vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
+        if opts.jump then
+          self:jump()
+        end
+        return
       end
-      return
     end
   end
 end
 
 function View:previous_item(opts)
-  opts = opts or { skip_groups = false }
+  opts = opts or { target = { "group_any", "item_any" } }
+  -- deprecated
+  if opts.skip_groups then
+    opts.target = { "item_any" }
+  end
+
   local line = self:get_line()
   for i = line - 1, 0, -1 do
-    if self.items[i] and not (opts.skip_groups and self.items[i].is_file) then
-      vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
-      if opts.jump then
-        self:jump()
+    local item = self.items[i]
+    if item then
+      if item.is_file and (vim.tbl_contains(opts.target, "group_any") or
+        vim.tbl_contains(opts.target, "group_folded") and folds.is_folded(item.filename) or
+        vim.tbl_contains(opts.target, "group_unfolded") and not folds.is_folded(item.filename)) or
+        not item.is_file and (vim.tbl_contains(opts.target, "item_any") or
+        vim.tbl_contains(opts.target, "item_" .. string.lower(util.severity[item.severity])))
+      then
+        vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
+        if opts.jump then
+          self:jump()
+        end
+        return
       end
-      return
     end
   end
 end
