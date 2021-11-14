@@ -1,5 +1,6 @@
 local util = require("trouble.util")
 local qf = require("trouble.providers.qf")
+local workbench = require("trouble.providers.workbench")
 local telescope = require("trouble.providers.telescope")
 local lsp = require("trouble.providers.lsp")
 
@@ -13,6 +14,7 @@ M.providers = {
   lsp_definitions = lsp.definitions,
   quickfix = qf.qflist,
   loclist = qf.loclist,
+  workbench = workbench.workbench,
   telescope = telescope.telescope,
 }
 

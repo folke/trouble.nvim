@@ -160,6 +160,7 @@ Modes:
 - **lsp_definitions:** definitions of the word under the cursor from the builtin LSP client
 - **quickfix:** [quickfix](https://neovim.io/doc/user/quickfix.html) items
 - **loclist:** items from the window's [location list](https://neovim.io/doc/user/quickfix.html)
+- **workbench:** lsp workspace diagnostics and [todo comments](https://github.com/folke/todo-comments.nvim)
 
 Example keybindings:
 
@@ -171,6 +172,7 @@ nnoremap <leader>xd <cmd>TroubleToggle lsp_document_diagnostics<cr>
 nnoremap <leader>xq <cmd>TroubleToggle quickfix<cr>
 nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
 nnoremap gR <cmd>TroubleToggle lsp_references<cr>
+nnoremap <leader>xb <cmd>Trouble workbench<cr>
 ```
 
 ```lua
@@ -191,6 +193,9 @@ vim.api.nvim_set_keymap("n", "<leader>xq", "<cmd>Trouble quickfix<cr>",
   {silent = true, noremap = true}
 )
 vim.api.nvim_set_keymap("n", "gR", "<cmd>Trouble lsp_references<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "xb", "<cmd>Trouble workbench<cr>",
   {silent = true, noremap = true}
 )
 ```
