@@ -458,7 +458,11 @@ function View:jump(opts)
 end
 
 function View:toggle_fold()
-  folds.toggle(self:current_item().filename)
+  local item = self:current_item()
+  if not item.is_file then
+    self:previous_item({ target = { "group_unfolded" } })
+  end
+  folds.toggle(item.filename)
   self:update()
 end
 
