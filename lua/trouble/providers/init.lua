@@ -37,7 +37,11 @@ function M.get(win, buf, cb, options)
   provider(win, buf, function(items)
     table.sort(items, function(a, b)
       if a.severity == b.severity then
-        return a.lnum < b.lnum
+        if a.lnum == b.lnum then
+            return a.col < b.col
+        else
+          return a.lnum < b.lnum
+        end
       else
         return a.severity < b.severity
       end
