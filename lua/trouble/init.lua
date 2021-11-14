@@ -188,6 +188,12 @@ function Trouble.action(action)
   if action == "toggle_fold" then
     view:toggle_fold()
   end
+  if action == "open_fold" then
+    view:toggle_fold({enforced_state = "opened"})
+  end
+  if action == "close_fold" then
+    view:toggle_fold({enforced_state = "closed"})
+  end
   if action == "on_enter" then
     view:on_enter()
   end

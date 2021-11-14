@@ -457,12 +457,18 @@ function View:jump(opts)
   end
 end
 
-function View:toggle_fold()
+function View:toggle_fold(opts)
+  opts = opts or {}
   local item = self:current_item()
-  if not item.is_file then
-    self:previous_item({ target = { "group_unfolded" } })
+  if not opts.enforced_state or
+    opts.enforced_state == "closed" and not folds.is_folded(item.filename) or
+    opts.enforced_state == "opened" and folds.is_folded(item.filename)
+  then
+    if not item.is_file then
+      self:previous_item({ target = { "group_unfolded" } })
+    end
+    folds.toggle(item.filename)
   end
-  folds.toggle(item.filename)
   self:update()
 end
 

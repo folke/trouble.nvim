@@ -101,6 +101,8 @@ Trouble comes with the following defaults:
         close_folds = {"zM", "zm"}, -- close all folds
         open_folds = {"zR", "zr"}, -- open all folds
         toggle_fold = {"zA", "za"}, -- toggle fold of current file
+        close_fold = { "zC", "zc" }, -- close fold of current file
+        open_fold = { "zO", "zo" }, -- close fold of current file
         previous = "k", -- preview item
         next = "j" -- next item
     },
