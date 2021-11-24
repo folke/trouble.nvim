@@ -11,6 +11,7 @@ M.providers = {
   lsp_references = lsp.references,
   lsp_implementations = lsp.implementations,
   lsp_definitions = lsp.definitions,
+  lsp_type_definitions = lsp.type_definitions,
   quickfix = qf.qflist,
   loclist = qf.loclist,
   telescope = telescope.telescope,
