@@ -135,7 +135,6 @@ function View:setup(opts)
   end
   self:set_option("bufhidden", "wipe")
   self:set_option("buftype", "nofile")
-  self:set_option("filetype", "Trouble")
   self:set_option("swapfile", false)
   self:set_option("buflisted", false)
   self:set_option("winfixwidth", true, true)
@@ -150,6 +149,7 @@ function View:setup(opts)
   self:set_option("foldenable", false, true)
   self:set_option("winhighlight", "Normal:TroubleNormal,EndOfBuffer:TroubleNormal,SignColumn:TroubleNormal", true)
   self:set_option("fcs", "eob: ", true)
+  self:set_option("filetype", "Trouble")
 
   for action, keys in pairs(config.options.action_keys) do
     if type(keys) == "string" then
