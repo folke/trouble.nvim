@@ -1,7 +1,12 @@
 
 augroup Trouble
   autocmd!
-  au User LspDiagnosticsChanged lua require'trouble'.refresh({auto = true, provider = "diagnostics"})
+  if has('nvim-0.6')
+    " Use the new diagnostic subsystem for neovim 0.6 and up
+    au DiagnosticChanged * lua require'trouble'.refresh({auto = true, provider = "diagnostics"})
+  else
+    au User LspDiagnosticsChanged lua require'trouble'.refresh({auto = true, provider = "diagnostics"})
+  endif
   autocmd BufWinEnter,BufEnter * lua require("trouble").action("on_win_enter")
 augroup end
 
