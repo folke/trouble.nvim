@@ -61,14 +61,14 @@ function renderer.render(view, opts)
     end
 
     -- render file groups
-    for filename, group_items in pairs(grouped) do
+    for _, group in ipairs(grouped) do
       if opts.open_folds then
-        folds.open(filename)
+        folds.open(group.filename)
       end
       if opts.close_folds then
-        folds.close(filename)
+        folds.close(group.filename)
       end
-      renderer.render_file(view, text, filename, group_items)
+      renderer.render_file(view, text, group.filename, group.items)
     end
 
     view:render(text)

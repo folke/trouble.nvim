@@ -35,16 +35,13 @@ function M.get(win, buf, cb, options)
     return {}
   end
 
+  local sort_keys = { "severity", "filename", "lnum", "col" }
   provider(win, buf, function(items)
     table.sort(items, function(a, b)
-      if a.severity == b.severity then
-        if a.lnum == b.lnum then
-            return a.col < b.col
-        else
-          return a.lnum < b.lnum
+      for _, key in ipairs(sort_keys) do
+        if a[key] ~= b[key] then
+          return a[key] < b[key]
         end
-      else
-        return a.severity < b.severity
       end
     end)
     cb(items)
@@ -54,13 +51,25 @@ end
 ---@param items Item[]
 ---@return table<string, Item[]>
 function M.group(items)
-  local ret = {}
+  local keys = {}
+  local keyid = 0
+  local groups = {}
   for _, item in ipairs(items) do
-    if ret[item.filename] == nil then
-      ret[item.filename] = {}
+    if groups[item.filename] == nil then
+      groups[item.filename] = { filename = item.filename, items = {} }
+      keys[item.filename] = keyid
+      keyid = keyid + 1
     end
-    table.insert(ret[item.filename], item)
+    table.insert(groups[item.filename].items, item)
   end
+
+  local ret = {}
+  for _, group in pairs(groups) do
+    table.insert(ret, group)
+  end
+  table.sort(ret, function(a, b)
+    return keys[a.filename] < keys[b.filename]
+  end)
   return ret
 end
 
