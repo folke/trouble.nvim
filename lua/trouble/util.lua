@@ -2,6 +2,22 @@ local config = require("trouble.config")
 
 local M = {}
 
+function M.jump_to_item(win, precmd, item)
+  -- requiring here, as otherwise we run into a circular dependency
+  local View = require("trouble.view")
+
+  View.switch_to(win)
+  if precmd then
+    vim.cmd(precmd)
+  end
+  if vim.api.nvim_buf_get_option(item.bufnr, "buflisted") == false then
+    vim.cmd("edit #" .. item.bufnr)
+  else
+    vim.cmd("buffer " .. item.bufnr)
+  end
+  vim.api.nvim_win_set_cursor(win, { item.start.line + 1, item.start.character })
+end
+
 function M.count(tab)
   local count = 0
   for _ in pairs(tab) do
@@ -65,14 +81,32 @@ M.severity = {
   [4] = "Hint",
 }
 
+-- returns a hl or sign label for the givin severity and type
+-- correctly handles new names introduced in vim.diagnostic
+function M.get_severity_label(severity, type)
+  local label = severity
+  local prefix = "LspDiagnostics" .. (type or "Default")
+
+  if vim.diagnostic then
+    prefix = type and ("Diagnostic" .. type) or "Diagnostic"
+    label = ({
+      Warning = "Warn",
+      Information = "Info",
+    })[severity] or severity
+  end
+
+  return prefix .. label
+end
+
 -- based on the Telescope diagnostics code
 -- see https://github.com/nvim-telescope/telescope.nvim/blob/0d6cd47990781ea760dd3db578015c140c7b9fa7/lua/telescope/utils.lua#L85
 
 function M.process_item(item, bufnr)
   local filename = vim.api.nvim_buf_get_name(bufnr)
   local uri = vim.uri_from_bufnr(bufnr)
-  local start = item.range["start"]
-  local finish = item.range["end"]
+  local range = item.range or item.targetSelectionRange
+  local start = range["start"]
+  local finish = range["end"]
   local row = start.line
   local col = start.character
 
@@ -121,7 +155,8 @@ function M.locations_to_items(results, default_severity)
   for bufnr, locs in pairs(results or {}) do
     for _, loc in pairs(locs.result or locs) do
       if not vim.tbl_isempty(loc) then
-        local buf = loc.uri and vim.uri_to_bufnr(loc.uri) or bufnr
+        local uri = loc.uri or loc.targetUri
+        local buf = uri and vim.uri_to_bufnr(uri) or bufnr
         loc.severity = loc.severity or default_severity
         table.insert(ret, M.process_item(loc, buf))
       end

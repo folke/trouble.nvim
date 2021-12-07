@@ -1,4 +1,3 @@
-
 # 🚦 Trouble
 
 A pretty list for showing diagnostics, references, telescope results, quickfix and location lists to help you solve all the trouble your code is causing.
@@ -7,28 +6,29 @@ A pretty list for showing diagnostics, references, telescope results, quickfix a
 
 ## ✨ Features
 
-* pretty list of:
+- pretty list of:
   - LSP Diagnostics
   - LSP references
   - LSP implementations
   - LSP definitions
+  - LSP type definitions
   - quickfix list
   - location list
   - [Telescope](https://github.com/nvim-telescope/telescope.nvim) search results
-* automatically updates on new diagnostics
-* toggle **diagnostics** mode between **workspace** or **document**
-* **interactive preview** in your last accessed window
-* *cancel* preview or *jump* to the location
-* configurable actions, signs, highlights,...
+- automatically updates on new diagnostics
+- toggle **diagnostics** mode between **workspace** or **document**
+- **interactive preview** in your last accessed window
+- _cancel_ preview or _jump_ to the location
+- configurable actions, signs, highlights,...
 
 ## ⚡️ Requirements
 
-* Neovim >= 0.5.0
-* Properly configured Neovim LSP client
-* [nvim-web-devicons](https://github.com/kyazdani42/nvim-web-devicons) is optional to enable file icons
-* a theme with properly configured highlight groups for Neovim LSP Diagnostics
-* or install 🌈  [lsp-colors](https://github.com/folke/lsp-colors.nvim) to automatically create the missing highlight groups
-* a [patched font](https://www.nerdfonts.com/) for the default severity and fold icons
+- Neovim >= 0.5.0
+- Properly configured Neovim LSP client
+- [nvim-web-devicons](https://github.com/kyazdani42/nvim-web-devicons) is optional to enable file icons
+- a theme with properly configured highlight groups for Neovim LSP Diagnostics
+- or install 🌈 [lsp-colors](https://github.com/folke/lsp-colors.nvim) to automatically create the missing highlight groups
+- a [patched font](https://www.nerdfonts.com/) for the default severity and fold icons
 
 ## 📦 Installation
 
@@ -82,6 +82,8 @@ Trouble comes with the following defaults:
     mode = "lsp_workspace_diagnostics", -- "lsp_workspace_diagnostics", "lsp_document_diagnostics", "quickfix", "lsp_references", "loclist"
     fold_open = "", -- icon used for open folds
     fold_closed = "", -- icon used for closed folds
+    group = true, -- group results by file
+    padding = true, -- add an extra new line on top of the list
     action_keys = { -- key mappings for actions in the trouble list
         -- map to {} to remove a mapping, for example:
         -- close = {},
@@ -108,6 +110,7 @@ Trouble comes with the following defaults:
     auto_close = false, -- automatically close the list when you have no diagnostics
     auto_preview = true, -- automatically preview the location of the diagnostic. <esc> to close preview and go back to last window
     auto_fold = false, -- automatically fold a file trouble list at creation
+    auto_jump = {"lsp_definitions"}, -- for the given modes, automatically jump if there is only a single result
     signs = {
         -- icons / text used for a diagnostic
         error = "",
@@ -145,19 +148,20 @@ Trouble comes with the following defaults:
 
 Trouble comes with the following commands:
 
-* `Trouble [mode]`: open the list
-* `TroubleClose [mode]`: close the list
-* `TroubleToggle [mode]`: toggle the list
-* `TroubleRefresh`: manually refresh the active list
+- `Trouble [mode]`: open the list
+- `TroubleClose [mode]`: close the list
+- `TroubleToggle [mode]`: toggle the list
+- `TroubleRefresh`: manually refresh the active list
 
 Modes:
 
-* **lsp_document_diagnostics:** document diagnostics from the builtin LSP client
-* **lsp_workspace_diagnostics:** workspace diagnostics from the builtin LSP client
-* **lsp_references:** references of the word under the cursor from the builtin LSP client
-* **lsp_definitions:** definitions of the word under the cursor from the builtin LSP client
-* **quickfix:** [quickfix](https://neovim.io/doc/user/quickfix.html) items
-* **loclist:** items from the window's [location list](https://neovim.io/doc/user/quickfix.html)
+- **lsp_document_diagnostics:** document diagnostics from the builtin LSP client
+- **lsp_workspace_diagnostics:** workspace diagnostics from the builtin LSP client
+- **lsp_references:** references of the word under the cursor from the builtin LSP client
+- **lsp_definitions:** definitions of the word under the cursor from the builtin LSP client
+* **lsp_type_definitions:** tupe definitions of the word under the cursor from the builtin LSP client
+- **quickfix:** [quickfix](https://neovim.io/doc/user/quickfix.html) items
+- **loclist:** items from the window's [location list](https://neovim.io/doc/user/quickfix.html)
 
 Example keybindings:
 
@@ -229,30 +233,30 @@ When you open telescope, you can now hit `<c-t>` to open the results in **Troubl
 
 ## 🎨 Colors
 
-The table below shows all the highlight groups defined for LSP Trouble with their default link.
+The table below shows all the highlight groups defined for Trouble.
 
-| Highlight Group             | Defaults to                      |
-| --------------------------- | -------------------------------- |
-| *TroubleCount*           | TabLineSel                       |
-| *TroubleError*           | LspDiagnosticsDefaultError       |
-| *TroubleNormal*          | Normal                           |
-| *TroubleTextInformation* | TroubleText                   |
-| *TroubleSignWarning*     | LspDiagnosticsSignWarning        |
-| *TroubleLocation*        | LineNr                           |
-| *TroubleWarning*         | LspDiagnosticsDefaultWarning     |
-| *TroublePreview*         | Search                           |
-| *TroubleTextError*       | TroubleText                   |
-| *TroubleSignInformation* | LspDiagnosticsSignInformation    |
-| *TroubleIndent*          | LineNr                           |
-| *TroubleSource*          | Comment                          |
-| *TroubleSignHint*        | LspDiagnosticsSignHint           |
-| *TroubleSignOther*       | TroubleSignInformation        |
-| *TroubleFoldIcon*        | CursorLineNr                     |
-| *TroubleTextWarning*     | TroubleText                   |
-| *TroubleCode*            | Comment                          |
-| *TroubleInformation*     | LspDiagnosticsDefaultInformation |
-| *TroubleSignError*       | LspDiagnosticsSignError          |
-| *TroubleFile*            | Directory                        |
-| *TroubleHint*            | LspDiagnosticsDefaultHint        |
-| *TroubleTextHint*        | TroubleText                   |
-| *TroubleText*            | Normal                           |
+| Highlight Group          |
+| ------------------------ |
+| _TroubleCount_           |
+| _TroubleError_           |
+| _TroubleNormal_          |
+| _TroubleTextInformation_ |
+| _TroubleSignWarning_     |
+| _TroubleLocation_        |
+| _TroubleWarning_         |
+| _TroublePreview_         |
+| _TroubleTextError_       |
+| _TroubleSignInformation_ |
+| _TroubleIndent_          |
+| _TroubleSource_          |
+| _TroubleSignHint_        |
+| _TroubleSignOther_       |
+| _TroubleFoldIcon_        |
+| _TroubleTextWarning_     |
+| _TroubleCode_            |
+| _TroubleInformation_     |
+| _TroubleSignError_       |
+| _TroubleFile_            |
+| _TroubleHint_            |
+| _TroubleTextHint_        |
+| _TroubleText_            |

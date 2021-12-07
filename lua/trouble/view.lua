@@ -56,11 +56,20 @@ end
 
 function View:new(opts)
   opts = opts or {}
+
+  local group
+  if opts.group ~= nil then
+    group = opts.group
+  else
+    group = config.options.group
+  end
+
   local this = {
     buf = vim.api.nvim_get_current_buf(),
     win = opts.win or vim.api.nvim_get_current_win(),
     parent = opts.parent,
     items = {},
+    group = group,
   }
   setmetatable(this, self)
   return this
@@ -418,16 +427,7 @@ function View:jump(opts)
     folds.toggle(item.filename)
     self:update()
   else
-    View.switch_to(opts.win or self.parent)
-    if opts.precmd then
-      vim.cmd(opts.precmd)
-    end
-    if vim.api.nvim_buf_get_option(item.bufnr, "buflisted") == false then
-      vim.cmd("edit #" .. item.bufnr)
-    else
-      vim.cmd("buffer " .. item.bufnr)
-    end
-    vim.api.nvim_win_set_cursor(self.parent, { item.start.line + 1, item.start.character })
+    util.jump_to_item(opts.win or self.parent, opts.precmd, item)
   end
 end
 
