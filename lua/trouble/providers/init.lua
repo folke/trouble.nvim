@@ -36,12 +36,30 @@ function M.get(win, buf, cb, options)
     return {}
   end
 
-  local sort_keys = { "severity", "filename", "lnum", "col" }
+  local sort_keys = {
+    function(item)
+      local cwd = vim.loop.fs_realpath(vim.fn.getcwd())
+      local path = vim.loop.fs_realpath(item.filename)
+      local ret = string.find(path, cwd, 1, true) == 1 and 10 or 100
+      -- prefer non-hidden files
+      if string.find(path, ".") then
+        ret = ret + 1
+      end
+      return ret
+    end,
+    "severity",
+    "filename",
+    "lnum",
+    "col",
+  }
+
   provider(win, buf, function(items)
     table.sort(items, function(a, b)
       for _, key in ipairs(sort_keys) do
-        if a[key] ~= b[key] then
-          return a[key] < b[key]
+        local ak = type(key) == "string" and a[key] or key(a)
+        local bk = type(key) == "string" and b[key] or key(b)
+        if ak ~= bk then
+          return ak < bk
         end
       end
     end)
