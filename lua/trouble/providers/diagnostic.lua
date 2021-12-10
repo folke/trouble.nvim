@@ -5,14 +5,24 @@ local M = {}
 
 ---@param options TroubleOptions
 ---@return Item[]
-function M.diagnostics(_win, buf, cb, options)
+function M.diagnostics(_, buf, cb, options)
   if options.mode == "workspace_diagnostics" then
     buf = nil
   end
 
-  local buffer_diags = buf and { [buf] = vim.lsp.diagnostic.get(buf) } or vim.lsp.diagnostic.get_all()
+  local items = {}
 
-  local items = util.locations_to_items(buffer_diags, 1)
+  if vim.diagnostic then
+    local diags = vim.diagnostic.get(buf)
+    for _, item in ipairs(diags) do
+      table.insert(items, util.process_item(item))
+    end
+  else
+    ---@diagnostic disable-next-line: deprecated
+    local diags = buf and { [buf] = vim.lsp.diagnostic.get(buf) } or vim.lsp.diagnostic.get_all()
+    items = util.locations_to_items(diags, 1)
+  end
+
   cb(items)
 end
 

@@ -78,7 +78,7 @@ function renderer.render(view, opts)
   end, config.options)
 end
 
----@param view View
+---@param view TroubleView
 ---@param text Text
 ---@param items Item[]
 ---@param filename string
@@ -111,7 +111,7 @@ function renderer.render_file(view, text, filename, items)
   end
 end
 
----@param view View
+---@param view TroubleView
 ---@param text Text
 ---@param items Item[]
 function renderer.render_diagnostics(view, text, items)

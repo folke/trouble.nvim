@@ -113,11 +113,30 @@ end
 -- see https://github.com/nvim-telescope/telescope.nvim/blob/0d6cd47990781ea760dd3db578015c140c7b9fa7/lua/telescope/utils.lua#L85
 
 function M.process_item(item, bufnr)
+  bufnr = bufnr or item.bufnr
   local filename = vim.api.nvim_buf_get_name(bufnr)
   local uri = vim.uri_from_bufnr(bufnr)
-  local range = item.range or item.targetSelectionRange
+  local range = item.range
+    or item.targetSelectionRange
+    or {
+      ["start"] = {
+        character = item.col,
+        line = item.lnum,
+      },
+      ["end"] = {
+        character = item.end_col,
+        line = item.end_lnum,
+      },
+    }
   local start = range["start"]
   local finish = range["end"]
+
+  if start.character == nil or start.line == nil then
+    M.error("Found an item for Trouble without start range " .. vim.inspect(start))
+  end
+  if finish.character == nil or finish.line == nil then
+    M.error("Found an item for Trouble without finish range " .. vim.inspect(finish))
+  end
   local row = start.line
   local col = start.character
 

@@ -8,6 +8,7 @@ local highlight = vim.api.nvim_buf_add_highlight
 ---@class TroubleView
 ---@field buf number
 ---@field win number
+---@field group boolean
 ---@field items Item[]
 ---@field folded table<string, boolean>
 ---@field parent number
