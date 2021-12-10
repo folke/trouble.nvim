@@ -19,6 +19,10 @@ function M.jump_to_item(win, precmd, item)
 end
 
 function M.fix_mode(opts)
+  if opts.use_lsp_diagnostic_signs then
+    opts.use_diagnostic_signs = opts.use_lsp_diagnostic_signs
+    M.warn("The Trouble option use_lsp_diagnostic_signs has been renamed to use_diagnostic_signs")
+  end
   local replace = {
     lsp_workspace_diagnostics = "workspace_diagnostics",
     lsp_document_diagnostics = "document_diagnostics",
