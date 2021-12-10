@@ -26,22 +26,17 @@ function M.count(tab)
   return count
 end
 
-function M.log(msg, hl)
-  hl = hl or "MsgArea"
-  vim.api.nvim_echo({ { "[Trouble] ", hl }, { msg } }, true, {})
-end
-
 function M.warn(msg)
-  M.log(msg, "WarningMsg")
+  vim.notify(msg, vim.log.levels.WARN, { title = "Trouble" })
 end
 
 function M.error(msg)
-  M.log(msg, "Error")
+  vim.notify(msg, vim.log.levels.ERROR, { title = "Trouble" })
 end
 
 function M.debug(msg)
   if config.options.debug then
-    M.log(msg)
+    vim.notify(msg, vim.log.levels.DEBUG, { title = "Trouble" })
   end
 end
 
