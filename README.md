@@ -79,7 +79,7 @@ Trouble comes with the following defaults:
     height = 10, -- height of the trouble list when position is top or bottom
     width = 50, -- width of the list when position is left or right
     icons = true, -- use devicons for filenames
-    mode = "lsp_workspace_diagnostics", -- "lsp_workspace_diagnostics", "lsp_document_diagnostics", "quickfix", "lsp_references", "loclist"
+    mode = "workspace_diagnostics", -- "workspace_diagnostics", "document_diagnostics", "quickfix", "lsp_references", "loclist"
     fold_open = "", -- icon used for open folds
     fold_closed = "", -- icon used for closed folds
     group = true, -- group results by file
@@ -156,11 +156,13 @@ Trouble comes with the following commands:
 
 Modes:
 
-- **lsp_document_diagnostics:** document diagnostics from the builtin LSP client
-- **lsp_workspace_diagnostics:** workspace diagnostics from the builtin LSP client
+- **document_diagnostics:** document diagnostics from the builtin LSP client
+- **workspace_diagnostics:** workspace diagnostics from the builtin LSP client
 - **lsp_references:** references of the word under the cursor from the builtin LSP client
 - **lsp_definitions:** definitions of the word under the cursor from the builtin LSP client
+
 * **lsp_type_definitions:** tupe definitions of the word under the cursor from the builtin LSP client
+
 - **quickfix:** [quickfix](https://neovim.io/doc/user/quickfix.html) items
 - **loclist:** items from the window's [location list](https://neovim.io/doc/user/quickfix.html)
 
@@ -169,8 +171,8 @@ Example keybindings:
 ```vim
 " Vim Script
 nnoremap <leader>xx <cmd>TroubleToggle<cr>
-nnoremap <leader>xw <cmd>TroubleToggle lsp_workspace_diagnostics<cr>
-nnoremap <leader>xd <cmd>TroubleToggle lsp_document_diagnostics<cr>
+nnoremap <leader>xw <cmd>TroubleToggle workspace_diagnostics<cr>
+nnoremap <leader>xd <cmd>TroubleToggle document_diagnostics<cr>
 nnoremap <leader>xq <cmd>TroubleToggle quickfix<cr>
 nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
 nnoremap gR <cmd>TroubleToggle lsp_references<cr>
@@ -181,10 +183,10 @@ nnoremap gR <cmd>TroubleToggle lsp_references<cr>
 vim.api.nvim_set_keymap("n", "<leader>xx", "<cmd>Trouble<cr>",
   {silent = true, noremap = true}
 )
-vim.api.nvim_set_keymap("n", "<leader>xw", "<cmd>Trouble lsp_workspace_diagnostics<cr>",
+vim.api.nvim_set_keymap("n", "<leader>xw", "<cmd>Trouble workspace_diagnostics<cr>",
   {silent = true, noremap = true}
 )
-vim.api.nvim_set_keymap("n", "<leader>xd", "<cmd>Trouble lsp_document_diagnostics<cr>",
+vim.api.nvim_set_keymap("n", "<leader>xd", "<cmd>Trouble document_diagnostics<cr>",
   {silent = true, noremap = true}
 )
 vim.api.nvim_set_keymap("n", "<leader>xl", "<cmd>Trouble loclist<cr>",

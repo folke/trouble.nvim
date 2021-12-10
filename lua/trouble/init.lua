@@ -15,6 +15,7 @@ end
 
 function Trouble.setup(options)
   config.setup(options)
+  util.fix_mode(config.options)
   colors.setup()
 end
 
@@ -45,7 +46,7 @@ local function get_opts(...)
     end
   end
   opts = opts or {}
-  config.fix_mode(opts)
+  util.fix_mode(opts)
   config.options.cmd_options = opts
   return opts
 end
@@ -117,10 +118,10 @@ function Trouble.refresh(opts)
 
   -- dont do an update if this is an automated refresh from a different provider
   if opts.auto then
-    if opts.provider == "diagnostics" and config.options.mode == "lsp_document_diagnostics" then
-      opts.provider = "lsp_document_diagnostics"
-    elseif opts.provider == "diagnostics" and config.options.mode == "lsp_workspace_diagnostics" then
-      opts.provider = "lsp_workspace_diagnostics"
+    if opts.provider == "diagnostics" and config.options.mode == "document_diagnostics" then
+      opts.provider = "document_diagnostics"
+    elseif opts.provider == "diagnostics" and config.options.mode == "workspace_diagnostics" then
+      opts.provider = "workspace_diagnostics"
     elseif opts.provider == "qf" and config.options.mode == "quickfix" then
       opts.provider = "quickfix"
     elseif opts.provider == "qf" and config.options.mode == "loclist" then
@@ -149,10 +150,10 @@ end
 
 function Trouble.action(action)
   if action == "toggle_mode" then
-    if config.options.mode == "lsp_document_diagnostics" then
-      config.options.mode = "lsp_workspace_diagnostics"
-    elseif config.options.mode == "lsp_workspace_diagnostics" then
-      config.options.mode = "lsp_document_diagnostics"
+    if config.options.mode == "document_diagnostics" then
+      config.options.mode = "workspace_diagnostics"
+    elseif config.options.mode == "workspace_diagnostics" then
+      config.options.mode = "document_diagnostics"
     end
     action = "refresh"
   end
@@ -228,12 +229,14 @@ function Trouble.action(action)
 end
 
 function Trouble.next(opts)
+  util.fix_mode(opts)
   if view then
     view:next_item(opts)
   end
 end
 
 function Trouble.previous(opts)
+  util.fix_mode(opts)
   if view then
     view:previous_item(opts)
   end

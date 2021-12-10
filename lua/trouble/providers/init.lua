@@ -2,12 +2,13 @@ local util = require("trouble.util")
 local qf = require("trouble.providers.qf")
 local telescope = require("trouble.providers.telescope")
 local lsp = require("trouble.providers.lsp")
+local diagnostic = require("trouble.providers.diagnostic")
 
 local M = {}
 
 M.providers = {
-  lsp_workspace_diagnostics = lsp.diagnostics,
-  lsp_document_diagnostics = lsp.diagnostics,
+  workspace_diagnostics = diagnostic.diagnostics,
+  document_diagnostics = diagnostic.diagnostics,
   lsp_references = lsp.references,
   lsp_implementations = lsp.implementations,
   lsp_definitions = lsp.definitions,

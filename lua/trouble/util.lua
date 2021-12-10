@@ -18,6 +18,22 @@ function M.jump_to_item(win, precmd, item)
   vim.api.nvim_win_set_cursor(win, { item.start.line + 1, item.start.character })
 end
 
+function M.fix_mode(opts)
+  local replace = {
+    lsp_workspace_diagnostics = "workspace_diagnostics",
+    lsp_document_diagnostics = "document_diagnostics",
+    workspace = "workspace_diagnostics",
+    document = "document_diagnostics",
+  }
+
+  for old, new in pairs(replace) do
+    if opts.mode == old then
+      opts.mode = new
+      M.warn("Using " .. old .. " for Trouble is deprecated. Please use " .. new .. " instead.")
+    end
+  end
+end
+
 function M.count(tab)
   local count = 0
   for _ in pairs(tab) do

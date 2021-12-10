@@ -25,7 +25,7 @@ end
 local function update_signs()
   signs = config.options.signs
   if config.options.use_lsp_diagnostic_signs then
-    local lsp_signs = require("trouble.providers.lsp").get_signs()
+    local lsp_signs = require("trouble.providers.diagnostic").get_signs()
     signs = vim.tbl_deep_extend("force", {}, signs, lsp_signs)
   end
 end
