@@ -19,7 +19,7 @@ function M.diagnostics(_, buf, cb, options)
     end
   else
     ---@diagnostic disable-next-line: deprecated
-    local diags = buf and { [buf] = vim.lsp.diagnostic.get(buf) } or vim.lsp.diagnostic.get_all()
+    local diags = buf and { [buf] = vim.lsp.diagnostic.get(buf) } or vim.lsp.diagnostic.get()
     items = util.locations_to_items(diags, 1)
   end
 
