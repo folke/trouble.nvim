@@ -174,7 +174,7 @@ function M.process_item(item, bufnr)
     text = vim.trim(item.message:gsub("[\n]", "")):sub(0, vim.o.columns),
     full_text = vim.trim(item.message),
     type = M.severity[item.severity] or M.severity[0],
-    code = item.code,
+    code = item.code or (item.user_data and item.user_data.lsp and item.user_data.lsp.code),
     source = item.source,
     severity = item.severity or 0,
   }
