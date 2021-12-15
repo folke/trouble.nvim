@@ -160,6 +160,7 @@ function M.process_item(item, bufnr)
   ---@class Item
   ---@field is_file boolean
   ---@field fixed boolean
+  local tableWithCode = item.user_data and item.user_data.lsp or item
   local ret
   ret = {
     bufnr = bufnr,
@@ -174,7 +175,7 @@ function M.process_item(item, bufnr)
     text = vim.trim(item.message:gsub("[\n]", "")):sub(0, vim.o.columns),
     full_text = vim.trim(item.message),
     type = M.severity[item.severity] or M.severity[0],
-    code = item.code,
+    code = tableWithCode.code,
     source = item.source,
     severity = item.severity or 0,
   }
