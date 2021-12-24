@@ -1,18 +1,18 @@
+local providers = require("trouble.providers")
 local renderer = require("trouble.renderer")
 local config = require("trouble.config")
-local folds = require("trouble.folds")
 local util = require("trouble.util")
+local Split = require("nui.split")
+local Tree = require("nui.tree")
+local Line = require("nui.line")
 
 local highlight = vim.api.nvim_buf_add_highlight
 
 ---@class TroubleView
----@field buf number
----@field win number
+---@field split table
+---@field tree table
 ---@field group boolean
----@field items Item[]
----@field folded table<string, boolean>
 ---@field parent number
----@field float number
 local View = {}
 View.__index = View
 
@@ -65,38 +65,133 @@ function View:new(opts)
     group = config.options.group
   end
 
-  local this = {
-    buf = vim.api.nvim_get_current_buf(),
-    win = opts.win or vim.api.nvim_get_current_win(),
+  local size
+  if config.options.position == "top" or config.options.position == "bottom" then
+    size = config.options.height
+  else
+    size = config.options.width
+  end
+
+  local split = Split({
+    relative = "editor",
+    position = config.options.position or "top",
+    size = size,
+  })
+
+  split:mount()
+
+  local tree = Tree({
+    winid = split.winid,
+    ns_id = config.namespace,
+    buf_options = {
+      bufhidden = "wipe",
+      buflisted = false,
+      buftype = "nofile",
+      filetype = "Trouble",
+      modifiable = false,
+      readonly = true,
+      swapfile = false,
+    },
+    win_options = {
+      fcs = "eob: ",
+      foldcolumn = "0",
+      foldenable = false,
+      foldlevel = 3,
+      foldmethod = "manual",
+      list = false,
+      number = false,
+      relativenumber = false,
+      signcolumn = "no",
+      spell = false,
+      winfixheight = true,
+      winfixwidth = true,
+      winhighlight = "Normal:TroubleNormal,EndOfBuffer:TroubleNormal,SignColumn:TroubleNormal",
+      wrap = false,
+    },
+    prepare_node = function(node)
+      local line = Line()
+
+      if node.type == "padding" then
+        line:append("")
+      elseif node.type == "file" then
+        line:append(" ")
+
+        if node:is_expanded() then
+          line:append(config.options.fold_open, "TroubleFoldIcon")
+        else
+          line:append(config.options.fold_closed, "TroubleFoldIcon")
+        end
+        line:append(" ")
+
+        local filename = node.data.filename
+
+        local count = #(node.data.items or {})
+
+        if config.options.icons then
+          local icon, icon_hl = renderer.get_icon(filename)
+          line:append(icon, icon_hl)
+          line:append(" ")
+        end
+
+        line:append(vim.fn.fnamemodify(filename, ":p:."), "TroubleFile")
+        line:append(" ")
+        line:append(" " .. count .. " ", "TroubleCount")
+      elseif node.type == "diagnostic" then
+        local diag = node.data
+
+        local sign = diag.sign or renderer.signs[string.lower(diag.type)]
+        if not sign then
+          sign = diag.type
+        end
+
+        local indent = "     "
+        if config.options.indent_lines then
+          indent = " │   "
+        end
+
+        local sign_hl = diag.sign_hl or ("TroubleSign" .. diag.type)
+
+        line:append(indent, "TroubleIndent")
+        line:append(sign .. "  ", sign_hl)
+        line:append(diag.text, "TroubleText" .. diag.type)
+        line:append(" ")
+
+        if diag.source then
+          line:append(diag.source, "TroubleSource")
+        end
+        if diag.code and diag.code ~= vim.NIL then
+          line:append(" (" .. diag.code .. ")", "TroubleCode")
+        end
+
+        line:append(" ")
+
+        line:append("[" .. diag.lnum .. ", " .. diag.col .. "]", "TroubleLocation")
+      end
+
+      return line
+    end,
+  })
+
+  local view = setmetatable({
+    split = split,
+    tree = tree,
     parent = opts.parent,
-    items = {},
     group = group,
-  }
-  setmetatable(this, self)
-  return this
+  }, self)
+
+  return view
 end
 
 function View:set_option(name, value, win)
   if win then
-    return vim.api.nvim_win_set_option(self.win, name, value)
+    return vim.api.nvim_win_set_option(self.split.winid, name, value)
   else
-    return vim.api.nvim_buf_set_option(self.buf, name, value)
-  end
-end
-
----@param text Text
-function View:render(text)
-  self:unlock()
-  self:set_lines(text.lines)
-  self:lock()
-  clear_hl(self.buf)
-  for _, data in ipairs(text.hl) do
-    highlight(self.buf, config.namespace, data.group, data.line, data.from, data.to)
+    return vim.api.nvim_buf_set_option(self.split.bufnr, name, value)
   end
 end
 
 function View:clear()
-  return vim.api.nvim_buf_set_lines(self.buf, 0, -1, false, {})
+  return vim.api.nvim_buf_set_lines(self.split.bufnr, 0, -1, false, {})
 end
 
 function View:unlock()
@@ -109,66 +204,92 @@ function View:lock()
   self:set_option("modifiable", false)
 end
 
-function View:set_lines(lines, first, last, strict)
-  first = first or 0
-  last = last or -1
-  strict = strict or false
-  return vim.api.nvim_buf_set_lines(self.buf, first, last, strict, lines)
-end
-
 function View:is_valid()
-  return vim.api.nvim_buf_is_valid(self.buf) and vim.api.nvim_buf_is_loaded(self.buf)
+  return self.split and vim.api.nvim_buf_is_valid(self.split.bufnr) and vim.api.nvim_buf_is_loaded(self.split.bufnr)
 end
 
 function View:update(opts)
   util.debug("update")
-  renderer.render(self, opts)
+  opts = opts or {}
+  local buf = vim.api.nvim_win_get_buf(self.parent)
+  providers.get(self.parent, buf, function(items)
+    local grouped = providers.group(items)
+    local count = util.count(grouped)
+
+    -- check for auto close
+    if opts.auto and config.options.auto_close then
+      if count == 0 then
+        self:close()
+        return
+      end
+    end
+
+    if #items == 0 then
+      util.warn("no results")
+    end
+
+    -- Update lsp signs
+    renderer.update_signs()
+
+    local nodes = {}
+
+    if config.options.padding then
+      table.insert(nodes, Tree.Node({ type = "padding" }))
+    end
+
+    for _, group in ipairs(grouped) do
+      local diagnostic_nodes = vim.tbl_map(function(diag)
+        return Tree.Node({ type = "diagnostic", data = diag })
+      end, group.items)
+
+      if self.group then
+        local node = Tree.Node({ type = "file", data = group }, diagnostic_nodes)
+        opts.open_folds = true
+        if opts.open_folds then
+          node:expand()
+        end
+        if opts.close_folds then
+          node:collapse()
+        end
+        table.insert(nodes, node)
+      else
+        for _, node in ipairs(diagnostic_nodes) do
+          table.insert(nodes, node)
+        end
+      end
+    end
+
+    self.tree:set_nodes(nodes)
+
+    self.tree:render()
+
+    if opts.focus then
+      self:focus()
+    end
+  end, config.options)
 end
 
 function View:setup(opts)
   util.debug("setup")
   opts = opts or {}
-  vim.cmd("setlocal nonu")
-  vim.cmd("setlocal nornu")
-  if not pcall(vim.api.nvim_buf_set_name, self.buf, "Trouble") then
+  if not pcall(vim.api.nvim_buf_set_name, self.split.bufnr, "Trouble") then
     wipe_rogue_buffer()
-    vim.api.nvim_buf_set_name(self.buf, "Trouble")
+    vim.api.nvim_buf_set_name(self.split.bufnr, "Trouble")
   end
-  self:set_option("bufhidden", "wipe")
-  self:set_option("buftype", "nofile")
-  self:set_option("swapfile", false)
-  self:set_option("buflisted", false)
-  self:set_option("winfixwidth", true, true)
-  self:set_option("wrap", false, true)
-  self:set_option("spell", false, true)
-  self:set_option("list", false, true)
-  self:set_option("winfixheight", true, true)
-  self:set_option("signcolumn", "no", true)
-  self:set_option("foldmethod", "manual", true)
-  self:set_option("foldcolumn", "0", true)
-  self:set_option("foldlevel", 3, true)
-  self:set_option("foldenable", false, true)
-  self:set_option("winhighlight", "Normal:TroubleNormal,EndOfBuffer:TroubleNormal,SignColumn:TroubleNormal", true)
-  self:set_option("fcs", "eob: ", true)
-  self:set_option("filetype", "Trouble")
 
   for action, keys in pairs(config.options.action_keys) do
     if type(keys) == "string" then
       keys = { keys }
     end
     for _, key in pairs(keys) do
-      vim.api.nvim_buf_set_keymap(self.buf, "n", key, [[<cmd>lua require("trouble").action("]] .. action .. [[")<cr>]], {
-        silent = true,
-        noremap = true,
-        nowait = true,
-      })
+      vim.api.nvim_buf_set_keymap(
+        self.split.bufnr,
+        "n",
+        key,
+        [[<cmd>lua require("trouble").action("]] .. action .. [[")<cr>]],
+        { silent = true, noremap = true, nowait = true }
+      )
     end
-  end
-
-  if config.options.position == "top" or config.options.position == "bottom" then
-    vim.api.nvim_win_set_height(self.win, config.options.height)
-  else
-    vim.api.nvim_win_set_width(self.win, config.options.width)
   end
 
   vim.api.nvim_exec(
@@ -195,10 +316,10 @@ function View:on_enter()
 
   self.parent = self.parent or vim.fn.win_getid(vim.fn.winnr("#"))
 
-  if (not self:is_valid_parent(self.parent)) or self.parent == self.win then
+  if (not self:is_valid_parent(self.parent)) or self.parent == self.split.winid then
     util.debug("not valid parent")
     for _, win in pairs(vim.api.nvim_list_wins()) do
-      if self:is_valid_parent(win) and win ~= self.win then
+      if self:is_valid_parent(win) and win ~= self.split.winid then
         self.parent = win
         break
       end
@@ -266,7 +387,7 @@ function View:on_win_enter()
 
   local current_win = vim.api.nvim_get_current_win()
 
-  if vim.fn.winnr("$") == 1 and current_win == self.win then
+  if vim.fn.winnr("$") == 1 and current_win == self.split.winid then
     vim.cmd([[q]])
     return
   end
@@ -278,7 +399,7 @@ function View:on_win_enter()
   local current_buf = vim.api.nvim_get_current_buf()
 
   -- update parent when needed
-  if current_win ~= self.parent and current_win ~= self.win then
+  if current_win ~= self.parent and current_win ~= self.split.winid then
     self.parent = current_win
     -- update diagnostics to match the window we are viewing
     if self:is_valid() then
@@ -291,13 +412,13 @@ function View:on_win_enter()
 
   -- check if another buffer took over our window
   local parent = self.parent
-  if current_win == self.win and current_buf ~= self.buf then
+  if current_win == self.split.winid and current_buf ~= self.split.bufnr then
     -- open the buffer in the parent
     vim.api.nvim_win_set_buf(parent, current_buf)
     -- HACK: some window local settings need to be reset
     vim.api.nvim_win_set_option(parent, "winhl", "")
     -- close the current trouble window
-    vim.api.nvim_win_close(self.win, false)
+    vim.api.nvim_win_close(self.split.winid, false)
     -- open a new trouble window
     require("trouble").open()
     -- switch back to the opened window / buffer
@@ -307,10 +428,9 @@ function View:on_win_enter()
 end
 
 function View:focus()
-  View.switch_to(self.win, self.buf)
+  View.switch_to(self.split.winid, self.split.bufnr)
   local line = self:get_line()
   if line == 1 then
-    self:next_item()
     self:next_item()
   end
 end
@@ -331,35 +451,23 @@ end
 
 function View:close()
   util.debug("close")
-  if vim.api.nvim_win_is_valid(self.win) then
-    vim.api.nvim_win_close(self.win, {})
-  end
-  if vim.api.nvim_buf_is_valid(self.buf) then
-    vim.api.nvim_buf_delete(self.buf, {})
-  end
+  self.split:hide()
 end
 
 function View.create(opts)
   opts = opts or {}
-  if opts.win then
-    View.switch_to(opts.win)
-    vim.cmd("enew")
-  else
-    vim.cmd("below new")
-    local pos = { bottom = "J", top = "K", left = "H", right = "L" }
-    vim.cmd("wincmd " .. (pos[config.options.position] or "K"))
-  end
-  local buffer = View:new(opts)
-  buffer:setup(opts)
+
+  local view = View:new(opts)
+  view:setup(opts)
 
   if opts and opts.auto then
-    buffer:switch_to_parent()
+    view:switch_to_parent()
   end
-  return buffer
+  return view
 end
 
 function View:get_cursor()
-  return vim.api.nvim_win_get_cursor(self.win)
+  return vim.api.nvim_win_get_cursor(self.split.winid)
 end
 function View:get_line()
   return self:get_cursor()[1]
@@ -369,72 +477,87 @@ function View:get_col()
 end
 
 function View:current_item()
-  local line = self:get_line()
-  local item = self.items[line]
-  return item
+  return self.tree:get_node()
+end
+
+local function focus_item(view, opts, direction, current_linenr)
+  opts = opts or { skip_groups = false }
+
+  local curr_linenr = current_linenr or view:get_line()
+  local next_linenr = nil
+
+  if direction == "next" then
+    if curr_linenr == vim.api.nvim_buf_line_count(view.split.bufnr) then
+      return
+    end
+    next_linenr = curr_linenr + 1
+  elseif direction == "prev" then
+    if curr_linenr == 1 then
+      return
+    end
+    next_linenr = curr_linenr - 1
+  end
+
+  local next_node = view.tree:get_node(next_linenr)
+
+  if next_node and (next_node.type == "padding" or (opts.skip_groups and next_node.type == "file")) then
+    return focus_item(view, opts, direction, next_linenr)
+  end
+
+  if next_linenr then
+    vim.api.nvim_win_set_cursor(view.split.winid, { next_linenr, view:get_col() })
+    if opts.jump then
+      view:jump()
+    end
+  end
 end
 
 function View:next_item(opts)
-  opts = opts or { skip_groups = false }
-  local line = self:get_line()
-  for i = line + 1, vim.api.nvim_buf_line_count(self.buf), 1 do
-    if self.items[i] and not (opts.skip_groups and self.items[i].is_file) then
-      vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
-      if opts.jump then
-        self:jump()
-      end
-      return
-    end
-  end
+  focus_item(self, opts, "next")
 end
 
 function View:previous_item(opts)
-  opts = opts or { skip_groups = false }
-  local line = self:get_line()
-  for i = line - 1, 0, -1 do
-    if self.items[i] and not (opts.skip_groups and self.items[i].is_file) then
-      vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
-      if opts.jump then
-        self:jump()
-      end
-      return
-    end
-  end
+  focus_item(self, opts, "prev")
 end
 
 function View:hover(opts)
   opts = opts or {}
-  local item = opts.item or self:current_item()
-  if not (item and item.full_text) then
+  local node = opts.item or self:current_item()
+  if not (node and node.data and node.data.full_text) then
     return
   end
 
   local lines = {}
-  for line in item.full_text:gmatch("([^\n]*)\n?") do
+  for line in node.data.full_text:gmatch("([^\n]*)\n?") do
     table.insert(lines, line)
   end
 
   vim.lsp.util.open_floating_preview(lines, "plaintext", { border = "single" })
 end
 
+local function toggle(node)
+  return node:is_expanded() and node:collapse() or node:expand()
+end
+
 function View:jump(opts)
   opts = opts or {}
-  local item = opts.item or self:current_item()
-  if not item then
+  local node = opts.item or self:current_item()
+  if not node then
     return
   end
 
-  if item.is_file == true then
-    folds.toggle(item.filename)
-    self:update()
-  else
-    util.jump_to_item(opts.win or self.parent, opts.precmd, item)
+  if node.type == "file" then
+    toggle(node)
+    self.tree:render()
+  elseif node.type == "diagnostic" then
+    local diag = node.data
+    util.jump_to_item(opts.win or self.parent, opts.precmd, diag)
   end
 end
 
 function View:toggle_fold()
-  folds.toggle(self:current_item().filename)
-  self:update()
+  toggle(self.tree:get_node())
+  self.tree:render()
 end
 
 function View:_preview()
@@ -442,41 +565,40 @@ function View:_preview()
     return
   end
 
-  local item = self:current_item()
-  if not item then
+  local node = self:current_item()
+  if not node then
     return
   end
   util.debug("preview")
 
-  if item.is_file ~= true then
-    vim.api.nvim_win_set_buf(self.parent, item.bufnr)
-    vim.api.nvim_win_set_cursor(self.parent, { item.start.line + 1, item.start.character })
+  if node.type == "diagnostic" then
+    local diag = node.data
+    vim.api.nvim_win_set_buf(self.parent, diag.bufnr)
+    vim.api.nvim_win_set_cursor(self.parent, { diag.start.line + 1, diag.start.character })
 
-    vim.api.nvim_buf_call(item.bufnr, function()
+    vim.api.nvim_buf_call(diag.bufnr, function()
       -- Center preview line on screen and open enough folds to show it
       vim.cmd("norm! zz zv")
-      if vim.api.nvim_buf_get_option(item.bufnr, "filetype") == "" then
+      if vim.api.nvim_buf_get_option(diag.bufnr, "filetype") == "" then
         vim.cmd("do BufRead")
       end
     end)
 
-    clear_hl(item.bufnr)
-    hl_bufs[item.bufnr] = true
-    for row = item.start.line, item.finish.line, 1 do
+    clear_hl(diag.bufnr)
+    hl_bufs[diag.bufnr] = true
+    for row = diag.start.line, diag.finish.line, 1 do
       local col_start = 0
       local col_end = -1
-      if row == item.start.line then
-        col_start = item.start.character
+      if row == diag.start.line then
+        col_start = diag.start.character
       end
-      if row == item.finish.line then
-        col_end = item.finish.character
+      if row == diag.finish.line then
+        col_end = diag.finish.character
       end
-      highlight(item.bufnr, config.namespace, "TroublePreview", row, col_start, col_end)
+      highlight(diag.bufnr, config.namespace, "TroublePreview", row, col_start, col_end)
     end
   end
 end
-
--- View.preview = View._preview
 
 View.preview = util.throttle(50, View._preview)
 
