@@ -40,6 +40,9 @@ function M.get(win, buf, cb, options)
     function(item)
       local cwd = vim.loop.fs_realpath(vim.fn.getcwd())
       local path = vim.loop.fs_realpath(item.filename)
+      if not path then
+        return 200
+      end
       local ret = string.find(path, cwd, 1, true) == 1 and 10 or 100
       -- prefer non-hidden files
       if string.find(path, ".") then
