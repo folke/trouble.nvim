@@ -68,6 +68,7 @@ local defaults = {
     "lnum",
     "col",
   },
+  track_cursor = false, -- automatically track the cursor and update the selected item
 }
 
 ---@type TroubleOptions
