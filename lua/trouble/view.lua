@@ -408,6 +408,11 @@ function View:update_selected_item()
     return
   end
 
+  -- FIXME: Why is self.win not valid sometimes?
+  if not vim.api.nvim_win_is_valid(self.win) then
+    return
+  end
+
   -- This is the buf and the current location of the cursor
   local bufnr = vim.api.nvim_get_current_buf()
   local cursor = vim.api.nvim_win_get_cursor(self.parent)
