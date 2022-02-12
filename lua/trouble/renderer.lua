@@ -46,10 +46,6 @@ function renderer.render(view, opts)
       end
     end
 
-    if #items == 0 then
-      util.warn("no results")
-    end
-
     -- Update lsp signs
     update_signs()
 
