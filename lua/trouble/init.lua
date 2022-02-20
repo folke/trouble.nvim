@@ -145,6 +145,12 @@ function Trouble.refresh(opts)
         Trouble.open(opts)
       end
     end, config.options)
+  elseif opts.auto and config.options.auto_close and opts.provider == config.options.mode then
+    require("trouble.providers").get(vim.api.nvim_get_current_win(), vim.api.nvim_get_current_buf(), function(results)
+      if #results == 0 then
+        Trouble.close()
+      end
+    end, config.options)
   end
 end
 
