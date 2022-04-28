@@ -123,12 +123,12 @@ function M.process_item(item, bufnr)
   local range = item.range or item.targetSelectionRange
 
   local start = {
-    line = vim.tbl_get(range, "start", "line") or item.col,
-    character = vim.tbl_get(range, "start", "character") or item.lnum,
+    line = range and vim.tbl_get(range, "start", "line") or item.col,
+    character = range and vim.tbl_get(range, "start", "character") or item.lnum,
   }
   local finish = {
-    line = vim.tbl_get(range, "end", "line") or item.end_col,
-    character = vim.tbl_get(range, "end", "character") or item.end_lnum,
+    line = range and vim.tbl_get(range, "end", "line") or item.end_col,
+    character = range and vim.tbl_get(range, "end", "character") or item.end_lnum,
   }
 
   if start.character == nil or start.line == nil then
