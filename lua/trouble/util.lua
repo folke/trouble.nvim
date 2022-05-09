@@ -120,20 +120,16 @@ function M.process_item(item, bufnr)
   bufnr = bufnr or item.bufnr
   local filename = vim.api.nvim_buf_get_name(bufnr)
   local uri = vim.uri_from_bufnr(bufnr)
-  local range = item.range
-    or item.targetSelectionRange
-    or {
-      ["start"] = {
-        character = item.col,
-        line = item.lnum,
-      },
-      ["end"] = {
-        character = item.end_col,
-        line = item.end_lnum,
-      },
-    }
-  local start = range["start"]
-  local finish = range["end"]
+  local range = item.range or item.targetSelectionRange
+
+  local start = {
+    line = range and vim.tbl_get(range, "start", "line") or item.col,
+    character = range and vim.tbl_get(range, "start", "character") or item.lnum,
+  }
+  local finish = {
+    line = range and vim.tbl_get(range, "end", "line") or item.end_col,
+    character = range and vim.tbl_get(range, "end", "character") or item.end_lnum,
+  }
 
   if start.character == nil or start.line == nil then
     M.error("Found an item for Trouble without start range " .. vim.inspect(start))
