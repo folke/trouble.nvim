@@ -109,6 +109,12 @@ function Trouble.help()
 end
 
 local updater = util.debounce(100, function()
+  -- buff might have been closed during the debounce
+  if not is_open() then
+    util.debug("refresh: not open anymore")
+    return
+  end
+
   util.debug("refresh: auto")
   view:update({ auto = true })
 end)
