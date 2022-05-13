@@ -161,7 +161,7 @@ Modes:
 - **lsp_references:** references of the word under the cursor from the builtin LSP client
 - **lsp_definitions:** definitions of the word under the cursor from the builtin LSP client
 
-* **lsp_type_definitions:** tupe definitions of the word under the cursor from the builtin LSP client
+* **lsp_type_definitions:** type definitions of the word under the cursor from the builtin LSP client
 
 - **quickfix:** [quickfix](https://neovim.io/doc/user/quickfix.html) items
 - **loclist:** items from the window's [location list](https://neovim.io/doc/user/quickfix.html)
