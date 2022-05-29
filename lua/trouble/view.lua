@@ -123,6 +123,9 @@ end
 function View:update(opts)
   util.debug("update")
   renderer.render(self, opts)
+  if config.options.track_cursor then
+    self:update_selected_item()
+  end
 end
 
 function View:setup(opts)
@@ -182,6 +185,18 @@ function View:setup(opts)
     ]],
     false
   )
+
+  if config.options.track_cursor then
+      vim.api.nvim_exec(
+        [[
+          augroup TroubleTrackCursor
+            autocmd!
+            autocmd CursorMoved * lua require("trouble").update_selected_item()
+          augroup END
+        ]],
+        false
+      )
+  end
 
   if not opts.parent then
     self:on_enter()
@@ -366,6 +381,40 @@ function View:get_line()
 end
 function View:get_col()
   return self:get_cursor()[2]
+end
+
+function View:update_selected_item()
+  if vim.api.nvim_get_current_win() ~= self.parent then
+    return
+  end
+
+  -- FIXME: Why is self.win not valid sometimes?
+  if not vim.api.nvim_win_is_valid(self.win) then
+    return
+  end
+
+  -- This is the buf and the current location of the cursor
+  local bufnr = vim.api.nvim_get_current_buf()
+  local cursor = vim.api.nvim_win_get_cursor(self.parent)
+  local row = cursor[1]
+  local col = cursor[2] + 1
+
+  local found = nil
+  for i, item in ipairs(self.items) do
+    if item.bufnr == bufnr and item.lnum == row then
+      -- If there are two items at the same line, go to the one closer to the cursor
+      if found == nil or (col >= item.col and found.item.col < item.col) then
+        found = {
+          row = i,
+          item = item,
+        }
+      end
+    end
+  end
+
+  if found then
+    vim.api.nvim_win_set_cursor(self.win, { found.row, self:get_col() })
+  end
 end
 
 function View:current_item()
