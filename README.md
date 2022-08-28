@@ -102,7 +102,7 @@ Trouble comes with the following defaults:
         close_folds = {"zM", "zm"}, -- close all folds
         open_folds = {"zR", "zr"}, -- open all folds
         toggle_fold = {"zA", "za"}, -- toggle fold of current file
-        previous = "k", -- preview item
+        previous = "k", -- previous item
         next = "j" -- next item
     },
     indent_lines = true, -- add an indent guide below the fold icons
