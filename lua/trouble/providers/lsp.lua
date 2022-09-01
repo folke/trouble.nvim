@@ -1,5 +1,6 @@
 local lsp = require("vim.lsp")
 local util = require("trouble.util")
+local config = require("trouble.config")
 
 ---@class Lsp
 local M = {}
@@ -14,7 +15,8 @@ end
 function M.references(win, buf, cb, _options)
   local method = "textDocument/references"
   local params = util.make_position_params(win, buf)
-  params.context = { includeDeclaration = true }
+  local includeDeclaration = config.options.includeDeclaration
+  params.context = { includeDeclaration = includeDeclaration }
   lsp_buf_request(buf, method, params, function(err, result)
     if err then
       util.error("an error happened getting references: " .. err.message)
@@ -32,7 +34,8 @@ end
 function M.implementations(win, buf, cb, _options)
   local method = "textDocument/implementation"
   local params = util.make_position_params(win, buf)
-  params.context = { includeDeclaration = true }
+  local includeDeclaration = config.options.includeDeclaration
+  params.context = { includeDeclaration = includeDeclaration }
   lsp_buf_request(buf, method, params, function(err, result)
     if err then
       util.error("an error happened getting implementation: " .. err.message)
@@ -50,7 +53,8 @@ end
 function M.definitions(win, buf, cb, _options)
   local method = "textDocument/definition"
   local params = util.make_position_params(win, buf)
-  params.context = { includeDeclaration = true }
+  local includeDeclaration = config.options.includeDeclaration
+  params.context = { includeDeclaration = includeDeclaration }
   lsp_buf_request(buf, method, params, function(err, result)
     if err then
       util.error("an error happened getting definitions: " .. err.message)

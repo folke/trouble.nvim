@@ -53,6 +53,7 @@ local defaults = {
     other = "﫠",
   },
   use_diagnostic_signs = false, -- enabling this will use the signs defined in your lsp client
+  includeDeclaration = true, -- lsp references、implementations、definitions Include the declaration of the current symbol
 }
 
 ---@type TroubleOptions
