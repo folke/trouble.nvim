@@ -36,7 +36,7 @@ function M.get(win, buf, cb, options)
     return {}
   end
 
-  local sort_keys = {
+  local sort_keys = vim.list_extend({
     function(item)
       local cwd = vim.loop.fs_realpath(vim.fn.getcwd())
       local path = vim.loop.fs_realpath(item.filename)
@@ -50,11 +50,7 @@ function M.get(win, buf, cb, options)
       end
       return ret
     end,
-    "severity",
-    "filename",
-    "lnum",
-    "col",
-  }
+  }, options.sort_keys)
 
   provider(win, buf, function(items)
     table.sort(items, function(a, b)
