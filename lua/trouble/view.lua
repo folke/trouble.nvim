@@ -346,8 +346,10 @@ function View.create(opts)
     vim.cmd("enew")
   else
     vim.cmd("below new")
-    local pos = { bottom = "J", top = "K", left = "H", right = "L" }
-    vim.cmd("wincmd " .. (pos[config.options.position] or "K"))
+    if opts.mode ~= "loclist" and config.options.mode ~= "loclist" then
+      local pos = { bottom = "J", top = "K", left = "H", right = "L" }
+      vim.cmd("wincmd " .. (pos[config.options.position] or "K"))
+    end
   end
   local buffer = View:new(opts)
   buffer:setup(opts)
