@@ -5,6 +5,8 @@ local util = require("trouble.util")
 
 local highlight = vim.api.nvim_buf_add_highlight
 
+local winhl = "Normal:TroubleNormal,NormalNC:TroubleNormalNC,EndOfBuffer:TroubleNormal,SignColumn:TroubleNormal"
+
 ---@class TroubleView
 ---@field buf number
 ---@field win number
@@ -152,7 +154,7 @@ function View:setup(opts)
   self:set_option("foldcolumn", "0", true)
   self:set_option("foldlevel", 3, true)
   self:set_option("foldenable", false, true)
-  self:set_option("winhighlight", "Normal:TroubleNormal,EndOfBuffer:TroubleNormal,SignColumn:TroubleNormal", true)
+  self:set_option("winhighlight", winhl, true)
   self:set_option("fcs", "eob: ", true)
 
   for action, keys in pairs(config.options.action_keys) do
@@ -306,7 +308,7 @@ function View:on_win_enter()
     -- open the buffer in the parent
     vim.api.nvim_win_set_buf(parent, current_buf)
     -- HACK: some window local settings need to be reset
-    vim.api.nvim_win_set_option(parent, "winhl", "")
+    vim.api.nvim_win_set_option(parent, "winhl", winhl)
     -- close the current trouble window
     vim.api.nvim_win_close(self.win, false)
     -- open a new trouble window

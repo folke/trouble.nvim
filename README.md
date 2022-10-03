@@ -226,6 +226,7 @@ The table below shows all the highlight groups defined for Trouble.
 | _TroubleCount_           |
 | _TroubleError_           |
 | _TroubleNormal_          |
+| _TroubleNormalNC_        |
 | _TroubleTextInformation_ |
 | _TroubleSignWarning_     |
 | _TroubleLocation_        |
