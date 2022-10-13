@@ -15,7 +15,8 @@ function M.jump_to_item(win, precmd, item)
   else
     vim.cmd("buffer " .. item.bufnr)
   end
-  vim.api.nvim_win_set_cursor(win or 0, { (item.start.line == 1 and item.start.line or item.start.line + 1), item.start.character })
+  local line = ((item.start.line == 1 or item.start.line == vim.api.nvim_buf_line_count(item.bufnr)) and item.start.line or item.start.line + 1)
+  vim.api.nvim_win_set_cursor(win or 0, { line, item.start.character })
 end
 
 function M.fix_mode(opts)
