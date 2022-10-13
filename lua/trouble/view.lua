@@ -450,7 +450,7 @@ function View:_preview()
 
   if item.is_file ~= true then
     vim.api.nvim_win_set_buf(self.parent, item.bufnr)
-    vim.api.nvim_win_set_cursor(self.parent, { item.start.line + 1, item.start.character })
+    vim.api.nvim_win_set_cursor(self.parent, { (item.start.line == 1 and item.start.line or item.start.line + 1), item.start.character })
 
     vim.api.nvim_buf_call(item.bufnr, function()
       -- Center preview line on screen and open enough folds to show it
