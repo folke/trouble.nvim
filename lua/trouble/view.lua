@@ -150,7 +150,6 @@ function View:setup(opts)
   self:set_option("foldenable", false, true)
   self:set_option("winhighlight", "Normal:TroubleNormal,EndOfBuffer:TroubleNormal,SignColumn:TroubleNormal", true)
   self:set_option("fcs", "eob: ", true)
-  self:set_option("filetype", "Trouble")
 
   for action, keys in pairs(config.options.action_keys) do
     if type(keys) == "string" then
@@ -170,6 +169,8 @@ function View:setup(opts)
   else
     vim.api.nvim_win_set_width(self.win, config.options.width)
   end
+
+  self:set_option("filetype", "Trouble")
 
   vim.api.nvim_exec(
     [[
