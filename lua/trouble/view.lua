@@ -312,7 +312,9 @@ function View:focus()
   local line = self:get_line()
   if line == 1 then
     self:next_item()
-    self:next_item()
+    if config.options.padding then
+      self:next_item()
+    end
   end
 end
 
