@@ -122,6 +122,8 @@ function renderer.render_diagnostics(view, text, items)
     local indent = "     "
     if config.options.indent_lines then
       indent = " │   "
+    elseif config.options.group == false then
+      indent = " "
     end
 
     local sign_hl = diag.sign_hl or ("TroubleSign" .. diag.type)

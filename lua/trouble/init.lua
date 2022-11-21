@@ -109,6 +109,12 @@ function Trouble.help()
 end
 
 local updater = util.debounce(100, function()
+  -- buff might have been closed during the debounce
+  if not is_open() then
+    util.debug("refresh: not open anymore")
+    return
+  end
+
   util.debug("refresh: auto")
   view:update({ auto = true })
 end)
@@ -206,6 +212,14 @@ function Trouble.action(action)
     view:previous_item()
     return Trouble
   end
+  if action == "first" then
+    view:first_item()
+    return Trouble
+  end
+  if action == "last" then
+    view:last_item()
+    return Trouble
+  end
 
   if action == "toggle_preview" then
     config.options.auto_preview = not config.options.auto_preview
@@ -239,6 +253,20 @@ function Trouble.previous(opts)
   util.fix_mode(opts)
   if view then
     view:previous_item(opts)
+  end
+end
+
+function Trouble.first(opts)
+  util.fix_mode(opts)
+  if view then
+    view:first_item(opts)
+  end
+end
+
+function Trouble.last(opts)
+  util.fix_mode(opts)
+  if view then
+    view:last_item(opts)
   end
 end
 

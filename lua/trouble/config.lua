@@ -54,6 +54,12 @@ local defaults = {
   },
   use_diagnostic_signs = false, -- enabling this will use the signs defined in your lsp client
   includeDeclaration = true, -- lsp references、implementations、definitions Include the declaration of the current symbol
+  sort_keys = {
+    "severity",
+    "filename",
+    "lnum",
+    "col",
+  },
 }
 
 ---@type TroubleOptions
