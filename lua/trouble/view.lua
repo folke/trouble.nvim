@@ -79,7 +79,8 @@ end
 function View:set_option(name, value, win)
   if win then
     return vim.api.nvim_win_set_option(self.win, name, value)
-  else
+  end
+  if vim.api.nvim_buf_is_valid(self.buf) then
     return vim.api.nvim_buf_set_option(self.buf, name, value)
   end
 end
