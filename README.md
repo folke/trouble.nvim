@@ -25,7 +25,7 @@ A pretty list for showing diagnostics, references, telescope results, quickfix a
 
 - Neovim >= 0.5.0
 - Properly configured Neovim LSP client
-- [nvim-web-devicons](https://github.com/kyazdani42/nvim-web-devicons) is optional to enable file icons
+- [nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons) is optional to enable file icons
 - a theme with properly configured highlight groups for Neovim Diagnostics
 - or install 🌈 [lsp-colors](https://github.com/folke/lsp-colors.nvim) to automatically create the missing highlight groups
 - a [patched font](https://www.nerdfonts.com/) for the default severity and fold icons
@@ -38,7 +38,7 @@ Install the plugin with your preferred package manager:
 
 ```vim
 " Vim Script
-Plug 'kyazdani42/nvim-web-devicons'
+Plug 'nvim-tree/nvim-web-devicons'
 Plug 'folke/trouble.nvim'
 
 lua << EOF
@@ -56,7 +56,7 @@ EOF
 -- Lua
 use {
   "folke/trouble.nvim",
-  requires = "kyazdani42/nvim-web-devicons",
+  requires = "nvim-tree/nvim-web-devicons",
   config = function()
     require("trouble").setup {
       -- your configuration comes here
