@@ -10,7 +10,7 @@ local function item_to_result(item)
   local col = (item.col or 1) - 1
 
   if not item.bufnr then
-    item.bufnr = vim.fn.bufnr(item.filename, true)
+    item.bufnr = vim.fn.bufnr((item.cwd or ".") .. "/" .. item.filename, true)
   end
 
   local pitem = {
@@ -72,7 +72,9 @@ end
 
 function M.telescope(_win, _buf, cb, _options)
   if #M.results == 0 then
-    util.warn("No Telescope results found. Open Telescopen and send results to Trouble first. Refer to the documentation for more info.")
+    util.warn(
+      "No Telescope results found. Open Telescopen and send results to Trouble first. Refer to the documentation for more info."
+    )
   end
   cb(M.results)
 end
