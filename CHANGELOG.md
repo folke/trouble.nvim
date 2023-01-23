@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/folke/trouble.nvim/compare/v1.0.0...v1.0.1) (2023-01-23)
+
+
+### Bug Fixes
+
+* ensure first line is selected when padding is false ([#233](https://github.com/folke/trouble.nvim/issues/233)) ([b2d6ac8](https://github.com/folke/trouble.nvim/commit/b2d6ac8607e1ab612a85c1ec563aaff3a60f0603))
+* **telescope:** correctly use cwd for files. Fixes [#250](https://github.com/folke/trouble.nvim/issues/250) ([3174767](https://github.com/folke/trouble.nvim/commit/3174767c61b3786e65d78f539c60c6f70d26cdbe))
+
 ## 1.0.0 (2023-01-04)
 
 
