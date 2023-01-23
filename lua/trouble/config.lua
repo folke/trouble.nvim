@@ -59,6 +59,24 @@ local defaults = {
     "lnum",
     "col",
   },
+  render = {
+    diagnostics = {
+      -- Format each diagnostic item.
+      -- ctx = { text, indent, sign, sign_hl }
+      format = function (diag, ctx)
+        return {
+          {ctx.indent, "Indent"},
+          {ctx.sign .. "  ", ctx.sign_hl, { exact = true }},
+          {diag.text, "Text" .. diag.type, " "},
+          -- {diag.type, diag.type, " "},
+          diag.source and {diag.source, "Source"},
+          diag.code and diag.code ~= vim.NIL and {" (" .. diag.code .. ")", "Code"},
+          {" "},
+          {"[" .. diag.lnum .. ", " .. diag.col .. "]", "Location"},
+        }
+      end,
+    },
+  },
 }
 
 ---@type TroubleOptions

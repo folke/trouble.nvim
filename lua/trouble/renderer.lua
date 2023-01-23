@@ -111,6 +111,8 @@ end
 ---@param text Text
 ---@param items Item[]
 function renderer.render_diagnostics(view, text, items)
+  local diagnostic_format = config.options.render.diagnostics.format
+
   for _, diag in ipairs(items) do
     view.items[text.lineNr + 1] = diag
 
@@ -128,21 +130,19 @@ function renderer.render_diagnostics(view, text, items)
 
     local sign_hl = diag.sign_hl or ("TroubleSign" .. diag.type)
 
-    text:render(indent, "Indent")
-    text:render(sign .. "  ", sign_hl, { exact = true })
-    text:render(diag.text, "Text" .. diag.type, " ")
-    -- text:render(diag.type, diag.type, " ")
+    local sections = diagnostic_format(diag, {
+      text = text,
+      indent = indent,
+      sign = sign,
+      sign_hl= sign_hl,
+    })
 
-    if diag.source then
-      text:render(diag.source, "Source")
+    for _, sec in pairs(sections) do
+      if sec then
+        text:render(unpack(sec))
+      end
     end
-    if diag.code and diag.code ~= vim.NIL then
-      text:render(" (" .. diag.code .. ")", "Code")
-    end
 
-    text:render(" ")
-
-    text:render("[" .. diag.lnum .. ", " .. diag.col .. "]", "Location")
     text:nl()
   end
 end
