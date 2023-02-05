@@ -18,6 +18,7 @@ M.providers = {
   loclist = qf.loclist,
   telescope = telescope.telescope,
   tsc = tsc.tsc,
+  eslint = tsc.eslint,
 }
 
 ---@param options TroubleOptions
