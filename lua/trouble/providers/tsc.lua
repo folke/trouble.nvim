@@ -3,16 +3,6 @@ local util = require("trouble.util")
 ---@class Lsp
 local M = {}
 
-M.find_buffer_by_name = function(name)
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    local buf_name = vim.api.nvim_buf_get_name(buf)
-    if buf_name == name then
-      return buf
-    end
-  end
-  return -1
-end
-
 ---@param options TroubleOptions
 function M.tsc(_, buf, cb, options)
   local items = {}
@@ -40,8 +30,9 @@ function M.tsc(_, buf, cb, options)
 
   for _, error in ipairs(errors) do
     local item = {
-	  filename = error.value.path.value,
-	  filepath = error.value.path.value,
+	  bufnr = vim.fn.bufnr(error.value.path.value),
+	  -- filename = error.value.path.value,
+	  -- filepath = error.value.path.value,
       lnum = error.value.cursor.value.line,
       end_lnum = error.value.cursor.value.line,
       col = error.value.cursor.value.col,
