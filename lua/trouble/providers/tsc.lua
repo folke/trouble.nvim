@@ -3,6 +3,21 @@ local util = require("trouble.util")
 ---@class Lsp
 local M = {}
 
+function M.dump(o)
+  if type(o) == "table" then
+    local s = "{ "
+    for k, v in pairs(o) do
+      if type(k) ~= "number" then
+        k = '"' .. k .. '"'
+      end
+      s = s .. "[" .. k .. "] = " .. dump(v) .. ","
+    end
+    return s .. "} "
+  else
+    return tostring(o)
+  end
+end
+
 ---@param options TroubleOptions
 function M.tsc(_, buf, cb, options)
   local tsConfigPath = vim.fn.findfile("tsconfig.json", ".;")
@@ -68,10 +83,9 @@ function M.eslint()
   local result = handle:read("*a")
   handle:close()
 
-  print("raw json", result)
-
   local items = {}
   local files = vim.json.decode(result)
+  print(M.dump(files))
 
   for file in files do
     for message in file.messages do
