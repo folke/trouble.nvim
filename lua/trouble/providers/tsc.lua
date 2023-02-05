@@ -53,20 +53,21 @@ function M.eslint()
     return
   end
 
-  for dir in vim.fs.parents(eslintConfigPath) do
-    print("directory" .. dir)
+  local directory = vim.fs.parents(eslintConfigPath)[0]
+  print("directory " .. directory)
+
+  local command = "eslint -f json " .. directory
+
+  local handle = io.popen(command)
+  if handle == nil then
+    print("Unable to start command: " .. command)
+    return
   end
 
-  -- local command = "eslint -f json " .. directory
-  --
-  -- local handle = io.popen(command)
-  -- if handle == nil then
-  --   print("Unable to start command: " .. command)
-  --   return
-  -- end
-  --
-  -- local result = handle:read("*a")
-  -- handle:close()
+  local result = handle:read("*a")
+  handle:close()
+
+  print(result)
 end
 
 return M
