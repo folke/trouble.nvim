@@ -54,7 +54,7 @@ function M.eslint()
   end
 
   local directory
-  for dir in vim.fs.parents(eslintConfigPath)[0] do
+  for dir in vim.fs.parents(eslintConfigPath) do
     directory = dir
   end
   print("directory " .. directory)
