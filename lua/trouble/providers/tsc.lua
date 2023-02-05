@@ -73,8 +73,7 @@ function M.eslint()
   print("raw json", result)
 
   local items = {}
-  local json = vim.json.decode(result)
-  local files = json.results
+  local files = vim.json.decode(result)
 
   for file in files do
     print(file)
