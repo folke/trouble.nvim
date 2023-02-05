@@ -5,12 +5,10 @@ local M = {}
 
 ---@param options TroubleOptions
 function M.tsc(_, buf, cb, options)
-  local items = {}
-
   local tsConfigPath = vim.fn.findfile("tsconfig.json", ".;")
 
   if tsConfigPath == "" then
-    print("No tsconfig.json found, Treeouble cannot run")
+    print("No tsconfig.json found, cannot type-check")
     return
   end
 
@@ -25,12 +23,13 @@ function M.tsc(_, buf, cb, options)
   local result = handle:read("*a")
   handle:close()
 
-  local errors = vim.json.decode(result)
-  for _, error in ipairs(errors) do
+  local items = {}
+  local rawItems = vim.json.decode(result)
+  for _, error in ipairs(rawItems) do
     local item = {
-	  bufnr = vim.fn.bufnr(error.value.path.value, true),
-	  -- filename = error.value.path.value,
-	  -- filepath = error.value.path.value,
+      bufnr = vim.fn.bufnr(error.value.path.value, true),
+      -- filename = error.value.path.value,
+      -- filepath = error.value.path.value,
       lnum = error.value.cursor.value.line,
       end_lnum = error.value.cursor.value.line,
       col = error.value.cursor.value.col,
@@ -39,11 +38,33 @@ function M.tsc(_, buf, cb, options)
       message = error.value.message.value,
       code = error.value.tsError.value.errorString,
     }
-	
+
     table.insert(items, util.process_item(item))
   end
 
   cb(items)
 end
 
+function M.eslint() end
+  local eslintConfigPath = vim.fn.findfile(".eslintrc.cjs", ".;")
+
+  if eslintConfigPath == "" then
+    print("No .eslintrc.cjs found, cannot lint")
+    return
+  end
+
+  local directory = vim.fs.parents(eslintConfigPath)
+print(directory)
+return
+
+  local command = "eslint --noEmit --pretty false --project " .. tsConfigPath .. " | tsc-output-parser"
+
+  local handle = io.popen(command)
+  if handle == nil then
+    print("Unable to start command: " .. command)
+    return
+  end
+
+  local result = handle:read("*a")
+  handle:close()
 return M
