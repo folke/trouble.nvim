@@ -40,7 +40,8 @@ function M.tsc(_, buf, cb, options)
 
   for _, error in ipairs(errors) do
     local item = {
-      bufnr = M.find_buffer_by_name(error.value.path.value),
+	  filename = error.value.path.value,
+	  filepath = error.value.path.value,
       lnum = error.value.cursor.value.line,
       end_lnum = error.value.cursor.value.line,
       col = error.value.cursor.value.col,
