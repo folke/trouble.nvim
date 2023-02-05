@@ -55,9 +55,8 @@ function M.eslint() end
 
   local directory = vim.fs.parents(eslintConfigPath)
 print(directory)
-return
 
-  local command = "eslint --noEmit --pretty false --project " .. tsConfigPath .. " | tsc-output-parser"
+  local command = "eslint -f json " .. directory
 
   local handle = io.popen(command)
   if handle == nil then
