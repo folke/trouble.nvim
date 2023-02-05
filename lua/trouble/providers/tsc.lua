@@ -41,6 +41,8 @@ function M.tsc(_, buf, cb, options)
       message = error.value.message.value,
       code = error.value.tsError.value.errorString,
     }
+	
+	print(error.value.path.value, vim.fn.bufnr(error.value.path.value))
 
     table.insert(items, util.process_item(item))
   end
