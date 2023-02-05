@@ -12,7 +12,7 @@ function M.tsc(_, buf, cb, options)
     return
   end
 
-  local command = "tsc --noEmit --pretty false --project " .. tsConfigPath .. " | tsc-output-parser"
+  local command = "yarn --silent tsc --noEmit --pretty false --project " .. tsConfigPath .. " | tsc-output-parser"
 
   local handle = io.popen(command)
   if handle == nil then
