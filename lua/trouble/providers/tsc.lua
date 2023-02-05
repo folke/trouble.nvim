@@ -45,7 +45,7 @@ function M.tsc(_, buf, cb, options)
   cb(items)
 end
 
-function M.eslint() end
+function M.eslint()
   local eslintConfigPath = vim.fn.findfile(".eslintrc.cjs", ".;")
 
   if eslintConfigPath == "" then
@@ -54,7 +54,9 @@ function M.eslint() end
   end
 
   local directory = vim.fs.parents(eslintConfigPath)
-print(directory)
+  for dir in directory do
+    print(dir)
+  end
 
   local command = "eslint -f json " .. directory
 
@@ -66,4 +68,6 @@ print(directory)
 
   local result = handle:read("*a")
   handle:close()
+end
+
 return M
