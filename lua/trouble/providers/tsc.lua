@@ -70,7 +70,6 @@ function M.eslint(_, buf, cb, options)
   for dir in vim.fs.parents(eslintConfigPath) do
     directory = dir
   end
-  print("directory " .. directory)
 
   local command = "yarn --silent eslint -f json " .. directory
 
@@ -88,7 +87,6 @@ function M.eslint(_, buf, cb, options)
 
   for _, file in ipairs(files) do
     for _, message in ipairs(file.messages) do
-      print(M.dump(message))
       local item = {
         bufnr = vim.fn.bufnr(file.filePath, true),
         lnum = message.line - 1,
