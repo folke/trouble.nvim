@@ -58,7 +58,7 @@ function M.tsc(_, buf, cb, options)
   cb(items)
 end
 
-function M.eslint()
+function M.eslint(_, buf, cb, options)
   local eslintConfigPath = vim.fn.findfile(".eslintrc.cjs", ".;")
 
   if eslintConfigPath == "" then
@@ -85,10 +85,10 @@ function M.eslint()
 
   local items = {}
   local files = vim.json.decode(result)
-  print(M.dump(files))
 
   for _, file in ipairs(files) do
     for _, message in ipairs(file.messages) do
+      print(M.dump(message))
       local item = {
         bufnr = vim.fn.bufnr(file.filePath, true),
         lnum = message.line - 1,
@@ -103,6 +103,8 @@ function M.eslint()
       table.insert(items, util.process_item(item))
     end
   end
+
+  cb(items)
 end
 
 return M
