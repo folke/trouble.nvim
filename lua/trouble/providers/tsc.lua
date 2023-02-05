@@ -70,6 +70,8 @@ function M.eslint()
   local result = handle:read("*a")
   handle:close()
 
+  print("raw json", result)
+
   local items = {}
   local json = vim.json.decode(result)
   local files = json.results
