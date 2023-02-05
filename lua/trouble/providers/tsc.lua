@@ -53,9 +53,8 @@ function M.eslint()
     return
   end
 
-  local directory = vim.fs.parents(eslintConfigPath)
-  for dir in directory do
-    print(dir)
+  for dir in vim.fs.parents(eslintConfigPath) do
+    print("directory" .. dir)
   end
 
   -- local command = "eslint -f json " .. directory
