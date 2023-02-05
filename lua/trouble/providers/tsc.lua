@@ -59,7 +59,7 @@ function M.eslint()
   end
   print("directory " .. directory)
 
-  local command = "eslint -f json " .. directory
+  local command = "yarn eslint -f json " .. directory
 
   local handle = io.popen(command)
   if handle == nil then
