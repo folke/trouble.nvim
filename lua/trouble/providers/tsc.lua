@@ -87,8 +87,8 @@ function M.eslint()
   local files = vim.json.decode(result)
   print(M.dump(files))
 
-  for _, file in files do
-    for _, message in file.messages do
+  for _, file in ipairs(files) do
+    for _, message in ipairs(file.messages) do
       local item = {
         bufnr = vim.fn.bufnr(file.filePath, true),
         lnum = message.line - 1,
