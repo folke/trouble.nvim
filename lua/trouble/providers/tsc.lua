@@ -25,9 +25,7 @@ function M.tsc(_, buf, cb, options)
   local result = handle:read("*a")
   handle:close()
 
-  -- "(.*)\(\d+,\d+\):(.+?(?=\n)(?:\s\s+.+?(?=\n))*)"
   local errors = vim.json.decode(result)
-
   for _, error in ipairs(errors) do
     local item = {
 	  bufnr = vim.fn.bufnr(error.value.path.value, true),
@@ -42,8 +40,6 @@ function M.tsc(_, buf, cb, options)
       code = error.value.tsError.value.errorString,
     }
 	
-	print(error.value.path.value, vim.fn.bufnr(error.value.path.value))
-
     table.insert(items, util.process_item(item))
   end
 

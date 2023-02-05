@@ -118,18 +118,8 @@ end
 
 function M.process_item(item, bufnr)
   bufnr = bufnr or item.bufnr
-
-  local filename = item.filename
-  if filename == nil then
-    filename = vim.api.nvim_buf_get_name(bufnr)
-  end
-
-  local uri
-  if item.filepath ~= nil then
-    uri = vim.uri_from_fname(item.filepath)
-  else
-    uri = vim.uri_from_bufnr(bufnr)
-  end
+  local filename = vim.api.nvim_buf_get_name(bufnr)
+  local uri = vim.uri_from_bufnr(bufnr)
 
   local range = item.range
     or item.targetSelectionRange
