@@ -58,16 +58,16 @@ function M.eslint()
     print(dir)
   end
 
-  local command = "eslint -f json " .. directory
-
-  local handle = io.popen(command)
-  if handle == nil then
-    print("Unable to start command: " .. command)
-    return
-  end
-
-  local result = handle:read("*a")
-  handle:close()
+  -- local command = "eslint -f json " .. directory
+  --
+  -- local handle = io.popen(command)
+  -- if handle == nil then
+  --   print("Unable to start command: " .. command)
+  --   return
+  -- end
+  --
+  -- local result = handle:read("*a")
+  -- handle:close()
 end
 
 return M
