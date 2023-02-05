@@ -28,8 +28,6 @@ function M.tsc(_, buf, cb, options)
   for _, error in ipairs(rawItems) do
     local item = {
       bufnr = vim.fn.bufnr(error.value.path.value, true),
-      -- filename = error.value.path.value,
-      -- filepath = error.value.path.value,
       lnum = error.value.cursor.value.line - 1,
       end_lnum = error.value.cursor.value.line,
       col = error.value.cursor.value.col,
@@ -76,7 +74,20 @@ function M.eslint()
   local files = vim.json.decode(result)
 
   for file in files do
-    print(file)
+    for message in file.messages do
+      local item = {
+        bufnr = vim.fn.bufnr(file.filePath, true),
+        lnum = message.line - 1,
+        col = message.column,
+        end_lnum = message.endLine,
+        end_col = message.endColumn,
+        severity = message.severity,
+        message = message.message,
+        code = message.ruleId,
+      }
+
+      table.insert(items, util.process_item(item))
+    end
   end
 end
 
