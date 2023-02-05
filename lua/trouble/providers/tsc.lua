@@ -30,7 +30,7 @@ function M.tsc(_, buf, cb, options)
       bufnr = vim.fn.bufnr(error.value.path.value, true),
       -- filename = error.value.path.value,
       -- filepath = error.value.path.value,
-      lnum = error.value.cursor.value.line,
+      lnum = error.value.cursor.value.line - 1,
       end_lnum = error.value.cursor.value.line,
       col = error.value.cursor.value.col,
       end_col = error.value.cursor.value.col,
@@ -70,7 +70,13 @@ function M.eslint()
   local result = handle:read("*a")
   handle:close()
 
-  print("result " .. result)
+  local items = {}
+  local json = vim.json.decode(result)
+  local files = json.results
+
+  for file in files do
+    print(file)
+  end
 end
 
 return M
