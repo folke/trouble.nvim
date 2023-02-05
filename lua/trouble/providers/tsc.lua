@@ -30,7 +30,7 @@ function M.tsc(_, buf, cb, options)
 
   for _, error in ipairs(errors) do
     local item = {
-	  bufnr = vim.fn.bufnr(error.value.path.value),
+	  bufnr = vim.fn.bufnr(error.value.path.value, true),
 	  -- filename = error.value.path.value,
 	  -- filepath = error.value.path.value,
       lnum = error.value.cursor.value.line,
