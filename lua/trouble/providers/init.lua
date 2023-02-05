@@ -3,6 +3,7 @@ local qf = require("trouble.providers.qf")
 local telescope = require("trouble.providers.telescope")
 local lsp = require("trouble.providers.lsp")
 local diagnostic = require("trouble.providers.diagnostic")
+local tsc = require("trouble.providers.tsc")
 
 local M = {}
 
@@ -16,6 +17,7 @@ M.providers = {
   quickfix = qf.qflist,
   loclist = qf.loclist,
   telescope = telescope.telescope,
+  tsc = tsc.tsc,
 }
 
 ---@param options TroubleOptions
