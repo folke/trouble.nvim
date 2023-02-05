@@ -70,7 +70,7 @@ function M.eslint()
   local result = handle:read("*a")
   handle:close()
 
-  print(result)
+  print("result " .. result)
 end
 
 return M
