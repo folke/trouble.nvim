@@ -23,6 +23,8 @@ function M.tsc(_, buf, cb, options)
   local result = handle:read("*a")
   handle:close()
 
+  print(result)
+
   local items = {}
   local rawItems = vim.json.decode(result)
   for _, error in ipairs(rawItems) do
