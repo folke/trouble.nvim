@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/folke/trouble.nvim/compare/v1.0.1...v1.0.2) (2023-02-10)
+
+
+### Bug Fixes
+
+* **telescope:** properly fix issue with relative filenames in telescope. See [#250](https://github.com/folke/trouble.nvim/issues/250) ([7da0821](https://github.com/folke/trouble.nvim/commit/7da0821d20342751a7eedecd28cf16040146cbf7))
+
 ## [1.0.1](https://github.com/folke/trouble.nvim/compare/v1.0.0...v1.0.1) (2023-01-23)
 
 
