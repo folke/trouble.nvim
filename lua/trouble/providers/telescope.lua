@@ -10,7 +10,11 @@ local function item_to_result(item)
   local col = (item.col or 1) - 1
 
   if not item.bufnr then
-    item.bufnr = vim.fn.bufnr((item.cwd or ".") .. "/" .. item.filename, true)
+    local fname = vim.fn.fnamemodify(item.filename, ":p")
+    if vim.fn.filereadable(fname) == 0 and item.cwd then
+      fname = vim.fn.fnamemodify(item.cwd .. "/" .. item.filename, ":p")
+    end
+    item.bufnr = vim.fn.bufnr(fname, true)
   end
 
   local pitem = {
