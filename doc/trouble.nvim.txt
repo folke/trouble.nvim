@@ -44,7 +44,7 @@ FEATURES                                               *trouble.nvim-features*
 REQUIREMENTS                                       *trouble.nvim-requirements*
 
 
-- Neovim >= 0.5.0
+- Neovim >= 0.7.2
 - Properly configured Neovim LSP client
 - nvim-web-devicons <https://github.com/nvim-tree/nvim-web-devicons> is optional to enable file icons
 - a theme with properly configured highlight groups for Neovim Diagnostics
