@@ -471,8 +471,8 @@ function View:_preview()
     vim.api.nvim_buf_call(item.bufnr, function()
       -- Center preview line on screen and open enough folds to show it
       vim.cmd("norm! zz zv")
-      if vim.api.nvim_buf_get_option(item.bufnr, "filetype") == "" then
-        vim.cmd("do BufRead")
+      if not vim.api.nvim_buf_is_loaded(item.bufnr) then
+        vim.fn.bufload(item.bufnr)
       end
     end)
 
