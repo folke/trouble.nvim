@@ -1,4 +1,5 @@
 local config = require("trouble.config")
+local uv = vim.loop
 
 local M = {}
 
@@ -146,17 +147,13 @@ function M.process_item(item, bufnr)
   local row = start.line
   local col = start.character
 
-  if not item.message then
-    local line
-    if vim.lsp.util.get_line then
-      line = vim.lsp.util.get_line(uri, row)
-    else
-      -- load the buffer when needed
-      vim.fn.bufload(bufnr)
-      line = (vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false) or { "" })[1]
-    end
+  if not item.message and filename then
+    local fd = assert(uv.fs_open(filename, "r", 438))
+    local stat = assert(uv.fs_fstat(fd))
+    local data = assert(uv.fs_read(fd, stat.size, 0))
+    assert(uv.fs_close(fd))
 
-    item.message = item.message or line or ""
+    item.message = vim.split(data, "\n", { plain = true })[row + 1] or ""
   end
 
   ---@class Item
