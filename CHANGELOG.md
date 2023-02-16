@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/folke/trouble.nvim/compare/v2.0.0...v2.0.1) (2023-02-16)
+
+
+### Bug Fixes
+
+* **init:** version check ([73eea32](https://github.com/folke/trouble.nvim/commit/73eea32efec2056cdce7593787390fc9aadf9c0c))
+
 ## [2.0.0](https://github.com/folke/trouble.nvim/compare/v1.0.2...v2.0.0) (2023-02-16)
 
 
