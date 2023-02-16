@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.0.0](https://github.com/folke/trouble.nvim/compare/v1.0.2...v2.0.0) (2023-02-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* Trouble now requires Neovim >= 0.7.2
+
+### Features
+
+* Trouble now requires Neovim &gt;= 0.7.2 ([ef93259](https://github.com/folke/trouble.nvim/commit/ef9325970b341d436f43c50ce876aa0a665d3cf0))
+
+
+### Bug Fixes
+
+* Focus parent before closing ([#259](https://github.com/folke/trouble.nvim/issues/259)) ([66b057b](https://github.com/folke/trouble.nvim/commit/66b057b2b07881bceb969624f4c3b5727703c2c8))
+* **preview:** properly load buffer when showing preview ([949199a](https://github.com/folke/trouble.nvim/commit/949199a9ac60ce784a417f90388b8f173ef53819))
+* **util:** properly load a buffer when jumping to it ([bf0eeea](https://github.com/folke/trouble.nvim/commit/bf0eeead88d59d51003f4da1b649b4977ed90e2b))
+
+
+### Performance Improvements
+
+* dont load buffers when processing items. Get line with luv instead ([82c9a9a](https://github.com/folke/trouble.nvim/commit/82c9a9a9cd2cd2cdb05e05a3e6538529e2473e14))
+
 ## [1.0.2](https://github.com/folke/trouble.nvim/compare/v1.0.1...v1.0.2) (2023-02-10)
 
 
