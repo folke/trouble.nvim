@@ -14,6 +14,10 @@ local function is_open()
 end
 
 function Trouble.setup(options)
+  if vim.fn.has("nvim-0.7.2") == 1 then
+    util.error("Trouble needs Neovim >= 0.7.2")
+    return
+  end
   config.setup(options)
   util.fix_mode(config.options)
   colors.setup()
