@@ -10,11 +10,13 @@ function M.jump_to_item(win, precmd, item)
   if precmd then
     vim.cmd(precmd)
   end
-  if vim.api.nvim_buf_get_option(item.bufnr, "buflisted") == false then
-    vim.cmd("edit #" .. item.bufnr)
-  else
-    vim.cmd("buffer " .. item.bufnr)
+  if not vim.bo[item.bufnr].buflisted then
+    vim.bo[item.bufnr].buflisted = true
   end
+  if not vim.api.nvim_buf_is_loaded(item.bufnr) then
+    vim.fn.bufload(item.bufnr)
+  end
+  vim.api.nvim_set_current_buf(item.bufnr)
   vim.api.nvim_win_set_cursor(win or 0, { item.start.line + 1, item.start.character })
 end
 
