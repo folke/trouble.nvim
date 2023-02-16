@@ -335,6 +335,7 @@ end
 function View:close()
   util.debug("close")
   if vim.api.nvim_win_is_valid(self.win) then
+    vim.api.nvim_set_current_win(self.parent)
     vim.api.nvim_win_close(self.win, {})
   end
   if vim.api.nvim_buf_is_valid(self.buf) then
