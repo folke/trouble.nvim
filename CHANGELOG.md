@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/folke/trouble.nvim/compare/v2.0.1...v2.1.0) (2023-02-18)
+
+
+### Features
+
+* expose `require("trouble").is_open()` ([2eb27b3](https://github.com/folke/trouble.nvim/commit/2eb27b34442894e903fdc6e01edea6d7c476be63))
+
 ## [2.0.1](https://github.com/folke/trouble.nvim/compare/v2.0.0...v2.0.1) (2023-02-16)
 
 
