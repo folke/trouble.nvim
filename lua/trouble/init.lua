@@ -282,4 +282,6 @@ function Trouble.get_items()
   end
 end
 
+Trouble.is_open = is_open
+
 return Trouble
