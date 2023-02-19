@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.1](https://github.com/folke/trouble.nvim/compare/v2.1.0...v2.1.1) (2023-02-19)
+
+
+### Bug Fixes
+
+* ensure that the diagnostic parameters are complete ([#179](https://github.com/folke/trouble.nvim/issues/179)) ([210969f](https://github.com/folke/trouble.nvim/commit/210969fce79e7d11554c61bca263d7e1ac77bde0))
+* icorrect row/line in diagnostics. Fixes [#264](https://github.com/folke/trouble.nvim/issues/264) ([32fa4ed](https://github.com/folke/trouble.nvim/commit/32fa4ed742fc91f3075c98edd3c131b716b9d782))
+
 ## [2.1.0](https://github.com/folke/trouble.nvim/compare/v2.0.1...v2.1.0) (2023-02-18)
 
 
