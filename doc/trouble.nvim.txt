@@ -1,15 +1,15 @@
-*trouble.nvim.txt*      For Neovim >= 0.8.0      Last change: 2023 February 18
+*trouble.nvim.txt*      For Neovim >= 0.8.0      Last change: 2023 February 19
 
 ==============================================================================
 Table of Contents                             *trouble.nvim-table-of-contents*
 
 1. Trouble                                              |trouble.nvim-trouble|
-  - Features                                           |trouble.nvim-features|
-  - Requirements                                   |trouble.nvim-requirements|
-  - Installation                                   |trouble.nvim-installation|
-  - Configuration                                 |trouble.nvim-configuration|
-  - Usage                                                 |trouble.nvim-usage|
-  - Colors                                               |trouble.nvim-colors|
+  - Features                                   |trouble.nvim-trouble-features|
+  - Requirements                           |trouble.nvim-trouble-requirements|
+  - Installation                           |trouble.nvim-trouble-installation|
+  - Configuration                         |trouble.nvim-trouble-configuration|
+  - Usage                                         |trouble.nvim-trouble-usage|
+  - Colors                                       |trouble.nvim-trouble-colors|
 
 ==============================================================================
 1. Trouble                                              *trouble.nvim-trouble*
@@ -17,12 +17,8 @@ Table of Contents                             *trouble.nvim-table-of-contents*
 A pretty list for showing diagnostics, references, telescope results, quickfix
 and location lists to help you solve all the trouble your code is causing.
 
-<div class="figure">
-<img src="./media/shot.png" title="fig:"/>
-<p class="caption">LSP Trouble Screenshot</p>
-</div>
 
-FEATURES                                               *trouble.nvim-features*
+FEATURES                                       *trouble.nvim-trouble-features*
 
 
 - pretty list of:
@@ -41,7 +37,7 @@ FEATURES                                               *trouble.nvim-features*
 - configurable actions, signs, highlights,…
 
 
-REQUIREMENTS                                       *trouble.nvim-requirements*
+REQUIREMENTS                               *trouble.nvim-trouble-requirements*
 
 
 - Neovim >= 0.7.2
@@ -52,11 +48,12 @@ REQUIREMENTS                                       *trouble.nvim-requirements*
 - a patched font <https://www.nerdfonts.com/> for the default severity and fold icons
 
 
-INSTALLATION                                       *trouble.nvim-installation*
+INSTALLATION                               *trouble.nvim-trouble-installation*
 
 Install the plugin with your preferred package manager:
 
-VIM-PLUG <HTTPS://GITHUB.COM/JUNEGUNN/VIM-PLUG> ~
+
+VIM-PLUG ~
 
 >vim
     " Vim Script
@@ -73,7 +70,7 @@ VIM-PLUG <HTTPS://GITHUB.COM/JUNEGUNN/VIM-PLUG> ~
 <
 
 
-PACKER <HTTPS://GITHUB.COM/WBTHOMASON/PACKER.NVIM> ~
+PACKER ~
 
 >lua
     -- Lua
@@ -91,7 +88,8 @@ PACKER <HTTPS://GITHUB.COM/WBTHOMASON/PACKER.NVIM> ~
 <
 
 
-CONFIGURATION                                     *trouble.nvim-configuration*
+CONFIGURATION                             *trouble.nvim-trouble-configuration*
+
 
 SETUP ~
 
@@ -148,11 +146,8 @@ Trouble comes with the following defaults:
 <
 
 
-
   if you don’t want to use icons or a patched font, you can use the settings
   below
-
-
 >lua
     -- settings without a patched font or icons
     {
@@ -172,18 +167,18 @@ Trouble comes with the following defaults:
 <
 
 
-USAGE                                                     *trouble.nvim-usage*
+USAGE                                             *trouble.nvim-trouble-usage*
+
 
 COMMANDS ~
 
 Trouble comes with the following commands:
 
 
-- `Trouble [mode]`: open the list
-- `TroubleClose [mode]`: close the list
-- `TroubleToggle [mode]`: toggle the list
-- `TroubleRefresh`: manually refresh the active list
-
+- `Trouble [mode]`open the list
+- `TroubleClose [mode]`close the list
+- `TroubleToggle [mode]`toggle the list
+- `TroubleRefresh`manually refresh the active list
 
 Modes:
 
@@ -199,7 +194,6 @@ Modes:
 - **quickfix:** |quickfix| items
 - **loclist:** items from the window’s |location list|
 
-
 Example keybindings:
 
 >vim
@@ -211,7 +205,6 @@ Example keybindings:
     nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
     nnoremap gR <cmd>TroubleToggle lsp_references<cr>
 <
-
 
 >lua
     -- Lua
@@ -276,39 +269,43 @@ action:
     }
 <
 
-
 When you open telescope, you can now hit `<c-t>` to open the results in
 **Trouble**
 
-COLORS                                                   *trouble.nvim-colors*
+
+COLORS                                           *trouble.nvim-trouble-colors*
 
 The table below shows all the highlight groups defined for Trouble.
 
-│    Highlight Group     │
-│_TroubleCount_          │
-│_TroubleError_          │
-│_TroubleNormal_         │
-│_TroubleTextInformation_│
-│_TroubleSignWarning_    │
-│_TroubleLocation_       │
-│_TroubleWarning_        │
-│_TroublePreview_        │
-│_TroubleTextError_      │
-│_TroubleSignInformation_│
-│_TroubleIndent_         │
-│_TroubleSource_         │
-│_TroubleSignHint_       │
-│_TroubleSignOther_      │
-│_TroubleFoldIcon_       │
-│_TroubleTextWarning_    │
-│_TroubleCode_           │
-│_TroubleInformation_    │
-│_TroubleSignError_      │
-│_TroubleFile_           │
-│_TroubleHint_           │
-│_TroubleTextHint_       │
-│_TroubleText_           │
+  Highlight Group
+  ------------------------
+  TroubleCount
+  TroubleError
+  TroubleNormal
+  TroubleTextInformation
+  TroubleSignWarning
+  TroubleLocation
+  TroubleWarning
+  TroublePreview
+  TroubleTextError
+  TroubleSignInformation
+  TroubleIndent
+  TroubleSource
+  TroubleSignHint
+  TroubleSignOther
+  TroubleFoldIcon
+  TroubleTextWarning
+  TroubleCode
+  TroubleInformation
+  TroubleSignError
+  TroubleFile
+  TroubleHint
+  TroubleTextHint
+  TroubleText
+==============================================================================
+2. Links                                                  *trouble.nvim-links*
 
+1. *LSP Trouble Screenshot*: ./media/shot.png
 
 Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>
 
