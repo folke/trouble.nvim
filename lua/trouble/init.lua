@@ -9,8 +9,8 @@ local Trouble = {}
 
 local view
 
-local function is_open()
-  return view and view:is_valid()
+function Trouble.is_open()
+  return view and view:is_valid() or false
 end
 
 function Trouble.setup(options)
@@ -24,7 +24,7 @@ function Trouble.setup(options)
 end
 
 function Trouble.close()
-  if is_open() then
+  if Trouble.is_open() then
     view:close()
   end
 end
@@ -62,7 +62,7 @@ function Trouble.open(...)
   end
   opts.focus = true
 
-  if is_open() then
+  if Trouble.is_open() then
     Trouble.refresh(opts)
   elseif not opts.auto and vim.tbl_contains(config.options.auto_jump, opts.mode) then
     require("trouble.providers").get(vim.api.nvim_get_current_win(), vim.api.nvim_get_current_buf(), function(results)
@@ -86,7 +86,7 @@ function Trouble.toggle(...)
     return
   end
 
-  if is_open() then
+  if Trouble.is_open() then
     Trouble.close()
   else
     Trouble.open(...)
@@ -114,7 +114,7 @@ end
 
 local updater = util.debounce(100, function()
   -- buff might have been closed during the debounce
-  if not is_open() then
+  if not Trouble.is_open() then
     util.debug("refresh: not open anymore")
     return
   end
@@ -142,7 +142,7 @@ function Trouble.refresh(opts)
     end
   end
 
-  if is_open() then
+  if Trouble.is_open() then
     if opts.auto then
       updater()
     else
@@ -171,7 +171,7 @@ function Trouble.action(action)
   if view and action == "on_win_enter" then
     view:on_win_enter()
   end
-  if not is_open() then
+  if not Trouble.is_open() then
     return Trouble
   end
   if action == "hover" then
@@ -281,7 +281,5 @@ function Trouble.get_items()
     return {}
   end
 end
-
-Trouble.is_open = is_open
 
 return Trouble
