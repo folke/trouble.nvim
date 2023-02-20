@@ -381,13 +381,18 @@ end
 function View:next_item(opts)
   opts = opts or { skip_groups = false }
   local line = opts.first and 0 or self:get_line() + 1
-  for i = line, vim.api.nvim_buf_line_count(self.buf), 1 do
-    if self.items[i] and not (opts.skip_groups and self.items[i].is_file) then
-      vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
-      if opts.jump then
-        self:jump()
+
+  if line > #self.items then
+    self:first_item(opts)
+  else
+    for i = line, vim.api.nvim_buf_line_count(self.buf), 1 do
+      if self.items[i] and not (opts.skip_groups and self.items[i].is_file) then
+        vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
+        if opts.jump then
+          self:jump()
+        end
+        return
       end
-      return
     end
   end
 end
@@ -395,6 +400,17 @@ end
 function View:previous_item(opts)
   opts = opts or { skip_groups = false }
   local line = opts.last and vim.api.nvim_buf_line_count(self.buf) or self:get_line() - 1
+
+  for i = 0, vim.api.nvim_buf_line_count(self.buf), 1 do
+    if self.items[i] then
+      if line < i + (opts.skip_groups and 1 or 0) then
+        self:last_item(opts)
+        return
+      end
+      break
+    end
+  end
+
   for i = line, 0, -1 do
     if self.items[i] and not (opts.skip_groups and self.items[i].is_file) then
       vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
