@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.0](https://github.com/folke/trouble.nvim/compare/v2.1.1...v2.2.0) (2023-02-28)
+
+
+### Features
+
+* enable looping during next/prev ([#232](https://github.com/folke/trouble.nvim/issues/232)) ([fc4c0f8](https://github.com/folke/trouble.nvim/commit/fc4c0f82c9181f3c27a4cbdd5db97c110fd78ee9))
+* expose renderer.signs. Fixes [#252](https://github.com/folke/trouble.nvim/issues/252) ([5581e73](https://github.com/folke/trouble.nvim/commit/5581e736c8afc8b227ad958ded1929c8a39f049e))
+
 ## [2.1.1](https://github.com/folke/trouble.nvim/compare/v2.1.0...v2.1.1) (2023-02-19)
 
 
