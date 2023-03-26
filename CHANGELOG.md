@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.1](https://github.com/folke/trouble.nvim/compare/v2.2.0...v2.2.1) (2023-03-26)
+
+
+### Bug Fixes
+
+* **icons:** fixed deprecated icons with nerdfix ([39db399](https://github.com/folke/trouble.nvim/commit/39db3994c8de87b0b5ca7a4d3d415926f201f1fc))
+
 ## [2.2.0](https://github.com/folke/trouble.nvim/compare/v2.1.1...v2.2.0) (2023-02-28)
 
 
