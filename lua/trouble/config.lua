@@ -46,11 +46,11 @@ local defaults = {
   auto_jump = { "lsp_definitions" }, -- for the given modes, automatically jump if there is only a single result
   signs = {
     -- icons / text used for a diagnostic
-    error = "",
-    warning = "",
-    hint = "",
+    error = "",
+    warning = "",
+    hint = "",
     information = "",
-    other = "﫠",
+    other = "",
   },
   use_diagnostic_signs = false, -- enabling this will use the signs defined in your lsp client
   sort_keys = {
