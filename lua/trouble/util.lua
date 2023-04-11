@@ -166,7 +166,7 @@ function M.process_item(item, bufnr)
     sign = item.sign,
     sign_hl = item.sign_hl,
     -- remove line break to avoid display issues
-    text = vim.trim(item.message:gsub("[\n]", "")):sub(0, vim.o.columns),
+    text = vim.trim(item.message):sub(0, vim.o.columns),
     full_text = vim.trim(item.message),
     type = M.severity[item.severity] or M.severity[0],
     code = item.code or (item.user_data and item.user_data.lsp and item.user_data.lsp.code),
