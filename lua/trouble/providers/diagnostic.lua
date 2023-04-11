@@ -13,7 +13,7 @@ function M.diagnostics(_, buf, cb, options)
   local items = {}
 
   if vim.diagnostic then
-    local diags = vim.diagnostic.get(buf)
+    local diags = vim.diagnostic.get(buf, options.cmd_options)
     for _, item in ipairs(diags) do
       table.insert(items, util.process_item(item))
     end
