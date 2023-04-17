@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.2](https://github.com/folke/trouble.nvim/compare/v2.2.1...v2.2.2) (2023-04-17)
+
+
+### Bug Fixes
+
+* **util:** auto_jump when trouble is open. Fixes [#144](https://github.com/folke/trouble.nvim/issues/144) ([e4f1623](https://github.com/folke/trouble.nvim/commit/e4f1623b51e18eb4e2835446e50886062c339f80))
+* **util:** save position in jump list before jump. Fixes [#143](https://github.com/folke/trouble.nvim/issues/143) Fixes [#235](https://github.com/folke/trouble.nvim/issues/235) ([f0477b0](https://github.com/folke/trouble.nvim/commit/f0477b0e78d9a16ff326e356235876ff3f87882d))
+
 ## [2.2.1](https://github.com/folke/trouble.nvim/compare/v2.2.0...v2.2.1) (2023-03-26)
 
 
