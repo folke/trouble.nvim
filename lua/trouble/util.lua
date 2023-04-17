@@ -7,6 +7,9 @@ function M.jump_to_item(win, precmd, item)
   -- requiring here, as otherwise we run into a circular dependency
   local View = require("trouble.view")
 
+  -- save position in jump list
+  vim.cmd("normal! m'")
+
   View.switch_to(win)
   if precmd then
     vim.cmd(precmd)
