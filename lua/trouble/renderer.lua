@@ -35,6 +35,13 @@ function renderer.render(view, opts)
   opts = opts or {}
   local buf = vim.api.nvim_win_get_buf(view.parent)
   providers.get(view.parent, buf, function(items)
+    local auto_jump = vim.tbl_contains(config.options.auto_jump, opts.mode)
+    if opts.on_open and #items == 1 and auto_jump and not opts.auto then
+      view:close()
+      util.jump_to_item(opts.win, opts.precmd, items[1])
+      return
+    end
+
     local grouped = providers.group(items)
     local count = util.count(grouped)
 

@@ -61,6 +61,7 @@ function Trouble.open(...)
     config.options.mode = opts.mode
   end
   opts.focus = true
+  opts.on_open = true
 
   if Trouble.is_open() then
     Trouble.refresh(opts)
