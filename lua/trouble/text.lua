@@ -18,6 +18,10 @@ function Text:nl()
   self.lineNr = self.lineNr + 1
 end
 
+function Text:msg(msg)
+    self.current = self.current .. msg
+end
+
 function Text:render(str, group, opts)
   str = str:gsub("[\n]", " ")
   if type(opts) == "string" then

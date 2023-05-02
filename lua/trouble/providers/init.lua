@@ -66,7 +66,7 @@ function M.get(win, buf, cb, options)
         end
       end
     end)
-    cb(items)
+    cb(items, msg)
   end, options)
 end
 

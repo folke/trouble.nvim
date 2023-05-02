@@ -34,7 +34,7 @@ end
 function renderer.render(view, opts)
   opts = opts or {}
   local buf = vim.api.nvim_win_get_buf(view.parent)
-  providers.get(view.parent, buf, function(items)
+  providers.get(view.parent, buf, function(items, message)
     local auto_jump = vim.tbl_contains(config.options.auto_jump, opts.mode)
     if opts.on_open and #items == 1 and auto_jump and not opts.auto then
       view:close()
@@ -59,6 +59,7 @@ function renderer.render(view, opts)
     local text = Text:new()
     view.items = {}
 
+    text:msg(message or "")
     if config.options.padding then
       text:nl()
     end
