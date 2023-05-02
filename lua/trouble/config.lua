@@ -1,3 +1,5 @@
+local severity = require("trouble.severity")
+
 local M = {}
 
 M.namespace = vim.api.nvim_create_namespace("Trouble")
@@ -79,42 +81,7 @@ M.options = {}
 
 function M.setup(options)
   M.options = vim.tbl_deep_extend("force", {}, defaults, options or {})
-  M.fix_severity(M.options)
-end
-
--- this is a bit overboard to validate these settings, but fun
-local DiagnosticSeverity = vim.lsp.protocol.DiagnosticSeverity
-local to_severity = function(severity)
-  if not severity then return nil end
-  return type(severity) == 'string' and DiagnosticSeverity[severity] or severity
-end
-local severity_keys = vim.tbl_keys(DiagnosticSeverity)
-local severity_names = vim.tbl_filter(function(a) return type(a) == "string" end, severity_keys)
-table.sort(severity_names, function (a, b) return to_severity(a) < to_severity(b) end)
-local severity_names_joined = table.concat(severity_names, ", ")
-local severity_expected = "nil, number in range 1..=4, or {"..severity_names_joined .. "}"
-function sev_validate(s)
-  -- Diagnostics
-  return vim.tbl_contains(severity_keys, s)
-end
-function opt_sev_validate(s)
-  if s == nil then return true end
-  if type(s) == 'number' then return s end
-  return sev_validate(s)
-end
-
-function M.fix_severity(opts)
-  vim.validate {
-    min_severity = { opts.min_severity, opt_sev_validate, severity_expected },
-    cascading_severity = { opts.cascading_severity, opt_sev_validate, severity_expected },
-  }
-  -- make them 1..=4 or nil
-  opts.min_severity = to_severity(opts.min_severity)
-  -- min_severity being Hint just runs a no-op filter, so ignore it
-  if opts.min_severity == 4 then
-    opts.min_severity = nil
-  end
-  opts.cascading_severity = to_severity(opts.cascading_severity)
+  severity.fix_config(M.options)
 end
 
 M.setup()
