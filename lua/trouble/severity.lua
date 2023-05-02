@@ -19,11 +19,11 @@ local severity_names = vim.tbl_filter(function(a) return type(a) == "string" end
 table.sort(severity_names, function (a, b) return to_severity(a) < to_severity(b) end)
 local severity_names_joined = table.concat(severity_names, ", ")
 local severity_expected = "nil, number in range 1..=4, or {"..severity_names_joined .. "}"
-function sev_validate(s)
+local function sev_validate(s)
   -- Diagnostics
   return vim.tbl_contains(severity_keys, s)
 end
-function opt_sev_validate(s)
+local function opt_sev_validate(s)
   if s == nil then return true end
   if type(s) == 'number' then return s end
   return sev_validate(s)
@@ -52,7 +52,7 @@ end
 -- nil is least severe (no filter), 4 is next smallest (Hint), 1 is most severe (Error)
 -- however, 4/Hint is meaningless for min_severity.
 -- min and max are not counter intuitive. They represent the min and max of the range of acceptable values.
-function incr_sev(min, max)
+local function incr_sev(min, max)
   return function(s)
     if s == nil then return max
     elseif s <= min then return min -- can't get more severe than {min}
@@ -62,7 +62,7 @@ function incr_sev(min, max)
   end
 end
 
-function decr_sev(min, max)
+local function decr_sev(min, max)
   return function(s)
     if s == nil then return nil -- can't get less severe than nil
     elseif s >= max then return nil
@@ -75,7 +75,7 @@ end
 -- not the greatest lua test harness ever, but it works
 -- :lua require'trouble.severity'.__run_tests()
 function M.__run_tests()
-  function testit(start, fn, to_eq)
+  local function testit(start, fn, to_eq)
     local x = start
     for i, v in ipairs(to_eq) do
       x = fn(x)
@@ -129,10 +129,10 @@ end
 -- When we say min_severity in the code, it means we are filtering by <= the LSP severity number.
 
 -- must pass an integer severity to these
-function eq_severity_fn(severity)
+local function eq_severity_fn(severity)
   return function(t) return t.severity == severity end
 end
-function min_severity_fn(severity)
+local function min_severity_fn(severity)
   -- recall LSP DiagnosticSeverity being backwards
   return function(t) return t.severity <= severity end
 end
@@ -141,10 +141,15 @@ end
 ---
 --- @param items Item[]
 --- @return Item[], number
-function filter_diags(items, filter_fn)
+local function filter_diags(items, filter_fn)
   local filtered = vim.tbl_filter(filter_fn, items)
   local hidden = #items - #filtered
   return filtered, hidden
+end
+
+local function mk_msg(m, t, o)
+ if m == nil and t == nil and o == nil then return "" end
+ return "(" .. table.concat(vim.tbl_filter(function(x) return x ~= nil end, { m, t, o }), ", ") .. ")"
 end
 
 -- @param options TroubleOptions
@@ -200,10 +205,6 @@ function M.filter_severities(options, items)
     or (cas ~= nil and "cascade <= " .. DiagnosticSeverity[cas])
     or nil
   local eq_chosen_is = eq_hidden > 0 and ("only showing "..eq_chosen) or nil
-  function mk_msg(m, t, o)
-    if m == nil and t == nil and o == nil then return "" end
-    return "(" .. table.concat(vim.tbl_filter(function(x) return x ~= nil end, { m, t, o }), ", ") .. ")"
-  end
   if total_hidden > 0 then
     msg = some_hidden .. mk_msg(min_is, cas, nil, nil)
   else

@@ -60,7 +60,7 @@ function renderer.render(view, opts)
     view.items = {}
 
     text:msg(message or "")
-    if config.options.padding then
+    if config.options.padding or message ~= nil then
       text:nl()
     end
 
