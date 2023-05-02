@@ -200,15 +200,15 @@ function M.filter_severities(options, items)
   local total_hidden = min_hidden + eq_hidden
   local some_hidden = total_hidden .. " diagnostic".. (total_hidden > 1 and "s" or "") .." hidden "
   local min_is = min_sev ~= nil and ("min = "..DiagnosticSeverity[min_sev]) or nil
-  local cas = options.cascading_severity_threshold
-  cas = (cas == 4 and "cascade enabled")
-    or (cas ~= nil and "cascade <= " .. DiagnosticSeverity[cas])
+  local cascade_threshold = options.cascading_severity_threshold
+  cascade_threshold = (cascade_threshold == 4 and "cascade enabled")
+    or (cascade_threshold ~= nil and "cascade <= " .. DiagnosticSeverity[cascade_threshold])
     or nil
   local eq_chosen_is = eq_hidden > 0 and ("only showing "..eq_chosen) or nil
   if total_hidden > 0 then
-    msg = some_hidden .. mk_msg(min_is, cas, nil, nil)
+    msg = some_hidden .. mk_msg(min_is, cascade_threshold, eq_chosen_is)
   else
-    msg = mk_msg(min_is, cas, nil, nil)
+    msg = mk_msg(min_is, cascade_threshold, nil)
   end
   return items, msg
 end
