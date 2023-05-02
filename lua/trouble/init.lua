@@ -2,6 +2,7 @@ local View = require("trouble.view")
 local config = require("trouble.config")
 local colors = require("trouble.colors")
 local util = require("trouble.util")
+local severity = require("trouble.severity")
 
 colors.setup()
 
@@ -239,6 +240,11 @@ function Trouble.action(action)
   end
   if action == "preview" then
     view:preview()
+  end
+
+  if severity.handles_action(action) then
+    severity.apply_action(action, config)
+    Trouble.refresh()
   end
 
   if Trouble[action] then
