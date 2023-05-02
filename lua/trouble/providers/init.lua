@@ -3,6 +3,7 @@ local qf = require("trouble.providers.qf")
 local telescope = require("trouble.providers.telescope")
 local lsp = require("trouble.providers.lsp")
 local diagnostic = require("trouble.providers.diagnostic")
+local severity = require("trouble.severity")
 
 local M = {}
 
@@ -53,6 +54,9 @@ function M.get(win, buf, cb, options)
   }, options.sort_keys)
 
   provider(win, buf, function(items)
+    local msg = nil
+    items, msg = severity.filter_severities(options, items)
+    -- sort them by severity and then line number
     table.sort(items, function(a, b)
       for _, key in ipairs(sort_keys) do
         local ak = type(key) == "string" and a[key] or key(a)

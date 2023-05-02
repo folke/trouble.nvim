@@ -2,6 +2,7 @@
 
 local DiagnosticSeverity = vim.lsp.protocol.DiagnosticSeverity
 
+--@class Severity
 local M = {}
 
 ----------------------------------
@@ -28,18 +29,19 @@ function opt_sev_validate(s)
   return sev_validate(s)
 end
 
-function M.fix_config(opts)
+-- @param options TroubleOptions
+function M.fix_config(options)
   vim.validate {
-    min_severity = { opts.min_severity, opt_sev_validate, severity_expected },
-    cascading_severity = { opts.cascading_severity, opt_sev_validate, severity_expected },
+    min_severity = { options.min_severity, opt_sev_validate, severity_expected },
+    cascading_severity = { options.cascading_severity, opt_sev_validate, severity_expected },
   }
   -- make them 1..=4 or nil
-  opts.min_severity = to_severity(opts.min_severity)
+  options.min_severity = to_severity(options.min_severity)
   -- min_severity being Hint just runs a no-op filter, so ignore it
-  if opts.min_severity == 4 then
-    opts.min_severity = nil
+  if options.min_severity == 4 then
+    options.min_severity = nil
   end
-  opts.cascading_severity = to_severity(opts.cascading_severity)
+  options.cascading_severity = to_severity(options.cascading_severity)
 end
 
 ----------------------------------
@@ -137,13 +139,79 @@ end
 
 --- Filters using a function. Returns a new table, and the number of diagnostics left out
 ---
---- @param items Diagnostic[]
---- @return Diagnostic[], number
+--- @param items Item[]
+--- @return Item[], number
 function filter_diags(items, filter_fn)
   local filtered = vim.tbl_filter(filter_fn, items)
   local hidden = #items - #filtered
   return filtered, hidden
 end
+
+-- @param options TroubleOptions
+-- @param items Item[]
+-- @return Item[], string
+function M.filter_severities(options, items)
+  -- these are 1..=4 integers or nil, because of M.fix_config above
+  local min_sev = options.min_severity
+  local cascading_sev = options.cascading_severity_threshold
+
+  -- min_sev applies even when cascading_sev is enabled.
+  -- so treat it as a pre-filter.
+  local min_hidden = 0
+  if min_sev ~= nil then
+    items, min_hidden = filter_diags(items, min_severity_fn(min_sev))
+  end
+
+  local eq_hidden = 0
+  local eq_chosen = nil
+  if cascading_sev ~= nil then
+    if min_sev ~= nil and min_sev < cascading_sev then
+      -- just save a few useless loop iterations
+      cascading_sev = min_sev
+    end
+    -- comments here show what happens if cascading_severity_threshold is set to "Information"
+    -- =>> if we have no errors, show warnings; if we have no warnings, show the rest
+    local try = items
+    for sev=1,cascading_sev do
+      if sev == cascading_sev then
+        -- we got to the Information level, so that means we couldn't find any Warning/Error diags
+        -- therefore, show everything means show Info + Hint.
+        -- We have already filtered away anything less than min_sev.
+        try = items
+        break
+      end
+      local h
+      try, h = filter_diags(items, eq_severity_fn(sev))
+      -- if we get any results at all, stop and display them
+      if not vim.tbl_isempty(try) then
+        eq_chosen = DiagnosticSeverity[sev]
+        eq_hidden = h
+        break
+      end
+    end
+    items = try
+  end
+  local msg = nil
+  local total_hidden = min_hidden + eq_hidden
+  local some_hidden = total_hidden .. " diagnostic".. (total_hidden > 1 and "s" or "") .." hidden "
+  local min_is = min_sev ~= nil and ("min = "..DiagnosticSeverity[min_sev]) or nil
+  local cas = options.cascading_severity_threshold
+  cas = (cas == 4 and "cascade enabled")
+    or (cas ~= nil and "cascade <= " .. DiagnosticSeverity[cas])
+    or nil
+  local eq_chosen_is = eq_hidden > 0 and ("only showing "..eq_chosen) or nil
+  function mk_msg(m, t, o)
+    if m == nil and t == nil and o == nil then return "" end
+    return "(" .. table.concat(vim.tbl_filter(function(x) return x ~= nil end, { m, t, o }), ", ") .. ")"
+  end
+  if total_hidden > 0 then
+    msg = some_hidden .. mk_msg(min_is, cas, nil, nil)
+  else
+    msg = mk_msg(min_is, cas, nil, nil)
+  end
+  return items, msg
+end
+
 
 return M
 
