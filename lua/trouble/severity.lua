@@ -112,8 +112,8 @@ function M.apply_action(action, config)
   local key = nil
   if     action == "incr_min_severity"       then fn = incr_sev(1, 3); key = "min_severity"
   elseif action == "decr_min_severity"       then fn = decr_sev(1, 3); key = "min_severity"
-  elseif action == "incr_cascading_severity" then fn = incr_sev(1, 4); key = "cascading_severity_threshold"
-  elseif action == "decr_cascading_severity" then fn = decr_sev(1, 4); key = "cascading_severity_threshold"
+  elseif action == "incr_cascading_severity" then fn = incr_sev(2, 4); key = "cascading_severity_threshold"
+  elseif action == "decr_cascading_severity" then fn = decr_sev(2, 4); key = "cascading_severity_threshold"
   else error("trouble.severity.apply_action called on unknown action '" .. action .. "'") end
   -- print("trouble.severity: applying action " .. action .. " to key " .. key)
   local prev_sev = config.options[key]
