@@ -33,7 +33,7 @@ end
 function M.fix_config(options)
   vim.validate {
     min_severity = { options.min_severity, opt_sev_validate, severity_expected },
-    cascading_severity = { options.cascading_severity, opt_sev_validate, severity_expected },
+    cascading_severity_threshold = { options.cascading_severity_threshold, opt_sev_validate, severity_expected },
   }
   -- make them 1..=4 or nil
   options.min_severity = to_severity(options.min_severity)
@@ -41,7 +41,11 @@ function M.fix_config(options)
   if options.min_severity == 4 then
     options.min_severity = nil
   end
-  options.cascading_severity = to_severity(options.cascading_severity)
+  options.cascading_severity_threshold = to_severity(options.cascading_severity_threshold)
+  -- cascading_severity_threshold being Error just shows everything, equivalent to no filters at all
+  if options.cascading_severity_threshold == 1 then
+     options.cascading_severity_threshold = nil
+  end
 end
 
 ----------------------------------
