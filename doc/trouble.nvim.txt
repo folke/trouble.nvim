@@ -1,4 +1,4 @@
-*trouble.nvim.txt*        For Neovim >= 0.8.0       Last change: 2023 April 18
+*trouble.nvim.txt*         For Neovim >= 0.8.0        Last change: 2023 May 19
 
 ==============================================================================
 Table of Contents                             *trouble.nvim-table-of-contents*
@@ -20,7 +20,6 @@ and location lists to help you solve all the trouble your code is causing.
 
 FEATURES                                       *trouble.nvim-trouble-features*
 
-
 - pretty list of:
     - Diagnostics
     - LSP references
@@ -38,7 +37,6 @@ FEATURES                                       *trouble.nvim-trouble-features*
 
 
 REQUIREMENTS                               *trouble.nvim-trouble-requirements*
-
 
 - Neovim >= 0.7.2
 - Properly configured Neovim LSP client
@@ -174,14 +172,12 @@ COMMANDS ~
 
 Trouble comes with the following commands:
 
-
 - `Trouble [mode]`open the list
 - `TroubleClose [mode]`close the list
 - `TroubleToggle [mode]`toggle the list
 - `TroubleRefresh`manually refresh the active list
 
 Modes:
-
 
 - **document_diagnostics:** document diagnostics from the builtin LSP client
 - **workspace_diagnostics:** workspace diagnostics from the builtin LSP client
