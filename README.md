@@ -34,36 +34,17 @@ A pretty list for showing diagnostics, references, telescope results, quickfix a
 
 Install the plugin with your preferred package manager:
 
-### [vim-plug](https://github.com/junegunn/vim-plug)
-
-```vim
-" Vim Script
-Plug 'nvim-tree/nvim-web-devicons'
-Plug 'folke/trouble.nvim'
-
-lua << EOF
-  require("trouble").setup {
-    -- your configuration comes here
-    -- or leave it empty to use the default settings
-    -- refer to the configuration section below
-  }
-EOF
-```
-
-### [packer](https://github.com/wbthomason/packer.nvim)
+### [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
--- Lua
-use {
-  "folke/trouble.nvim",
-  requires = "nvim-tree/nvim-web-devicons",
-  config = function()
-    require("trouble").setup {
-      -- your configuration comes here
-      -- or leave it empty to use the default settings
-      -- refer to the configuration section below
-    }
-  end
+return {
+ "folke/trouble.nvim",
+ dependencies = { "nvim-tree/nvim-web-devicons" },
+ opts = {
+  -- your configuration comes here
+  -- or leave it empty to use the default settings
+  -- refer to the configuration section below
+ },
 }
 ```
 
