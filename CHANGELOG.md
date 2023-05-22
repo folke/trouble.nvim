@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.3](https://github.com/folke/trouble.nvim/compare/v2.2.2...v2.2.3) (2023-05-22)
+
+
+### Bug Fixes
+
+* set window options locally ([#282](https://github.com/folke/trouble.nvim/issues/282)) ([a5649c9](https://github.com/folke/trouble.nvim/commit/a5649c9a60d7c5aa2fed1781057af3f29b10f167))
+
 ## [2.2.2](https://github.com/folke/trouble.nvim/compare/v2.2.1...v2.2.2) (2023-04-17)
 
 
