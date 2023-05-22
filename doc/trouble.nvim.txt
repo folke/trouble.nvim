@@ -1,4 +1,4 @@
-*trouble.nvim.txt*         For Neovim >= 0.8.0        Last change: 2023 May 19
+*trouble.nvim.txt*         For Neovim >= 0.8.0        Last change: 2023 May 22
 
 ==============================================================================
 Table of Contents                             *trouble.nvim-table-of-contents*
@@ -51,37 +51,17 @@ INSTALLATION                               *trouble.nvim-trouble-installation*
 Install the plugin with your preferred package manager:
 
 
-VIM-PLUG ~
-
->vim
-    " Vim Script
-    Plug 'nvim-tree/nvim-web-devicons'
-    Plug 'folke/trouble.nvim'
-    
-    lua << EOF
-      require("trouble").setup {
-        -- your configuration comes here
-        -- or leave it empty to use the default settings
-        -- refer to the configuration section below
-      }
-    EOF
-<
-
-
-PACKER ~
+LAZY.NVIM ~
 
 >lua
-    -- Lua
-    use {
-      "folke/trouble.nvim",
-      requires = "nvim-tree/nvim-web-devicons",
-      config = function()
-        require("trouble").setup {
-          -- your configuration comes here
-          -- or leave it empty to use the default settings
-          -- refer to the configuration section below
-        }
-      end
+    return {
+     "folke/trouble.nvim",
+     dependencies = { "nvim-tree/nvim-web-devicons" },
+     opts = {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+     },
     }
 <
 
