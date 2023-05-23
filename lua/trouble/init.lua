@@ -57,9 +57,6 @@ end
 
 function Trouble.open(...)
   local opts = get_opts(...)
-  if opts.mode and (opts.mode ~= config.options.mode) then
-    config.options.mode = opts.mode
-  end
   opts.focus = true
   opts.on_open = true
 
