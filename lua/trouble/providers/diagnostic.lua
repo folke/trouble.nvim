@@ -10,10 +10,16 @@ function M.diagnostics(_, buf, cb, options)
     buf = nil
   end
 
+  local severity = nil
+  if options.severity ~= nil then
+    severity = vim.diagnostic.severity[options.severity]
+  end
+
+  print(severity)
   local items = {}
 
   if vim.diagnostic then
-    local diags = vim.diagnostic.get(buf)
+    local diags = vim.diagnostic.get(buf, { severity = severity })
     for _, item in ipairs(diags) do
       table.insert(items, util.process_item(item))
     end

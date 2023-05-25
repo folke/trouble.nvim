@@ -60,6 +60,11 @@ function Trouble.open(...)
   if opts.mode and (opts.mode ~= config.options.mode) then
     config.options.mode = opts.mode
   end
+
+  if opts.severity and (opts.severity ~=config.options.severity) then
+    config.options.severity = opts.severity
+  end
+
   opts.focus = true
   opts.on_open = true
 
@@ -165,6 +170,21 @@ function Trouble.action(action)
       config.options.mode = "workspace_diagnostics"
     elseif config.options.mode == "workspace_diagnostics" then
       config.options.mode = "document_diagnostics"
+    end
+    action = "refresh"
+  end
+
+  if action == 'switch_severity' then
+    if config.options.severity == nil then
+      config.options.severity = "HINT"
+    elseif config.options.severity == 'HINT' then
+      config.options.severity = 'INFO'
+    elseif config.options.severity == 'INFO' then
+      config.options.severity = 'WARN'
+    elseif config.options.severity == 'WARN' then
+      config.options.severity = 'ERROR'
+    elseif config.options.severity == 'ERROR' then
+      config.options.severity = nil
     end
     action = "refresh"
   end

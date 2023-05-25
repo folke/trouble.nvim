@@ -77,6 +77,7 @@ Trouble comes with the following defaults:
         open_tab = { "<c-t>" }, -- open buffer in new tab
         jump_close = {"o"}, -- jump to the diagnostic and close the list
         toggle_mode = "m", -- toggle between "workspace" and "document" diagnostics mode
+        switch_severity = "s", -- switch "diagnostics" severity level to HINT / INFO / WARN / ERROR
         toggle_preview = "P", -- toggle auto_preview
         hover = "K", -- opens a small popup with the full multiline message
         preview = "p", -- preview the diagnostic location
