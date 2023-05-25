@@ -176,14 +176,10 @@ function Trouble.action(action)
 
   if action == 'switch_severity' then
     if config.options.severity == nil then
-      config.options.severity = "HINT"
-    elseif config.options.severity == 'HINT' then
-      config.options.severity = 'INFO'
-    elseif config.options.severity == 'INFO' then
-      config.options.severity = 'WARN'
-    elseif config.options.severity == 'WARN' then
-      config.options.severity = 'ERROR'
-    elseif config.options.severity == 'ERROR' then
+      config.options.severity = vim.diagnostic.severity.ERROR
+    elseif config.options.severity < 4 then
+      config.options.severity = config.options.severity + 1
+    else
       config.options.severity = nil
     end
     action = "refresh"

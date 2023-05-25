@@ -5,6 +5,7 @@ M.namespace = vim.api.nvim_create_namespace("Trouble")
 ---@class TroubleOptions
 ---@field buf number|nil
 ---@field win number|nil
+---@field severity lsp.DiagnosticSeverity|nil
 -- TODO: make some options configurable per mode
 -- TODO: make it possible to have multiple trouble lists open at the same time
 local defaults = {
@@ -17,7 +18,7 @@ local defaults = {
   width = 50, -- width of the list when position is left or right
   icons = true, -- use devicons for filenames
   mode = "workspace_diagnostics", -- "workspace_diagnostics", "document_diagnostics", "quickfix", "lsp_references", "loclist"
-  severity = nil, -- "diagnostic" severity filter level: nil (ALL), HINT, INFO, WARN, ERROR
+  severity = nil, -- nil (ALL) or vim.diagnostic.severity.ERROR | WARN | INFO | HINT
   fold_open = "", -- icon used for open folds
   fold_closed = "", -- icon used for closed folds
   action_keys = { -- key mappings for actions in the trouble list
