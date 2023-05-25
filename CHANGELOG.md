@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/folke/trouble.nvim/compare/v2.2.3...v2.3.0) (2023-05-25)
+
+
+### Features
+
+* filter diagnostics by severity level ([#285](https://github.com/folke/trouble.nvim/issues/285)) ([b1f607f](https://github.com/folke/trouble.nvim/commit/b1f607ff0f2c107faf8b0c26d09877028b549d63))
+
 ## [2.2.3](https://github.com/folke/trouble.nvim/compare/v2.2.2...v2.2.3) (2023-05-22)
 
 
