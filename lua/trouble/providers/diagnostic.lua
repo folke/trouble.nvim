@@ -15,7 +15,6 @@ function M.diagnostics(_, buf, cb, options)
     severity = vim.diagnostic.severity[options.severity]
   end
 
-  print(severity)
   local items = {}
 
   if vim.diagnostic then
