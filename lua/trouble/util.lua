@@ -147,12 +147,11 @@ function M.process_item(item, bufnr)
   local col = start.character
 
   if not item.message and filename then
-    local fd = assert(uv.fs_open(filename, "r", 438))
-    local stat = assert(uv.fs_fstat(fd))
-    local data = assert(uv.fs_read(fd, stat.size, 0))
-    assert(uv.fs_close(fd))
-
-    item.message = vim.split(data, "\n", { plain = true })[row + 1] or ""
+    if not vim.api.nvim_buf_is_loaded(bufnr) then
+      vim.fn.bufload(bufnr)
+    end
+    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)[row+1]
+    item.message = lines or ""
   end
 
   ---@class Item
