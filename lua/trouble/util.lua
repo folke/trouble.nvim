@@ -150,8 +150,8 @@ function M.process_item(item, bufnr)
     if not vim.api.nvim_buf_is_loaded(bufnr) then
       vim.fn.bufload(bufnr)
     end
-    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)[row+1]
-    item.message = lines or ""
+    local lines = vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false)
+    item.message = lines[1] or ""
   end
 
   ---@class Item
