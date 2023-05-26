@@ -147,11 +147,21 @@ function M.process_item(item, bufnr)
   local col = start.character
 
   if not item.message and filename then
-    if not vim.api.nvim_buf_is_loaded(bufnr) then
-      vim.fn.bufload(bufnr)
+    -- check if the filename is a uri
+    if string.match(filename, "^%w+://") ~= nil then
+      if not vim.api.nvim_buf_is_loaded(bufnr) then
+        vim.fn.bufload(bufnr)
+      end
+      local lines = vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false)
+      item.message = lines[1] or ""
+    else
+      local fd = assert(uv.fs_open(filename, "r", 438))
+      local stat = assert(uv.fs_fstat(fd))
+      local data = assert(uv.fs_read(fd, stat.size, 0))
+      assert(uv.fs_close(fd))
+
+      item.message = vim.split(data, "\n", { plain = true })[row + 1] or ""
     end
-    local lines = vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false)
-    item.message = lines[1] or ""
   end
 
   ---@class Item
