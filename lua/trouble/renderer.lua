@@ -7,7 +7,7 @@ local folds = require("trouble.folds")
 ---@class Renderer
 local renderer = {}
 
-local signs = {}
+renderer.signs = {}
 
 local function get_icon(file)
   local ok, icons = pcall(require, "nvim-web-devicons")
@@ -23,10 +23,10 @@ local function get_icon(file)
 end
 
 local function update_signs()
-  signs = config.options.signs
+  renderer.signs = config.options.signs
   if config.options.use_diagnostic_signs then
     local lsp_signs = require("trouble.providers.diagnostic").get_signs()
-    signs = vim.tbl_deep_extend("force", {}, signs, lsp_signs)
+    renderer.signs = vim.tbl_deep_extend("force", {}, renderer.signs, lsp_signs)
   end
 end
 
@@ -35,6 +35,13 @@ function renderer.render(view, opts)
   opts = opts or {}
   local buf = vim.api.nvim_win_get_buf(view.parent)
   providers.get(view.parent, buf, function(items)
+    local auto_jump = vim.tbl_contains(config.options.auto_jump, opts.mode)
+    if opts.on_open and #items == 1 and auto_jump and not opts.auto then
+      view:close()
+      util.jump_to_item(opts.win, opts.precmd, items[1])
+      return
+    end
+
     local grouped = providers.group(items)
     local count = util.count(grouped)
 
@@ -114,7 +121,7 @@ function renderer.render_diagnostics(view, text, items)
   for _, diag in ipairs(items) do
     view.items[text.lineNr + 1] = diag
 
-    local sign = diag.sign or signs[string.lower(diag.type)]
+    local sign = diag.sign or renderer.signs[string.lower(diag.type)]
     if not sign then
       sign = diag.type
     end

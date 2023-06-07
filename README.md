@@ -23,9 +23,9 @@ A pretty list for showing diagnostics, references, telescope results, quickfix a
 
 ## ⚡️ Requirements
 
-- Neovim >= 0.5.0
+- Neovim >= 0.7.2
 - Properly configured Neovim LSP client
-- [nvim-web-devicons](https://github.com/kyazdani42/nvim-web-devicons) is optional to enable file icons
+- [nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons) is optional to enable file icons
 - a theme with properly configured highlight groups for Neovim Diagnostics
 - or install 🌈 [lsp-colors](https://github.com/folke/lsp-colors.nvim) to automatically create the missing highlight groups
 - a [patched font](https://www.nerdfonts.com/) for the default severity and fold icons
@@ -34,36 +34,17 @@ A pretty list for showing diagnostics, references, telescope results, quickfix a
 
 Install the plugin with your preferred package manager:
 
-### [vim-plug](https://github.com/junegunn/vim-plug)
-
-```vim
-" Vim Script
-Plug 'kyazdani42/nvim-web-devicons'
-Plug 'folke/trouble.nvim'
-
-lua << EOF
-  require("trouble").setup {
-    -- your configuration comes here
-    -- or leave it empty to use the default settings
-    -- refer to the configuration section below
-  }
-EOF
-```
-
-### [packer](https://github.com/wbthomason/packer.nvim)
+### [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
--- Lua
-use {
-  "folke/trouble.nvim",
-  requires = "kyazdani42/nvim-web-devicons",
-  config = function()
-    require("trouble").setup {
-      -- your configuration comes here
-      -- or leave it empty to use the default settings
-      -- refer to the configuration section below
-    }
-  end
+return {
+ "folke/trouble.nvim",
+ dependencies = { "nvim-tree/nvim-web-devicons" },
+ opts = {
+  -- your configuration comes here
+  -- or leave it empty to use the default settings
+  -- refer to the configuration section below
+ },
 }
 ```
 
@@ -80,6 +61,7 @@ Trouble comes with the following defaults:
     width = 50, -- width of the list when position is left or right
     icons = true, -- use devicons for filenames
     mode = "workspace_diagnostics", -- "workspace_diagnostics", "document_diagnostics", "quickfix", "lsp_references", "loclist"
+    severity = nil, -- nil (ALL) or vim.diagnostic.severity.ERROR | WARN | INFO | HINT
     fold_open = "", -- icon used for open folds
     fold_closed = "", -- icon used for closed folds
     group = true, -- group results by file
@@ -96,6 +78,7 @@ Trouble comes with the following defaults:
         open_tab = { "<c-t>" }, -- open buffer in new tab
         jump_close = {"o"}, -- jump to the diagnostic and close the list
         toggle_mode = "m", -- toggle between "workspace" and "document" diagnostics mode
+        switch_severity = "s", -- switch "diagnostics" severity filter level to HINT / INFO / WARN / ERROR
         toggle_preview = "P", -- toggle auto_preview
         hover = "K", -- opens a small popup with the full multiline message
         preview = "p", -- preview the diagnostic location

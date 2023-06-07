@@ -5,6 +5,7 @@ M.namespace = vim.api.nvim_create_namespace("Trouble")
 ---@class TroubleOptions
 ---@field buf number|nil
 ---@field win number|nil
+---@field severity lsp.DiagnosticSeverity|nil
 -- TODO: make some options configurable per mode
 -- TODO: make it possible to have multiple trouble lists open at the same time
 local defaults = {
@@ -17,6 +18,7 @@ local defaults = {
   width = 50, -- width of the list when position is left or right
   icons = true, -- use devicons for filenames
   mode = "workspace_diagnostics", -- "workspace_diagnostics", "document_diagnostics", "quickfix", "lsp_references", "loclist"
+  severity = nil, -- nil (ALL) or vim.diagnostic.severity.ERROR | WARN | INFO | HINT
   fold_open = "", -- icon used for open folds
   fold_closed = "", -- icon used for closed folds
   action_keys = { -- key mappings for actions in the trouble list
@@ -29,6 +31,7 @@ local defaults = {
     open_tab = { "<c-t>" }, -- open buffer in new tab
     jump_close = { "o" }, -- jump to the diagnostic and close the list
     toggle_mode = "m", -- toggle between "workspace" and "document" mode
+    switch_severity = "s", -- switch "diagnostics" severity filter level to ALL / HINT / INFO / WARN / ERROR
     toggle_preview = "P", -- toggle auto_preview
     hover = "K", -- opens a small popup with the full multiline message
     preview = "p", -- preview the diagnostic location
@@ -46,11 +49,11 @@ local defaults = {
   auto_jump = { "lsp_definitions" }, -- for the given modes, automatically jump if there is only a single result
   signs = {
     -- icons / text used for a diagnostic
-    error = "",
-    warning = "",
-    hint = "",
+    error = "",
+    warning = "",
+    hint = "",
     information = "",
-    other = "﫠",
+    other = "",
   },
   use_diagnostic_signs = false, -- enabling this will use the signs defined in your lsp client
   sort_keys = {

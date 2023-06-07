@@ -78,9 +78,9 @@ end
 
 function View:set_option(name, value, win)
   if win then
-    return vim.api.nvim_win_set_option(self.win, name, value)
+    return vim.api.nvim_set_option_value(name, value, { win = self.win, scope = 'local' })
   else
-    return vim.api.nvim_buf_set_option(self.buf, name, value)
+    return vim.api.nvim_set_option_value(name, value, { buf = self.buf })
   end
 end
 
@@ -312,7 +312,9 @@ function View:focus()
   local line = self:get_line()
   if line == 1 then
     self:next_item()
-    self:next_item()
+    if config.options.padding then
+      self:next_item()
+    end
   end
 end
 
@@ -333,6 +335,9 @@ end
 function View:close()
   util.debug("close")
   if vim.api.nvim_win_is_valid(self.win) then
+    if vim.api.nvim_win_is_valid(self.parent) then
+      vim.api.nvim_set_current_win(self.parent)
+    end
     vim.api.nvim_win_close(self.win, {})
   end
   if vim.api.nvim_buf_is_valid(self.buf) then
@@ -378,13 +383,18 @@ end
 function View:next_item(opts)
   opts = opts or { skip_groups = false }
   local line = opts.first and 0 or self:get_line() + 1
-  for i = line, vim.api.nvim_buf_line_count(self.buf), 1 do
-    if self.items[i] and not (opts.skip_groups and self.items[i].is_file) then
-      vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
-      if opts.jump then
-        self:jump()
+
+  if line > #self.items then
+    self:first_item(opts)
+  else
+    for i = line, vim.api.nvim_buf_line_count(self.buf), 1 do
+      if self.items[i] and not (opts.skip_groups and self.items[i].is_file) then
+        vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
+        if opts.jump then
+          self:jump()
+        end
+        return
       end
-      return
     end
   end
 end
@@ -392,6 +402,17 @@ end
 function View:previous_item(opts)
   opts = opts or { skip_groups = false }
   local line = opts.last and vim.api.nvim_buf_line_count(self.buf) or self:get_line() - 1
+
+  for i = 0, vim.api.nvim_buf_line_count(self.buf), 1 do
+    if self.items[i] then
+      if line < i + (opts.skip_groups and 1 or 0) then
+        self:last_item(opts)
+        return
+      end
+      break
+    end
+  end
+
   for i = line, 0, -1 do
     if self.items[i] and not (opts.skip_groups and self.items[i].is_file) then
       vim.api.nvim_win_set_cursor(self.win, { i, self:get_col() })
@@ -468,8 +489,8 @@ function View:_preview()
     vim.api.nvim_buf_call(item.bufnr, function()
       -- Center preview line on screen and open enough folds to show it
       vim.cmd("norm! zz zv")
-      if vim.api.nvim_buf_get_option(item.bufnr, "filetype") == "" then
-        vim.cmd("do BufRead")
+      if not vim.api.nvim_buf_is_loaded(item.bufnr) then
+        vim.fn.bufload(item.bufnr)
       end
     end)
 
