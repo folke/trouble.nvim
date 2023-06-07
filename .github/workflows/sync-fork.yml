@@ -1,5 +1,6 @@
 name: Sync Fork with Upstream
 on:
+  workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
 
