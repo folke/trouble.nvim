@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Set upstream
+        run: git remote add upstream git@github.com:folke/trouble.nvim.git
       - name: Fetch upstream
         run: git fetch upstream
       - name: Merge upstream
