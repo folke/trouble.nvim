@@ -77,7 +77,7 @@ end
 function M.telescope(_win, _buf, cb, _options)
   if #M.results == 0 then
     util.warn(
-      "No Telescope results found. Open Telescopen and send results to Trouble first. Refer to the documentation for more info."
+      "No Telescope results found. Open Telescope and send results to Trouble first. Refer to the documentation for more info."
     )
   end
   cb(M.results)
