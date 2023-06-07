@@ -11,7 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set upstream
-        run: git remote add upstream git@github.com:folke/trouble.nvim.git
+        run: git remote add upstream https://github.com/folke/trouble.nvim.git
       - name: Fetch upstream
         run: git fetch upstream
       - name: Merge upstream
