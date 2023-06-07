@@ -1,0 +1,17 @@
+name: Sync Fork with Upstream
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Fetch upstream
+        run: git fetch upstream
+      - name: Merge upstream
+        run: git merge upstream/main
+      - name: Push changes
+        run: git push origin HEAD
