@@ -38,8 +38,10 @@ local defaults = {
     close_folds = { "zM", "zm" }, -- close all folds
     open_folds = { "zR", "zr" }, -- open all folds
     toggle_fold = { "zA", "za" }, -- toggle fold of current file
-    previous = "k", -- preview item
+    previous = "k", -- previous item
     next = "j", -- next item
+    previous_skip = "<c-k>", -- previous item, skipping the groups
+    next_skip = "<c-j>", -- next item, skipping the groups
   },
   indent_lines = true, -- add an indent guide below the fold icons
   auto_open = false, -- automatically open the list when you have diagnostics

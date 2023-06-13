@@ -233,6 +233,14 @@ function Trouble.action(action)
     view:previous_item()
     return Trouble
   end
+  if action == "next_skip" then
+    view:next_item({ skip_groups = true })
+    return Trouble
+  end
+  if action == "previous_skip" then
+    view:previous_item({ skip_groups = true })
+    return Trouble
+  end
   if action == "first" then
     view:first_item()
     return Trouble
