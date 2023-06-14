@@ -134,6 +134,7 @@ function View:setup(opts)
     wipe_rogue_buffer()
     vim.api.nvim_buf_set_name(self.buf, "Trouble")
   end
+  self:set_option("statuscolumn", "")
   self:set_option("bufhidden", "wipe")
   self:set_option("buftype", "nofile")
   self:set_option("swapfile", false)
