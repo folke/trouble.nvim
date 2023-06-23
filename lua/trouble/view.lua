@@ -78,7 +78,7 @@ end
 
 function View:set_option(name, value, win)
   if win then
-    return vim.api.nvim_set_option_value(name, value, { win = self.win, scope = 'local' })
+    return vim.api.nvim_set_option_value(name, value, { win = self.win, scope = "local" })
   else
     return vim.api.nvim_set_option_value(name, value, { buf = self.buf })
   end
@@ -484,7 +484,10 @@ function View:_preview()
 
   if item.is_file ~= true then
     vim.api.nvim_win_set_buf(self.parent, item.bufnr)
-    vim.api.nvim_win_set_cursor(self.parent, { item.start.line + 1, item.start.character })
+    local pos = { item.start.line + 1, item.start.character }
+    local line_count = vim.api.nvim_buf_line_count(item.bufnr)
+    pos[1] = math.min(pos[1], line_count)
+    vim.api.nvim_win_set_cursor(self.parent, pos)
 
     vim.api.nvim_buf_call(item.bufnr, function()
       -- Center preview line on screen and open enough folds to show it
