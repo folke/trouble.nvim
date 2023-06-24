@@ -21,6 +21,7 @@ local defaults = {
   severity = nil, -- nil (ALL) or vim.diagnostic.severity.ERROR | WARN | INFO | HINT
   fold_open = "", -- icon used for open folds
   fold_closed = "", -- icon used for closed folds
+  cycle_results = true, -- cycle item list when reaching beginning or end of list
   action_keys = { -- key mappings for actions in the trouble list
     close = "q", -- close the list
     cancel = "<esc>", -- cancel the preview and get back to your last window / buffer / cursor
