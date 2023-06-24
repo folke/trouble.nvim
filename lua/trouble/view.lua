@@ -385,7 +385,9 @@ function View:next_item(opts)
   local line = opts.first and 0 or self:get_line() + 1
 
   if line > #self.items then
-    self:first_item(opts)
+    if config.options.cycle_results then
+      self:first_item(opts)
+    end
   else
     for i = line, vim.api.nvim_buf_line_count(self.buf), 1 do
       if self.items[i] and not (opts.skip_groups and self.items[i].is_file) then
@@ -406,7 +408,9 @@ function View:previous_item(opts)
   for i = 0, vim.api.nvim_buf_line_count(self.buf), 1 do
     if self.items[i] then
       if line < i + (opts.skip_groups and 1 or 0) then
-        self:last_item(opts)
+        if config.options.cycle_results then
+          self:last_item(opts)
+        end
         return
       end
       break
