@@ -52,7 +52,7 @@ function M.get(win, buf, cb, options)
     end,
   }, options.sort_keys)
 
-  provider(win, buf, function(items)
+  provider(win, buf, function(items, messages)
     table.sort(items, function(a, b)
       for _, key in ipairs(sort_keys) do
         local ak = type(key) == "string" and a[key] or key(a)
@@ -62,7 +62,7 @@ function M.get(win, buf, cb, options)
         end
       end
     end)
-    cb(items)
+    cb(items, messages)
   end, options)
 end
 

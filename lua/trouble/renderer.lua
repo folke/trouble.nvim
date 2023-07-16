@@ -34,7 +34,7 @@ end
 function renderer.render(view, opts)
   opts = opts or {}
   local buf = vim.api.nvim_win_get_buf(view.parent)
-  providers.get(view.parent, buf, function(items)
+  providers.get(view.parent, buf, function(items, messages)
     local auto_jump = vim.tbl_contains(config.options.auto_jump, opts.mode)
     if opts.on_open and #items == 1 and auto_jump and not opts.auto then
       view:close()
@@ -60,6 +60,11 @@ function renderer.render(view, opts)
     view.items = {}
 
     if config.options.padding then
+      if messages ~= nil then
+        for _, msg in ipairs(messages) do
+          text:render(" " .. msg.text, msg.group, { append = " " })
+        end
+      end
       text:nl()
     end
 

@@ -3,6 +3,13 @@ local util = require("trouble.util")
 ---@class Lsp
 local M = {}
 
+local severity = {
+  [1] = "ERROR",
+  [2] = "WARN",
+  [3] = "INFO",
+  [4] = "HINT",
+}
+
 ---@param options TroubleOptions
 ---@return Item[]
 function M.diagnostics(_, buf, cb, options)
@@ -23,7 +30,13 @@ function M.diagnostics(_, buf, cb, options)
     items = util.locations_to_items(diags, 1)
   end
 
-  cb(items)
+  local messages = {}
+  if options.severity ~= nil then
+    table.insert(messages, { text = "filter:", group = "Information" })
+    table.insert(messages, { text = severity[options.severity], group = "Sign" .. util.severity[options.severity] })
+  end
+
+  cb(items, messages)
 end
 
 function M.get_signs()
