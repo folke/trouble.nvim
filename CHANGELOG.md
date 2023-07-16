@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.4.0](https://github.com/folke/trouble.nvim/compare/v2.3.0...v2.4.0) (2023-07-16)
+
+
+### Features
+
+* add option to control cycling of result list ([#302](https://github.com/folke/trouble.nvim/issues/302)) ([e7805dc](https://github.com/folke/trouble.nvim/commit/e7805dc3448f28599e022dc7a0e58060dfdeeb9a))
+* rendering messages from provider ([#304](https://github.com/folke/trouble.nvim/issues/304)) ([a66a78b](https://github.com/folke/trouble.nvim/commit/a66a78b8878780e3b3154e9812ff040ec9b0f1d6))
+
+
+### Bug Fixes
+
+* Check parent window is valid before setting active ([#291](https://github.com/folke/trouble.nvim/issues/291)) ([c14786d](https://github.com/folke/trouble.nvim/commit/c14786d5e88f3e66360c70bab56694abd0e60af6))
+* move end of doc pos to last line. Fixes [#151](https://github.com/folke/trouble.nvim/issues/151) ([cb4da04](https://github.com/folke/trouble.nvim/commit/cb4da0401abe7ae6f368bf79d2ed6c2571b1e7ba))
+
 ## [2.3.0](https://github.com/folke/trouble.nvim/compare/v2.2.3...v2.3.0) (2023-05-25)
 
 
