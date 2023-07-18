@@ -140,21 +140,29 @@ function renderer.render_diagnostics(view, text, items)
 
     local sign_hl = diag.sign_hl or ("TroubleSign" .. diag.type)
 
-    text:render(indent, "Indent")
-    text:render(sign .. "  ", sign_hl, { exact = true })
-    text:render(diag.text, "Text" .. diag.type, " ")
-    -- text:render(diag.type, diag.type, " ")
-
     if diag.source then
+      text:render(indent, "Indent")
       text:render(diag.source, "Source")
     end
     if diag.code and diag.code ~= vim.NIL then
+      if not diag.source then
+        text:render(indent, "Indent")
+      end
       text:render(" (" .. diag.code .. ")", "Code")
     end
 
     text:render(" ")
 
     text:render("[" .. diag.lnum .. ", " .. diag.col .. "]", "Location")
+
+    for str in diag.full_text:gmatch("[^\n]+") do
+      text:nl()
+      view.items[text.lineNr + 1] = diag
+      text:render(indent .. " ", "Indent")
+      text:render(sign .. "  ", sign_hl, { exact = true })
+      text:render(str, "Text" .. diag.type, " ")
+    end
+
     text:nl()
   end
 end
