@@ -156,11 +156,17 @@ function View:setup(opts)
       keys = { keys }
     end
     for _, key in pairs(keys) do
-      vim.api.nvim_buf_set_keymap(self.buf, "n", key, [[<cmd>lua require("trouble").action("]] .. action .. [[")<cr>]], {
-        silent = true,
-        noremap = true,
-        nowait = true,
-      })
+      vim.api.nvim_buf_set_keymap(
+        self.buf,
+        "n",
+        key,
+        [[<cmd>lua require("trouble").action("]] .. action .. [[")<cr>]],
+        {
+          silent = true,
+          noremap = true,
+          nowait = true,
+        }
+      )
     end
   end
 
@@ -446,13 +452,7 @@ function View:hover(opts)
   if not (item and item.full_text) then
     return
   end
-
-  local lines = {}
-  for line in item.full_text:gmatch("([^\n]*)\n?") do
-    table.insert(lines, line)
-  end
-
-  vim.lsp.util.open_floating_preview(lines, "plaintext", { border = "single" })
+  vim.lsp.util.open_floating_preview(vim.split(item.full_text, "\n"), "markdown", { border = "single" })
 end
 
 function View:jump(opts)
