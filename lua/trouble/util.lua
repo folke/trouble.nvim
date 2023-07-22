@@ -1,4 +1,5 @@
 local config = require("trouble.config")
+local uv = vim.loop
 
 local M = {}
 
@@ -6,16 +7,22 @@ function M.jump_to_item(win, precmd, item)
   -- requiring here, as otherwise we run into a circular dependency
   local View = require("trouble.view")
 
+  -- save position in jump list
+  vim.cmd("normal! m'")
+
   View.switch_to(win)
   if precmd then
     vim.cmd(precmd)
   end
-  if vim.api.nvim_buf_get_option(item.bufnr, "buflisted") == false then
-    vim.cmd("edit #" .. item.bufnr)
-  else
-    vim.cmd("buffer " .. item.bufnr)
+  if not vim.bo[item.bufnr].buflisted then
+    vim.bo[item.bufnr].buflisted = true
   end
-  vim.api.nvim_win_set_cursor(win, { item.start.line + 1, item.start.character })
+  if not vim.api.nvim_buf_is_loaded(item.bufnr) then
+    vim.fn.bufload(item.bufnr)
+  end
+  vim.api.nvim_set_current_buf(item.bufnr)
+  vim.api.nvim_win_set_cursor(win or 0, { item.start.line + 1, item.start.character })
+  vim.api.nvim_exec_autocmds("User", { pattern = "TroubleJump", modeline = false })
 end
 
 function M.fix_mode(opts)
@@ -38,6 +45,7 @@ function M.fix_mode(opts)
   end
 end
 
+---@return number
 function M.count(tab)
   local count = 0
   for _ in pairs(tab) do
@@ -120,20 +128,16 @@ function M.process_item(item, bufnr)
   bufnr = bufnr or item.bufnr
   local filename = vim.api.nvim_buf_get_name(bufnr)
   local uri = vim.uri_from_bufnr(bufnr)
-  local range = item.range
-    or item.targetSelectionRange
-    or {
-      ["start"] = {
-        character = item.col,
-        line = item.lnum,
-      },
-      ["end"] = {
-        character = item.end_col,
-        line = item.end_lnum,
-      },
-    }
-  local start = range["start"]
-  local finish = range["end"]
+  local range = item.range or item.targetSelectionRange
+
+  local start = {
+    line = range and vim.tbl_get(range, "start", "line") or item.lnum,
+    character = range and vim.tbl_get(range, "start", "character") or item.col,
+  }
+  local finish = {
+    line = range and vim.tbl_get(range, "end", "line") or item.end_lnum,
+    character = range and vim.tbl_get(range, "end", "character") or item.end_col,
+  }
 
   if start.character == nil or start.line == nil then
     M.error("Found an item for Trouble without start range " .. vim.inspect(start))
@@ -141,41 +145,45 @@ function M.process_item(item, bufnr)
   if finish.character == nil or finish.line == nil then
     M.error("Found an item for Trouble without finish range " .. vim.inspect(finish))
   end
-  local row = start.line
-  local col = start.character
+  local row = start.line ---@type number
+  local col = start.character ---@type number
 
-  if not item.message then
-    local line
-    if vim.lsp.util.get_line then
-      line = vim.lsp.util.get_line(uri, row)
+  if not item.message and filename then
+    -- check if the filename is a uri
+    if string.match(filename, "^%w+://") ~= nil then
+      if not vim.api.nvim_buf_is_loaded(bufnr) then
+        vim.fn.bufload(bufnr)
+      end
+      local lines = vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false)
+      item.message = lines[1] or ""
     else
-      -- load the buffer when needed
-      vim.fn.bufload(bufnr)
-      line = (vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false) or { "" })[1]
-    end
+      local fd = assert(uv.fs_open(filename, "r", 438))
+      local stat = assert(uv.fs_fstat(fd))
+      local data = assert(uv.fs_read(fd, stat.size, 0))
+      assert(uv.fs_close(fd))
 
-    item.message = item.message or line or ""
+      item.message = vim.split(data, "\n", { plain = true })[row + 1] or ""
+    end
   end
 
   ---@class Item
   ---@field is_file boolean
   ---@field fixed boolean
-  local ret
-  ret = {
+  local ret = {
     bufnr = bufnr,
     filename = filename,
     lnum = row + 1,
     col = col + 1,
     start = start,
     finish = finish,
-    sign = item.sign,
-    sign_hl = item.sign_hl,
+    sign = item.sign, ---@type string?
+    sign_hl = item.sign_hl, ---@type string?
     -- remove line break to avoid display issues
-    text = vim.trim(item.message:gsub("[\n]", "")):sub(0, vim.o.columns),
+    text = vim.trim(item.message:gsub("[\n]+", "")):sub(0, vim.o.columns),
     full_text = vim.trim(item.message),
     type = M.severity[item.severity] or M.severity[0],
-    code = item.code or (item.user_data and item.user_data.lsp and item.user_data.lsp.code),
-    source = item.source,
+    code = item.code or (item.user_data and item.user_data.lsp and item.user_data.lsp.code), ---@type string?
+    source = item.source, ---@type string?
     severity = item.severity or 0,
   }
   return ret

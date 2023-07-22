@@ -9,18 +9,22 @@ local Trouble = {}
 
 local view
 
-local function is_open()
-  return view and view:is_valid()
+function Trouble.is_open()
+  return view and view:is_valid() or false
 end
 
 function Trouble.setup(options)
+  if vim.fn.has("nvim-0.7.2") == 0 then
+    util.error("Trouble needs Neovim >= 0.7.2")
+    return
+  end
   config.setup(options)
   util.fix_mode(config.options)
   colors.setup()
 end
 
 function Trouble.close()
-  if is_open() then
+  if Trouble.is_open() then
     view:close()
   end
 end
@@ -56,9 +60,15 @@ function Trouble.open(...)
   if opts.mode and (opts.mode ~= config.options.mode) then
     config.options.mode = opts.mode
   end
-  opts.focus = true
 
-  if is_open() then
+  if opts.severity and (opts.severity ~=config.options.severity) then
+    config.options.severity = opts.severity
+  end
+
+  opts.focus = true
+  opts.on_open = true
+
+  if Trouble.is_open() then
     Trouble.refresh(opts)
   elseif not opts.auto and vim.tbl_contains(config.options.auto_jump, opts.mode) then
     require("trouble.providers").get(vim.api.nvim_get_current_win(), vim.api.nvim_get_current_buf(), function(results)
@@ -82,7 +92,7 @@ function Trouble.toggle(...)
     return
   end
 
-  if is_open() then
+  if Trouble.is_open() then
     Trouble.close()
   else
     Trouble.open(...)
@@ -109,6 +119,12 @@ function Trouble.help()
 end
 
 local updater = util.debounce(100, function()
+  -- buff might have been closed during the debounce
+  if not Trouble.is_open() then
+    util.debug("refresh: not open anymore")
+    return
+  end
+
   util.debug("refresh: auto")
   view:update({ auto = true })
 end)
@@ -132,7 +148,7 @@ function Trouble.refresh(opts)
     end
   end
 
-  if is_open() then
+  if Trouble.is_open() then
     if opts.auto then
       updater()
     else
@@ -158,10 +174,21 @@ function Trouble.action(action)
     action = "refresh"
   end
 
+  if action == 'switch_severity' then
+    if config.options.severity == nil then
+      config.options.severity = vim.diagnostic.severity.ERROR
+    elseif config.options.severity < 4 then
+      config.options.severity = config.options.severity + 1
+    else
+      config.options.severity = nil
+    end
+    action = "refresh"
+  end
+
   if view and action == "on_win_enter" then
     view:on_win_enter()
   end
-  if not is_open() then
+  if not Trouble.is_open() then
     return Trouble
   end
   if action == "hover" then
@@ -206,6 +233,14 @@ function Trouble.action(action)
     view:previous_item()
     return Trouble
   end
+  if action == "first" then
+    view:first_item()
+    return Trouble
+  end
+  if action == "last" then
+    view:last_item()
+    return Trouble
+  end
 
   if action == "toggle_preview" then
     config.options.auto_preview = not config.options.auto_preview
@@ -239,6 +274,20 @@ function Trouble.previous(opts)
   util.fix_mode(opts)
   if view then
     view:previous_item(opts)
+  end
+end
+
+function Trouble.first(opts)
+  util.fix_mode(opts)
+  if view then
+    view:first_item(opts)
+  end
+end
+
+function Trouble.last(opts)
+  util.fix_mode(opts)
+  if view then
+    view:last_item(opts)
   end
 end
 

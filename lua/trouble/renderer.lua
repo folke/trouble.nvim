@@ -7,7 +7,7 @@ local folds = require("trouble.folds")
 ---@class Renderer
 local renderer = {}
 
-local signs = {}
+renderer.signs = {}
 
 local function get_icon(file)
   local ok, icons = pcall(require, "nvim-web-devicons")
@@ -23,10 +23,10 @@ local function get_icon(file)
 end
 
 local function update_signs()
-  signs = config.options.signs
+  renderer.signs = config.options.signs
   if config.options.use_diagnostic_signs then
     local lsp_signs = require("trouble.providers.diagnostic").get_signs()
-    signs = vim.tbl_deep_extend("force", {}, signs, lsp_signs)
+    renderer.signs = vim.tbl_deep_extend("force", {}, renderer.signs, lsp_signs)
   end
 end
 
@@ -34,7 +34,14 @@ end
 function renderer.render(view, opts)
   opts = opts or {}
   local buf = vim.api.nvim_win_get_buf(view.parent)
-  providers.get(view.parent, buf, function(items)
+  providers.get(view.parent, buf, function(items, messages)
+    local auto_jump = vim.tbl_contains(config.options.auto_jump, opts.mode)
+    if opts.on_open and #items == 1 and auto_jump and not opts.auto then
+      view:close()
+      util.jump_to_item(opts.win, opts.precmd, items[1])
+      return
+    end
+
     local grouped = providers.group(items)
     local count = util.count(grouped)
 
@@ -46,10 +53,6 @@ function renderer.render(view, opts)
       end
     end
 
-    if #items == 0 then
-      util.warn("no results")
-    end
-
     -- Update lsp signs
     update_signs()
 
@@ -57,6 +60,11 @@ function renderer.render(view, opts)
     view.items = {}
 
     if config.options.padding then
+      if messages ~= nil then
+        for _, msg in ipairs(messages) do
+          text:render(" " .. msg.text, msg.group, { append = " " })
+        end
+      end
       text:nl()
     end
 
@@ -118,7 +126,7 @@ function renderer.render_diagnostics(view, text, items)
   for _, diag in ipairs(items) do
     view.items[text.lineNr + 1] = diag
 
-    local sign = diag.sign or signs[string.lower(diag.type)]
+    local sign = diag.sign or renderer.signs[string.lower(diag.type)]
     if not sign then
       sign = diag.type
     end
@@ -126,14 +134,18 @@ function renderer.render_diagnostics(view, text, items)
     local indent = "     "
     if config.options.indent_lines then
       indent = " │   "
+    elseif config.options.group == false then
+      indent = " "
     end
 
     local sign_hl = diag.sign_hl or ("TroubleSign" .. diag.type)
 
     text:render(indent, "Indent")
     text:render(sign .. "  ", sign_hl, { exact = true })
-    text:render(diag.text, "Text" .. diag.type, " ")
-    -- text:render(diag.type, diag.type, " ")
+
+    local lines = config.options.multiline and vim.split(diag.full_text, "\n") or { diag.text }
+
+    text:render(lines[1], "Text" .. diag.type, " ")
 
     if diag.source then
       text:render(diag.source, "Source")
@@ -145,6 +157,15 @@ function renderer.render_diagnostics(view, text, items)
     text:render(" ")
 
     text:render("[" .. diag.lnum .. ", " .. diag.col .. "]", "Location")
+
+    for l = 2, #lines do
+      local str = lines[l]
+      text:nl()
+      view.items[text.lineNr + 1] = diag
+      text:render(indent .. "   ", "Indent")
+      text:render(str, "Text" .. diag.type, " ")
+    end
+
     text:nl()
   end
 end
