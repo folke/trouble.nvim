@@ -44,6 +44,7 @@ function M.fix_mode(opts)
   end
 end
 
+---@return number
 function M.count(tab)
   local count = 0
   for _ in pairs(tab) do
@@ -143,8 +144,8 @@ function M.process_item(item, bufnr)
   if finish.character == nil or finish.line == nil then
     M.error("Found an item for Trouble without finish range " .. vim.inspect(finish))
   end
-  local row = start.line
-  local col = start.character
+  local row = start.line ---@type number
+  local col = start.character ---@type number
 
   if not item.message and filename then
     -- check if the filename is a uri
@@ -167,22 +168,21 @@ function M.process_item(item, bufnr)
   ---@class Item
   ---@field is_file boolean
   ---@field fixed boolean
-  local ret
-  ret = {
+  local ret = {
     bufnr = bufnr,
     filename = filename,
     lnum = row + 1,
     col = col + 1,
     start = start,
     finish = finish,
-    sign = item.sign,
-    sign_hl = item.sign_hl,
+    sign = item.sign, ---@type string?
+    sign_hl = item.sign_hl, ---@type string?
     -- remove line break to avoid display issues
-    text = vim.trim(item.message:gsub("[\n]", "")):sub(0, vim.o.columns),
+    text = vim.trim(item.message:gsub("[\n]+", "")):sub(0, vim.o.columns),
     full_text = vim.trim(item.message),
     type = M.severity[item.severity] or M.severity[0],
-    code = item.code or (item.user_data and item.user_data.lsp and item.user_data.lsp.code),
-    source = item.source,
+    code = item.code or (item.user_data and item.user_data.lsp and item.user_data.lsp.code), ---@type string?
+    source = item.source, ---@type string?
     severity = item.severity or 0,
   }
   return ret
