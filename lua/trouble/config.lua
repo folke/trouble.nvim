@@ -42,6 +42,7 @@ local defaults = {
     previous = "k", -- preview item
     next = "j", -- next item
   },
+  multiline = true, -- render multi-line messages
   indent_lines = true, -- add an indent guide below the fold icons
   auto_open = false, -- automatically open the list when you have diagnostics
   auto_close = false, -- automatically close the list when you have no diagnostics
