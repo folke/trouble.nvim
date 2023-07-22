@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.0](https://github.com/folke/trouble.nvim/compare/v2.5.0...v2.6.0) (2023-07-22)
+
+
+### Features
+
+* make multiline the default ([1f2eb71](https://github.com/folke/trouble.nvim/commit/1f2eb71948b8d08cd8fe0947f9dae95c441baf6d))
+
 ## [2.5.0](https://github.com/folke/trouble.nvim/compare/v2.4.0...v2.5.0) (2023-07-22)
 
 
