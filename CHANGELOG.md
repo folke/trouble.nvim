@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.5.0](https://github.com/folke/trouble.nvim/compare/v2.4.0...v2.5.0) (2023-07-22)
+
+
+### Features
+
+* add multiline diagnostic support ([#305](https://github.com/folke/trouble.nvim/issues/305)) ([7a6abd7](https://github.com/folke/trouble.nvim/commit/7a6abd7ed811def9494316d4217d1dcc80b05048))
+* Map double click to jump action ([#158](https://github.com/folke/trouble.nvim/issues/158)) ([ef53b9a](https://github.com/folke/trouble.nvim/commit/ef53b9a1401919a9a3ae5b2949068c456ce23085))
+* use markdown to render hover ([835b87d](https://github.com/folke/trouble.nvim/commit/835b87d93537a3cc403b961c084ca8c2998758cd))
+* **util:** trigger TroubleJump on jump. Closes [#248](https://github.com/folke/trouble.nvim/issues/248) ([d91f3b3](https://github.com/folke/trouble.nvim/commit/d91f3b3d588b0259060780c73dd4c93a8f158f38))
+
 ## [2.4.0](https://github.com/folke/trouble.nvim/compare/v2.3.0...v2.4.0) (2023-07-16)
 
 
