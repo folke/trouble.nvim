@@ -142,8 +142,10 @@ function renderer.render_diagnostics(view, text, items)
 
     text:render(indent, "Indent")
     text:render(sign .. "  ", sign_hl, { exact = true })
-    text:render(diag.text, "Text" .. diag.type, " ")
-    -- text:render(diag.type, diag.type, " ")
+
+    local lines = config.options.multiline and vim.split(diag.full_text, "\n") or { diag.text }
+
+    text:render(lines[1], "Text" .. diag.type, " ")
 
     if diag.source then
       text:render(diag.source, "Source")
@@ -155,6 +157,15 @@ function renderer.render_diagnostics(view, text, items)
     text:render(" ")
 
     text:render("[" .. diag.lnum .. ", " .. diag.col .. "]", "Location")
+
+    for l = 2, #lines do
+      local str = lines[l]
+      text:nl()
+      view.items[text.lineNr + 1] = diag
+      text:render(indent .. "   ", "Indent")
+      text:render(str, "Text" .. diag.type, " ")
+    end
+
     text:nl()
   end
 end
