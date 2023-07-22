@@ -22,6 +22,7 @@ function M.jump_to_item(win, precmd, item)
   end
   vim.api.nvim_set_current_buf(item.bufnr)
   vim.api.nvim_win_set_cursor(win or 0, { item.start.line + 1, item.start.character })
+  vim.api.nvim_exec_autocmds("User", { pattern = "TroubleJump", modeline = false })
 end
 
 function M.fix_mode(opts)
