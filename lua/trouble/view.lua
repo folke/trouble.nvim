@@ -536,8 +536,6 @@ function View:open_code_href()
     local cmd
     if vim.fn.has("win32") == 1 then
       cmd = "explorer"
-    elseif vim.fn.has("macunix") == 1 then
-      cmd = "open"
     elseif vim.fn.executable("xdg-open") == 1 then
       cmd = "xdg-open"
     elseif vim.fn.executable("wslview") == 1 then
