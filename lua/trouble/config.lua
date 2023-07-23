@@ -41,6 +41,7 @@ local defaults = {
     toggle_fold = { "zA", "za" }, -- toggle fold of current file
     previous = "k", -- preview item
     next = "j", -- next item
+    help = "?", -- help menu
   },
   multiline = true, -- render multi-line messages
   indent_lines = true, -- add an indent guide below the fold icons
