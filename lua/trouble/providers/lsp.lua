@@ -11,10 +11,11 @@ local function lsp_buf_request(buf, method, params, handler)
 end
 
 ---@return Item[]
-function M.references(win, buf, cb, _options)
+function M.references(win, buf, cb, options)
   local method = "textDocument/references"
   local params = util.make_position_params(win, buf)
-  params.context = { includeDeclaration = true }
+  params.context = { includeDeclaration = vim.tbl_contains(options.include_declaration, options.mode) }
+
   lsp_buf_request(buf, method, params, function(err, result)
     if err then
       util.error("an error happened getting references: " .. err.message)
@@ -29,10 +30,10 @@ function M.references(win, buf, cb, _options)
 end
 
 ---@return Item[]
-function M.implementations(win, buf, cb, _options)
+function M.implementations(win, buf, cb, options)
   local method = "textDocument/implementation"
   local params = util.make_position_params(win, buf)
-  params.context = { includeDeclaration = true }
+  params.context = { includeDeclaration = vim.tbl_contains(options.include_declaration, options.mode) }
   lsp_buf_request(buf, method, params, function(err, result)
     if err then
       util.error("an error happened getting implementation: " .. err.message)
@@ -47,10 +48,10 @@ function M.implementations(win, buf, cb, _options)
 end
 
 ---@return Item[]
-function M.definitions(win, buf, cb, _options)
+function M.definitions(win, buf, cb, options)
   local method = "textDocument/definition"
   local params = util.make_position_params(win, buf)
-  params.context = { includeDeclaration = true }
+  params.context = { includeDeclaration = vim.tbl_contains(options.include_declaration, options.mode) }
   lsp_buf_request(buf, method, params, function(err, result)
     if err then
       util.error("an error happened getting definitions: " .. err.message)
