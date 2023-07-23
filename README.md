@@ -93,6 +93,7 @@ Trouble comes with the following defaults:
     },
     multiline = true, -- render multi-line messages
     indent_lines = true, -- add an indent guide below the fold icons
+    win_border = "single", -- border style for floating windows. Accepts same border values as |nvim_open_win()|.
     auto_open = false, -- automatically open the list when you have diagnostics
     auto_close = false, -- automatically close the list when you have no diagnostics
     auto_preview = true, -- automatically preview the location of the diagnostic. <esc> to close preview and go back to last window
