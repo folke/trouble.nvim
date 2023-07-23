@@ -87,7 +87,9 @@ Trouble comes with the following defaults:
         open_folds = {"zR", "zr"}, -- open all folds
         toggle_fold = {"zA", "za"}, -- toggle fold of current file
         previous = "k", -- previous item
-        next = "j" -- next item
+        next = "j", -- next item
+        previous_skip = "<c-k>", -- previous item, skipping the groups
+        next_skip = "<c-j>", -- next item, skipping the groups
     },
     multiline = true, -- render multi-line messages
     indent_lines = true, -- add an indent guide below the fold icons
