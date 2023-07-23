@@ -521,4 +521,41 @@ end
 
 View.preview = util.throttle(50, View._preview)
 
+function View:open_code_href()
+  if not vim.api.nvim_win_is_valid(self.parent) then
+    return
+  end
+
+  local item = self:current_item()
+  if not item then
+    return
+  end
+  util.debug("open code href")
+
+  if item.is_file ~= true and item.code_href then
+    local cmd
+    if vim.fn.has("win32") == 1 then
+      cmd = "explorer"
+    elseif vim.fn.has("macunix") == 1 then
+      cmd = "open"
+    elseif vim.fn.executable("xdg-open") == 1 then
+      cmd = "xdg-open"
+    elseif vim.fn.executable("wslview") == 1 then
+      cmd = "wslview"
+    else
+      cmd = "open"
+    end
+
+    local ret = vim.fn.jobstart({ cmd, item.code_href }, { detach = true })
+    if ret <= 0 then
+      local msg = {
+        "Failed to open code href",
+        ret,
+        vim.inspect(cmd),
+      }
+      vim.notify(table.concat(msg, "\n"), vim.log.levels.ERROR)
+    end
+  end
+end
+
 return View

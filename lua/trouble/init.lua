@@ -256,6 +256,9 @@ function Trouble.action(action)
   if action == "preview" then
     view:preview()
   end
+  if action == "open_code_href" then
+    view:open_code_href()
+  end
 
   if Trouble[action] then
     Trouble[action]()

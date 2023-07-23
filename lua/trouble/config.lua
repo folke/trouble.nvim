@@ -36,6 +36,7 @@ local defaults = {
     toggle_preview = "P", -- toggle auto_preview
     hover = "K", -- opens a small popup with the full multiline message
     preview = "p", -- preview the diagnostic location
+    open_code_href = "c", -- if present, open a URI with more information about the diagnostic error
     close_folds = { "zM", "zm" }, -- close all folds
     open_folds = { "zR", "zr" }, -- open all folds
     toggle_fold = { "zA", "za" }, -- toggle fold of current file
