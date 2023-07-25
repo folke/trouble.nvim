@@ -123,11 +123,9 @@ end
 
 -- based on the Telescope diagnostics code
 -- see https://github.com/nvim-telescope/telescope.nvim/blob/0d6cd47990781ea760dd3db578015c140c7b9fa7/lua/telescope/utils.lua#L85
-
 function M.process_item(item, bufnr)
   bufnr = bufnr or item.bufnr
   local filename = vim.api.nvim_buf_get_name(bufnr)
-  local uri = vim.uri_from_bufnr(bufnr)
   local range = item.range or item.targetSelectionRange
 
   local start = {
@@ -183,6 +181,13 @@ function M.process_item(item, bufnr)
     full_text = vim.trim(item.message),
     type = M.severity[item.severity] or M.severity[0],
     code = item.code or (item.user_data and item.user_data.lsp and item.user_data.lsp.code), ---@type string?
+    code_href = (item.codeDescription and item.codeDescription.href)
+      or (
+        item.user_data
+        and item.user_data.lsp
+        and item.user_data.lsp.codeDescription
+        and item.user_data.lsp.codeDescription.href
+      ), ---@type string?
     source = item.source, ---@type string?
     severity = item.severity or 0,
   }
