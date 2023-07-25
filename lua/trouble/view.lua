@@ -452,11 +452,7 @@ function View:hover(opts)
   if not (item and item.full_text) then
     return
   end
-  vim.lsp.util.open_floating_preview(
-    vim.split(item.full_text, "\n"),
-    "markdown",
-    { border = config.options.win_border }
-  )
+  vim.lsp.util.open_floating_preview(vim.split(item.full_text, "\n"), "markdown", config.options.win_config)
 end
 
 function View:jump(opts)
