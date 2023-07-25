@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.7.0](https://github.com/folke/trouble.nvim/compare/v2.6.0...v2.7.0) (2023-07-25)
+
+
+### Features
+
+* Expose help action ([#311](https://github.com/folke/trouble.nvim/issues/311)) ([467dc20](https://github.com/folke/trouble.nvim/commit/467dc204af863a9f11bc3444b8f89af286fbf6b2))
+* Use code descriptions for opening URIs with extra information ([#309](https://github.com/folke/trouble.nvim/issues/309)) ([d2b0f1d](https://github.com/folke/trouble.nvim/commit/d2b0f1de1fe6f013d38234f7557c7935a9f97655))
+
 ## [2.6.0](https://github.com/folke/trouble.nvim/compare/v2.5.0...v2.6.0) (2023-07-22)
 
 
