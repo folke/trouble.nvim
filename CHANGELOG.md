@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.0](https://github.com/folke/trouble.nvim/compare/v2.7.0...v2.8.0) (2023-07-25)
+
+
+### Features
+
+* Create Configuration for IncludeDeclaration ([#312](https://github.com/folke/trouble.nvim/issues/312)) ([7691d93](https://github.com/folke/trouble.nvim/commit/7691d93131be9c4ef7788892a9c52374642beb89))
+
 ## [2.7.0](https://github.com/folke/trouble.nvim/compare/v2.6.0...v2.7.0) (2023-07-25)
 
 
