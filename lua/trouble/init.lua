@@ -61,7 +61,7 @@ function Trouble.open(...)
     config.options.mode = opts.mode
   end
 
-  if opts.severity and (opts.severity ~=config.options.severity) then
+  if opts.severity and (opts.severity ~= config.options.severity) then
     config.options.severity = opts.severity
   end
 
@@ -110,7 +110,7 @@ function Trouble.help()
     height = height + 1
   end
   -- help
-  vim.lsp.util.open_floating_preview(lines, "markdown", { border = "single" })
+  vim.lsp.util.open_floating_preview(lines, "markdown", config.options.win_config)
 end
 
 local updater = util.debounce(100, function()
@@ -169,7 +169,7 @@ function Trouble.action(action)
     action = "refresh"
   end
 
-  if action == 'switch_severity' then
+  if action == "switch_severity" then
     if config.options.severity == nil then
       config.options.severity = vim.diagnostic.severity.ERROR
     elseif config.options.severity < 4 then
