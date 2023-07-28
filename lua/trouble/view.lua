@@ -86,6 +86,10 @@ end
 
 ---@param text Text
 function View:render(text)
+  if not self:is_valid() then
+    return
+  end
+
   self:unlock()
   self:set_lines(text.lines)
   self:lock()
@@ -314,6 +318,10 @@ function View:on_win_enter()
 end
 
 function View:focus()
+  if not self:is_valid() then
+    return
+  end
+
   View.switch_to(self.win, self.buf)
   local line = self:get_line()
   if line == 1 then
