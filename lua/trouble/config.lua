@@ -47,7 +47,7 @@ local defaults = {
   multiline = true, -- render multi-line messages
   indent_lines = true, -- add an indent guide below the fold icons
   win_config = { border = "single" }, -- window configuration for floating windows. See |nvim_open_win()|.
-  auto_open = false, -- automatically open the list when you have diagnostics
+  auto_open = false, -- automatically open the list when you have diagnostics, set to true to open on any severity, or define a map of vim.diagnostic.severity for specific severities
   auto_close = false, -- automatically close the list when you have no diagnostics
   auto_preview = true, -- automatically preview the location of the diagnostic. <esc> to close preview and go back to last window
   auto_fold = false, -- automatically fold a file trouble list at creation

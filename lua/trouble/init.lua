@@ -153,7 +153,18 @@ function Trouble.refresh(opts)
   elseif opts.auto and config.options.auto_open and opts.provider == config.options.mode then
     require("trouble.providers").get(vim.api.nvim_get_current_win(), vim.api.nvim_get_current_buf(), function(results)
       if #results > 0 then
-        Trouble.open(opts)
+        for _, result in ipairs(results) do
+          if config.options.auto_open ~= true then
+            for _, auto_sev in ipairs(config.options.auto_open) do
+              if result.severity == auto_sev then
+                Trouble.open(opts)
+                return
+              end
+            end
+          else
+            Trouble.open(opts)
+          end
+        end
       end
     end, config.options)
   end
