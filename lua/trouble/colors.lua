@@ -14,6 +14,7 @@ local links = {
   Location = "LineNr",
   FoldIcon = "CursorLineNr",
   Normal = "Normal",
+  NormalNC = "NormalNC",
   Count = "TabLineSel",
   Preview = "Search",
   Indent = "LineNr",
