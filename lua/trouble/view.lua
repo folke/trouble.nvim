@@ -487,6 +487,9 @@ function View:_preview()
   if not vim.api.nvim_win_is_valid(self.parent) then
     return
   end
+  if not vim.api.nvim_win_is_valid(self.win) then
+    return
+  end
 
   local item = self:current_item()
   if not item then
