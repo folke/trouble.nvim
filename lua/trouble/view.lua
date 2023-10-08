@@ -495,6 +495,10 @@ function View:_preview()
   if not item then
     return
   end
+  if item.bufnr == 0 then
+    return
+  end
+
   util.debug("preview")
 
   if item.is_file ~= true then
