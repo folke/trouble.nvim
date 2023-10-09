@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.1](https://github.com/folke/trouble.nvim/compare/v2.9.0...v2.9.1) (2023-10-09)
+
+
+### Bug Fixes
+
+* **preview:** skip non-existing. Fixes [#87](https://github.com/folke/trouble.nvim/issues/87). Fixes [#188](https://github.com/folke/trouble.nvim/issues/188). Fixes [#336](https://github.com/folke/trouble.nvim/issues/336). ([#338](https://github.com/folke/trouble.nvim/issues/338)) ([5e78824](https://github.com/folke/trouble.nvim/commit/5e7882429ee2e235148ab759a6159950afd8021a))
+
 ## [2.9.0](https://github.com/folke/trouble.nvim/compare/v2.8.0...v2.9.0) (2023-10-07)
 
 
