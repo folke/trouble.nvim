@@ -65,7 +65,7 @@ function Trouble.open(...)
     config.options.severity = opts.severity
   end
 
-  opts.focus = true
+  opts.focus = opts.focus == nil and true or opts.focus
   opts.on_open = true
 
   if Trouble.is_open() then
