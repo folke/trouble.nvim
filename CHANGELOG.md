@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.10.0](https://github.com/folke/trouble.nvim/compare/v2.9.1...v2.10.0) (2023-10-18)
+
+
+### Features
+
+* `open({focus=false})` now works as intended ([600fe24](https://github.com/folke/trouble.nvim/commit/600fe24ad04f130030fa54f0c70949ff084810a3))
+
+
+### Bug Fixes
+
+* **auto_open:** dont steal focus on auto open. Fixes [#344](https://github.com/folke/trouble.nvim/issues/344) ([1f00b6f](https://github.com/folke/trouble.nvim/commit/1f00b6f730c5ef6bcfeb829a5659ed3780778087))
+
 ## [2.9.1](https://github.com/folke/trouble.nvim/compare/v2.9.0...v2.9.1) (2023-10-09)
 
 
