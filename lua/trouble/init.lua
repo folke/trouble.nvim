@@ -78,6 +78,12 @@ function Trouble.open(...)
         view = View.create(opts)
       end
     end, config.options)
+  elseif not opts.auto and not config.options.lsp_open_empty and opts.mode:find('lsp', 1, true) then
+    require("trouble.providers").get(vim.api.nvim_get_current_win(), vim.api.nvim_get_current_buf(), function(results)
+      if #results > 0 then
+        view = View.create(opts)
+      end
+    end, config.options)
   else
     view = View.create(opts)
   end
