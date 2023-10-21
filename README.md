@@ -109,6 +109,7 @@ Trouble comes with the following defaults:
       other = "",
     },
     use_diagnostic_signs = false -- enabling this will use the signs defined in your lsp client
+    track_cursor = false, -- automatically track the cursor and update the selected item
 }
 ```
 
