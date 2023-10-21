@@ -133,7 +133,7 @@ function renderer.render_diagnostics(view, text, items)
 
     local indent = "     "
     if config.options.indent_lines then
-      indent = " │   "
+      indent = config.options.indent_str
     elseif config.options.group == false then
       indent = " "
     end
