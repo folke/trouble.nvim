@@ -13,7 +13,6 @@
 
 ---@class trouble.Window.opts: trouble.Split,trouble.Float
 ---@field padding? {top?:number, left?:number}
----@field enter? boolean
 ---@field wo? vim.wo
 ---@field bo? vim.bo
 ---@field on_mount? fun(self: trouble.Window)
@@ -23,6 +22,7 @@
 ---@field win? number
 ---@field buf number
 ---@field id number
+---@field keys table<string, string>
 local M = {}
 M.__index = M
 
@@ -148,6 +148,7 @@ function M:set_options(type)
 end
 
 function M:mount()
+  self.keys = {}
   self.buf = vim.api.nvim_create_buf(false, true)
   self:set_options("buf")
   if self.opts.type == "split" then
@@ -212,6 +213,7 @@ function M:open()
   end
   self:close()
   self:mount()
+  return self
 end
 
 function M:valid()
@@ -265,6 +267,12 @@ function M:mount_float(opts)
   self.win = vim.api.nvim_open_win(self.buf, false, config)
 end
 
+function M:focus()
+  if self:valid() then
+    vim.api.nvim_set_current_win(self.win)
+  end
+end
+
 ---@param events string|string[]
 ---@param fn fun(self:trouble.Window):boolean?
 ---@param opts? vim.api.keyset.create_autocmd | {buffer: false}
@@ -289,6 +297,7 @@ function M:map(key, fn, desc)
   if not self:valid() then
     error("Cannot create a keymap for an invalid window")
   end
+  self.keys[key] = desc or key
   vim.keymap.set("n", key, function()
     fn(self)
   end, {
