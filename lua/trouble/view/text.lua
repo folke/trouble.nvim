@@ -7,6 +7,7 @@
 
 ---@class trouble.Text.opts
 ---@field padding? number
+---@field multiline? boolean
 
 ---@class trouble.Text
 ---@field _lines TextSegment[][]
@@ -56,6 +57,11 @@ function M:append(text, hl, opts)
 
   local nl = text:find("\n", 1, true)
   if nl then
+    if not self.opts.multiline then
+      text = text:gsub("[\n\r]+", " ")
+      return self:append(text, hl, opts)
+    end
+
     local start_col = 0
     local last = self._lines[#self._lines]
     for _, segment in ipairs(last) do
