@@ -26,6 +26,16 @@ function M.new(symbols)
   return self
 end
 
+---@return number
+---@param opts? {display:boolean}
+function M:width(opts)
+  local ret = 0
+  for _, segment in ipairs(self) do
+    ret = ret + (opts and opts.display and vim.fn.strdisplaywidth(segment.str) or #segment.str)
+  end
+  return ret
+end
+
 function M:clone()
   local new = setmetatable({}, M)
   for k, v in pairs(self) do

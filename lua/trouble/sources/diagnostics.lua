@@ -37,7 +37,7 @@ M.modes = {
           { "filename", format = "{file_icon} {filename} {count}" },
         },
         sort = { { buf = 0 }, "severity", "filename", "pos", "message" },
-        format = "{severity_icon} {message} {item.source} ({code}) {pos}",
+        format = "{severity_icon} {message:md} {item.source} ({code}) {pos}",
         -- filter = {
         -- ["not"] = {
         --   any = {

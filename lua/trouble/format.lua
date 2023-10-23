@@ -4,7 +4,7 @@ local Util = require("trouble.util")
 local M = {}
 
 ---@alias trouble.spec.format string|trouble.Format|(string|trouble.Format)[]
----@alias trouble.Format {text:string, hl?:string}
+---@alias trouble.Format {text:string, hl?:string, ts?:string}
 
 ---@alias trouble.Formatter fun(ctx: trouble.Formatter.ctx): trouble.spec.format?
 ---@alias trouble.Formatter.ctx {item: trouble.Item, node:trouble.Node, field:string, value:string, opts:trouble.Render.opts}

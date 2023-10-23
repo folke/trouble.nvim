@@ -165,4 +165,27 @@ function M.throttle(fn, opts)
   end
 end
 
+---@param s string
+function M.lines(s)
+  local pos = 1
+  local l = 0
+  return function()
+    if pos == -1 then
+      return
+    end
+    l = l + 1
+
+    local nl = s:find("\n", pos, true)
+    if not nl then
+      local lastLine = s:sub(pos)
+      pos = -1
+      return l, lastLine
+    end
+
+    local line = s:sub(pos, nl - 1)
+    pos = nl + 1
+    return l, line
+  end
+end
+
 return M
