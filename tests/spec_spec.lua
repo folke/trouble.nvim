@@ -31,23 +31,23 @@ describe("parses specs", function()
     local tests = {
       {
         input = "foo",
-        output = { fields = { "foo" }, sort = { { field = "foo" } } },
+        output = { fields = { "foo" }, format = "{foo}" },
       },
       {
         input = "-foo",
-        output = { fields = { "foo" }, sort = { { field = "foo", desc = true } } },
+        output = { fields = { "foo" }, format = "{foo}" },
       },
       {
         input = { "foo", "-bar" },
-        output = { fields = { "foo", "bar" }, sort = { { field = "foo" }, { field = "bar", desc = true } } },
+        output = { fields = { "foo", "bar" }, format = "{foo} {bar}" },
       },
       {
-        input = { "foo", "-bar", sort = "baz" },
-        output = { fields = { "foo", "bar" }, sort = { { field = "baz" } } },
+        input = { "foo", "-bar" },
+        output = { fields = { "foo", "bar" }, format = "{foo} {bar}" },
       },
       {
-        input = { "foo", "-bar", sort = "-baz" },
-        output = { fields = { "foo", "bar" }, sort = { { field = "baz", desc = true } } },
+        input = { "foo", "-bar" },
+        output = { fields = { "foo", "bar" }, format = "{foo} {bar}" },
       },
     }
 
@@ -68,9 +68,10 @@ describe("parses specs", function()
     }
     local output = {
       source = "diagnostics",
-      groups = { { fields = { "filename" }, sort = { { field = "filename" } } } },
+      groups = { { fields = { "filename" }, format = "{filename}" } },
       sort = { { field = "filename" }, { field = "pos" } },
       filter = { severity = 1 },
+      format = "{filename} {pos}",
     }
     assert.same(output, Spec.section(input))
   end)
