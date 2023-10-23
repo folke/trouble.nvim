@@ -62,6 +62,11 @@ local defaults = {
     zM = "fold_close_all",
     zr = "fold_reduce",
     zR = "fold_open_all",
+    zx = "fold_update",
+    zX = "fold_update_all",
+    zn = "fold_disable",
+    zN = "fold_enable",
+    zi = "fold_toggle_enable",
   },
   ---@type table<string, trouble.Mode>
   modes = {

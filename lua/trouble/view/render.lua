@@ -7,6 +7,7 @@ local Text = require("trouble.view.text")
 ---@field _folded table<string, true>
 ---@field root_nodes trouble.Node[]
 ---@field foldlevel? number
+---@field foldenable boolean
 ---@field max_depth number
 ---@field opts trouble.Render.opts
 local M = setmetatable({}, Text)
@@ -23,6 +24,7 @@ function M.new(opts)
   ---@diagnostic disable-next-line: assign-type-mismatch
   local self = setmetatable(text, M)
   self._folded = {}
+  self.foldenable = true
   self:clear()
   return self
 end
@@ -31,6 +33,7 @@ end
 ---@param node trouble.Node
 ---@param opts? trouble.Render.fold_opts
 function M:fold(node, opts)
+  self.foldenable = true
   opts = opts or {}
   local action = opts.action or "toggle"
   local id = node.id
@@ -46,6 +49,11 @@ function M:fold(node, opts)
     local n = table.remove(stack)
     if action == "open" then
       self._folded[n.id] = nil
+      local parent = n.parent
+      while parent do
+        self._folded[parent.id] = nil
+        parent = parent.parent
+      end
     else
       self._folded[n.id] = true
     end
@@ -59,6 +67,7 @@ end
 
 ---@param opts {level?:number, add?:number}
 function M:fold_level(opts)
+  self.foldenable = true
   self.foldlevel = self.foldlevel or self.max_depth or 0
   if opts.level then
     self.foldlevel = opts.level
@@ -102,6 +111,10 @@ function M:section(section, nodes)
   end
 end
 
+function M:is_folded(node)
+  return self.foldenable and self._folded[node.id]
+end
+
 ---@param node trouble.Node
 ---@param section trouble.Section
 ---@param indent trouble.Indent
@@ -109,7 +122,7 @@ end
 function M:node(node, section, indent, is_last)
   if node.item then
     ---@type trouble.Indent.type
-    local symbol = self._folded[node.id] and "fold_closed"
+    local symbol = self:is_folded(node) and "fold_closed"
       or node.depth == 1 and "fold_open"
       or is_last and "last"
       or "middle"
@@ -118,7 +131,7 @@ function M:node(node, section, indent, is_last)
     indent:del()
   end
 
-  if self._folded[node.id] then
+  if self:is_folded(node) then
     return -- don't render children
   end
 

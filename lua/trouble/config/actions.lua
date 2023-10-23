@@ -71,6 +71,25 @@ local M = {
   fold_close_all = function(self)
     self:fold_level({ level = 0 })
   end,
+  fold_update = function(self, ctx)
+    self:fold_level({})
+    self:fold(ctx.node, { action = "open" })
+  end,
+  fold_update_all = function(self)
+    self:fold_level({})
+  end,
+  fold_disable = function(self)
+    self.renderer.foldenable = false
+    self:render()
+  end,
+  fold_enable = function(self)
+    self.renderer.foldenable = true
+    self:render()
+  end,
+  fold_toggle_enable = function(self)
+    self.renderer.foldenable = not self.renderer.foldenable
+    self:render()
+  end,
 }
 
 for _, fold_action in ipairs({ "toggle", "open", "close" }) do
