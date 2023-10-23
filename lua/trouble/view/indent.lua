@@ -1,3 +1,4 @@
+local Config = require("trouble.config")
 local Util = require("trouble.util")
 
 ---@alias trouble.Indent.type "top"|"middle"|"last"|"fold_open"|"fold_closed"|"ws"
@@ -11,24 +12,13 @@ local Util = require("trouble.util")
 local M = {}
 M.__index = M
 
----@type trouble.Indent.symbols
--- stylua: ignore
-M.symbols = {
-  top         = "│ ",
-  middle      = "├╴",
-  last        = "└╴",
-  -- last     = "╰╴", -- rounded
-  fold_open   = " ",
-  fold_closed = " ",
-  ws          = "  ",
-}
-
 ---@param symbols? trouble.Indent.symbols
 function M.new(symbols)
   local self = setmetatable({}, M)
+  symbols = vim.tbl_deep_extend("force", Config.render.indent, symbols or {})
   self.symbols = {}
-  for k, v in pairs(M.symbols) do
-    local symbol = symbols and symbols[k] or v
+  for k, v in pairs(symbols) do
+    local symbol = v
     self.symbols[k] = type(symbol) == "string" and { str = symbol } or { str = symbol[1], hl = symbol[2] }
     self.symbols[k].type = k
     self.symbols[k].hl = self.symbols[k].hl or ("TroubleIndent" .. Util.camel(k))

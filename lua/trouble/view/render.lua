@@ -8,10 +8,14 @@ local Text = require("trouble.view.text")
 ---@field root_nodes trouble.Node[]
 ---@field foldlevel? number
 ---@field max_depth number
+---@field opts trouble.Render.opts
 local M = setmetatable({}, Text)
 M.__index = M
 
----@param opts? trouble.Text.opts
+---@class trouble.Render.opts: trouble.Text.opts
+---@field indent? trouble.Indent.symbols
+
+---@param opts? trouble.Render.opts|trouble.Text.opts
 function M.new(opts)
   local text = Text.new(opts)
   ---@type trouble.Render
@@ -93,7 +97,7 @@ function M:section(section, nodes)
   self.max_depth = math.max(self.max_depth, #section.groups)
   for n, node in ipairs(nodes) do
     table.insert(self.root_nodes, node)
-    self:node(node, section, Indent.new(), n == #nodes)
+    self:node(node, section, Indent.new(self.opts.indent), n == #nodes)
   end
 end
 
