@@ -1,9 +1,13 @@
+local Util = require("trouble.util")
+
 ---@class TextSegment
----@field str string
----@field hl? string|Extmark
+---@field str string Text
+---@field hl? string Extmark hl group
+---@field ts? string TreeSitter language
+---@field line? number line number in a multiline segment
 ---@field width? number
 
----@alias Extmark {hl_group?:string, col?:number, end_col?:number}
+---@alias Extmark {hl_group?:string, col?:number, row?:number, end_col?:number}
 
 ---@class trouble.Text.opts
 ---@field padding? number
@@ -54,9 +58,8 @@ function M:width()
 end
 
 ---@param text string|TextSegment[]
----@param hl? string|Extmark
----@param opts? {next_indent?: TextSegment[]}
-function M:append(text, hl, opts)
+---@param opts? string|{ts?:string, hl?:string, line?:number}
+function M:append(text, opts)
   opts = opts or {}
   if #self._lines == 0 then
     self:nl()
@@ -71,53 +74,22 @@ function M:append(text, hl, opts)
     return self
   end
 
-  local nl = text:find("\n", 1, true)
-  if nl then
-    if not self.opts.multiline then
-      text = text:gsub("[\n\r]+", " ")
-      return self:append(text, hl, opts)
-    end
+  opts = type(opts) == "string" and { hl = opts } or opts
+  if opts.hl == "md" then
+    opts.ts = "markdown"
+  elseif opts.hl and opts.hl:sub(1, 3) == "ts." then
+    opts.ts = opts.hl:sub(4)
+  end
 
-    local start_col = 0
-    local last = self._lines[#self._lines]
-    for _, segment in ipairs(last) do
-      start_col = start_col + vim.fn.strdisplaywidth(segment.str, start_col)
-    end
-    self:append(text:sub(1, nl - 1), hl, opts)
-    -- change indent for next lines to the indent of the first line
-    local extra_indent ---@type TextSegment?
-    if opts.next_indent then
-      local indent_width = 0
-      for _, s in ipairs(opts.next_indent) do
-        indent_width = indent_width + vim.fn.strdisplaywidth(s.str)
-      end
-      if start_col > indent_width then
-        extra_indent = {
-          str = (" "):rep(start_col - indent_width),
-          width = start_col - indent_width,
-        }
-      end
-    end
-    local c = 0
-    while nl do
-      self:nl()
-      c = nl + 1
-      nl = text:find("\n", c, true)
-      if opts.next_indent then
-        self:append(opts.next_indent)
-        if extra_indent then
-          self:append({ extra_indent })
-        end
-      end
-      self:append(text:sub(c, nl and (nl - 1) or nil), hl, opts)
-    end
-  else
-    local width = #text
+  for _, line in Util.lines(text) do
+    local width = #line
     self._col = self._col + width
     table.insert(self._lines[#self._lines], {
-      str = text,
+      str = line,
       width = width,
-      hl = hl,
+      hl = opts.hl,
+      ts = opts.ts,
+      line = opts.line,
     })
   end
   return self
@@ -135,86 +107,60 @@ function M:render(buf)
   local padding = (" "):rep(self.opts.padding)
   for _, line in ipairs(self._lines) do
     local parts = { padding }
-    local has_extmark = false
     for _, segment in ipairs(line) do
       parts[#parts + 1] = segment.str
-      if type(segment.hl) == "table" then
-        has_extmark = true
-      end
     end
-    local str = table.concat(parts, "")
-    if not (has_extmark or str:find("%S")) then
-      str = ""
-    end
-    table.insert(lines, str)
+    table.insert(lines, table.concat(parts, ""))
   end
 
   vim.bo[buf].modifiable = true
   vim.api.nvim_buf_clear_namespace(buf, M.ns, 0, -1)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 
+  local regions = {} ---@type table<string, number[][]>
+
   for l, line in ipairs(self._lines) do
-    if lines[l] ~= "" then
-      local col = self.opts.padding
+    local col = self.opts.padding or 0
+    local row = l - 1
 
-      for _, segment in ipairs(line) do
-        local width = segment.width
-
-        local extmark = segment.hl
-        if extmark then
-          if type(extmark) == "string" then
-            extmark = { hl_group = extmark, end_col = col + width }
-          end
-          ---@cast extmark Extmark
-
-          local extmark_col = extmark.col or col
-          extmark.col = nil
-          local ok, err = pcall(vim.api.nvim_buf_set_extmark, buf, M.ns, l - 1, extmark_col, extmark)
-          if not ok then
-            vim.notify(
-              "Failed to set extmark. Please report a bug with this info:\n"
-                .. vim.inspect({ segment = segment, line = line, error = err }),
-              vim.log.levels.ERROR,
-              { title = "trouble.nvim" }
-            )
-          end
-        end
-
-        col = col + width
+    for _, segment in ipairs(line) do
+      local width = segment.width
+      if segment.ts then
+        regions[segment.ts] = regions[segment.ts] or {}
+        table.insert(regions[segment.ts], {
+          row,
+          col,
+          row,
+          col + width + 1,
+        })
+      elseif segment.hl then
+        M.set_extmark(buf, row, col, { hl_group = segment.hl, end_col = col + width })
       end
+      col = col + width
     end
+  end
+
+  for lang, r in pairs(regions) do
+    local TS = require("trouble.view.treesitter")
+    TS.highlight(buf, lang, r)
   end
   vim.bo[buf].modifiable = false
 end
 
----@param patterns table<string,string>
-function M:highlight(patterns)
-  local col = self.opts.padding
-  local last = self._lines[#self._lines]
-  ---@type TextSegment?
-  local text
-  for s, segment in ipairs(last) do
-    if s == #last then
-      text = segment
-      break
-    end
-    col = col + vim.fn.strlen(segment.str)
-  end
-  if text then
-    for pattern, hl in pairs(patterns) do
-      local from, to, match = text.str:find(pattern)
-      while from do
-        if match then
-          from, to = text.str:find(match, from, true)
-        end
-        self:append("", {
-          col = col + from - 1,
-          end_col = col + to,
-          hl_group = hl,
-        })
-        from, to = text.str:find(pattern, to + 1)
-      end
-    end
+---@param buf number
+---@param row number
+---@param col number
+---@param opts vim.api.keyset.set_extmark
+---@param debug_info? any
+function M.set_extmark(buf, row, col, opts, debug_info)
+  local ok, err = pcall(vim.api.nvim_buf_set_extmark, buf, M.ns, row, col, opts)
+  if not ok then
+    vim.notify(
+      "Failed to set extmark. Please report a bug with this info:\n"
+        .. vim.inspect({ info = debug_info, row = row, col = col, opts = opts, error = err }),
+      vim.log.levels.ERROR,
+      { title = "trouble.nvim" }
+    )
   end
 end
 
@@ -228,7 +174,15 @@ function M:row()
   return #self._lines == 0 and 1 or #self._lines
 end
 
-function M:col()
+---@param opts? {display:boolean}
+function M:col(opts)
+  if opts and opts.display then
+    local ret = 0
+    for _, segment in ipairs(self._lines[#self._lines] or {}) do
+      ret = ret + vim.fn.strdisplaywidth(segment.str)
+    end
+    return ret
+  end
   return self._col
 end
 
