@@ -33,6 +33,29 @@ local defaults = {
       ws          = "  ",
     },
   },
+  ---@type table<string, string|trouble.Action>
+  keys = {
+    r = "refresh",
+    q = "close",
+    o = "jump_close",
+    ["<esc>"] = "cancel",
+    ["<cr>"] = "jump",
+    ["<2-leftmouse>"] = "jump",
+    ["<c-s>"] = "jump_split",
+    ["<c-v>"] = "jump_vsplit",
+    p = "preview",
+    P = "toggle_auto_preview",
+    zo = "fold_open",
+    zO = "fold_open_recursive",
+    zc = "fold_close",
+    zC = "fold_close_recursive",
+    za = "fold_toggle",
+    zA = "fold_toggle_recursive",
+    zm = "fold_more",
+    zM = "fold_close_all",
+    zr = "fold_reduce",
+    zR = "fold_open_all",
+  },
   ---@type table<string, trouble.Mode>
   modes = {
     diagnostics_buffer = {
