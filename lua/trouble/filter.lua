@@ -40,8 +40,9 @@ function M.is(item, filter, view)
         is = false
         break
       end
-    elseif M.filters[k] then
-      if not M.filters[k](item, v, view) then
+    elseif view.opts.filters[k] or M.filters[k] then
+      local f = view.opts.filters[k] or M.filters[k]
+      if not f(item, v, view) then
         is = false
         break
       end
