@@ -242,13 +242,15 @@ function M:refresh()
   for s, section in ipairs(self.sections) do
     self.fetching = self.fetching + 1
     Source.get(section.source, function(items)
-      self.items[s] = Filter.filter(items, section.filter, self)
-      self.items[s] = Sort.sort(self.items[s], section.sort, self)
-      for i, item in ipairs(self.items[s]) do
+      items = Filter.filter(items, self.opts.filter, self)
+      items = Filter.filter(items, section.filter, self)
+      items = Sort.sort(items, section.sort, self)
+      for i, item in ipairs(items) do
         item.idx = i
       end
+      self.items[s] = items
       -- self.items[s] = vim.list_slice(self.items[s], 1, 10)
-      self.nodes[s] = Tree.build(self.items[s], section)
+      self.nodes[s] = Tree.build(items, section)
       self.fetching = self.fetching - 1
       self:update()
     end, { filter = section.filter, view = self })
