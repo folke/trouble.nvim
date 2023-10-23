@@ -14,6 +14,7 @@ M.__index = M
 
 ---@class trouble.Render.opts: trouble.Text.opts
 ---@field indent? trouble.Indent.symbols
+---@field formatters? table<string, trouble.Formatter>
 
 ---@param opts? trouble.Render.opts|trouble.Text.opts
 function M.new(opts)
@@ -164,7 +165,7 @@ function M:item(item, node, format_string, is_group, indent)
   if line then
     self:append(line)
   else
-    local format = Format.format(format_string, { item = item, node = node })
+    local format = Format.format(format_string, { item = item, node = node, opts = self.opts })
     indent:multi_line()
     for _, ff in ipairs(format) do
       self:append(ff.text, ff.hl, {
