@@ -105,31 +105,63 @@ function M.camel(str)
   end, parts))
 end
 
-function M.debounce(ms, fn)
-  local timer = vim.loop.new_timer()
-  return function(...)
-    local argv = { ... }
-    timer:start(ms, 0, function()
-      timer:stop()
-      vim.schedule_wrap(fn)(unpack(argv))
+-- throttle with trailing execution
+---@generic T: fun()
+---@param fn T
+---@param opts? {ms:number, is_running?:fun():boolean}
+---@return T
+function M.throttle(fn, opts)
+  opts = opts or {}
+  opts.ms = opts.ms or 20
+  local timer = assert(vim.loop.new_timer())
+  local check = assert(vim.loop.new_check())
+  local last = 0
+  local args = {} ---@type any[]
+  local executing = false
+  local trailing = false
+
+  local throttle = {}
+
+  check:start(function()
+    if not throttle.is_running() and not timer:is_active() and trailing then
+      trailing = false
+      throttle.schedule()
+    end
+  end)
+
+  function throttle.is_running()
+    return executing or (opts.is_running and opts.is_running())
+  end
+
+  function throttle.run()
+    executing = true
+    last = vim.loop.now()
+    vim.schedule(function()
+      local ok, err = pcall(fn, vim.F.unpack_len(args))
+      executing = false
+      if not ok then
+        vim.schedule(function()
+          error(err)
+        end)
+      end
     end)
   end
-end
 
-function M.throttle(ms, fn)
-  local timer = vim.loop.new_timer()
-  local running = false
+  function throttle.schedule()
+    local now = vim.loop.now()
+    local delay = opts.ms - (now - last)
+    timer:start(math.max(0, delay), 0, throttle.run)
+  end
+
   return function(...)
-    if not running then
-      local argv = { ... }
-      local argc = select("#", ...)
-
-      timer:start(ms, 0, function()
-        running = false
-        pcall(vim.schedule_wrap(fn), unpack(argv, 1, argc))
-      end)
-      running = true
+    args = vim.F.pack_len(...)
+    if timer:is_active() then
+      return
+    elseif throttle.is_running() then
+      trailing = true
+      return
     end
+    throttle.schedule()
   end
 end
 

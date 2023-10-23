@@ -6,6 +6,7 @@ local Sort = require("trouble.sort")
 local Source = require("trouble.source")
 local Spec = require("trouble.spec")
 local Tree = require("trouble.tree")
+local Util = require("trouble.util")
 local Window = require("trouble.view.window")
 
 ---@class trouble.View
@@ -19,23 +20,6 @@ local Window = require("trouble.view.window")
 ---@field cache trouble.Cache
 local M = {}
 M.__index = M
-
---- @generic F: function
---- @param f F
---- @param opts? {ms: number, leading: boolean, trailing: boolean}
---- @return F
-local function throttle(f, opts)
-  local fn = f
-  local ms = opts and opts.ms or 100
-  local timer = vim.loop.new_timer()
-  return function(...)
-    local argv = { ... }
-    timer:start(ms, 0, function()
-      timer:stop()
-      vim.schedule_wrap(fn)(unpack(argv))
-    end)
-  end
-end
 
 ---@param opts trouble.Mode
 function M.new(opts)
@@ -52,18 +36,22 @@ function M.new(opts)
   self.win = Window.new(opts.win)
   self.opts.win = self.win.opts
   self.items = {}
+  self.fetching = 0
   self.nodes = {}
   self._main = {}
   self.cache = Cache.new("view")
-  self.renderer = Render.new({
-    padding = vim.tbl_get(self.opts.win, "padding", "left"),
+
+  self.opts.render.padding = self.opts.render.padding or vim.tbl_get(self.opts.win, "padding", "left")
+
+  self.renderer = Render.new(self.opts.render)
+  self.refresh = Util.throttle(self.refresh, {
+    ms = 200,
+    is_running = function()
+      return self.fetching > 0
+    end,
   })
-  local function wrap(name)
-    return throttle(self[name], { ms = 20, leading = true })
-  end
-  self.refresh = wrap("refresh")
-  self.update = wrap("update")
-  self.render = wrap("render")
+  self.update = Util.throttle(self.update, { ms = 10 })
+  self.render = Util.throttle(self.render, { ms = 10 })
 
   if self.opts.auto_open then
     self:listen()
@@ -78,7 +66,7 @@ function M:on_mount()
     Preview.close()
   end)
 
-  local preview = throttle(self.preview, { ms = 100 })
+  local preview = Util.throttle(self.preview, { ms = 100 })
   self.win:on("CursorMoved", function()
     if self.opts.auto_preview then
       local loc = self:at()
@@ -271,6 +259,7 @@ function M:refresh()
   end
   self.cache:clear()
   for s, section in ipairs(self.sections) do
+    self.fetching = self.fetching + 1
     Source.get(section.source, function(items)
       self.items[s] = Filter.filter(items, section.filter, self)
       self.items[s] = Sort.sort(self.items[s], section.sort, self)
@@ -279,6 +268,7 @@ function M:refresh()
       end
       -- self.items[s] = vim.list_slice(self.items[s], 1, 10)
       self.nodes[s] = Tree.build(self.items[s], section)
+      self.fetching = self.fetching - 1
       self:update()
     end, { filter = section.filter, view = self })
   end
