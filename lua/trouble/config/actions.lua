@@ -25,6 +25,9 @@ local M = {
       Preview.close()
     end
   end,
+  help = function(self)
+    self:help()
+  end,
   jump_only = function(self, ctx)
     if ctx.item then
       self:jump(ctx.item)

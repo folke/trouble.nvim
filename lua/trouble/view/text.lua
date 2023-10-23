@@ -37,6 +37,22 @@ function M.new(opts)
   return self
 end
 
+function M:height()
+  return #self._lines
+end
+
+function M:width()
+  local width = 0
+  for _, line in ipairs(self._lines) do
+    local w = 0
+    for _, segment in ipairs(line) do
+      w = w + vim.fn.strdisplaywidth(segment.str)
+    end
+    width = math.max(width, w)
+  end
+  return width + ((self.opts.padding or 0) * 2)
+end
+
 ---@param text string|TextSegment[]
 ---@param hl? string|Extmark
 ---@param opts? {next_indent?: TextSegment[]}
