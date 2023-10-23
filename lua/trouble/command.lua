@@ -1,4 +1,5 @@
 local Config = require("trouble.config")
+local Parser = require("trouble.config.parser")
 local Util = require("trouble.util")
 
 local M = {}
@@ -10,31 +11,7 @@ function M.parse(input)
     Util.error("Invalid arguments: " .. input)
     return
   end
-  local parts = vim.split(args, "%s+")
-  ---@type trouble.Config
-  local opts = {}
-
-  for _, part in ipairs(parts) do
-    local key, value = part:match("([^=]+)=(.*)")
-    if not key then
-      key = part
-      value = true
-    elseif value == "true" then
-      value = true
-    elseif value == "false" then
-      value = false
-    elseif tonumber(value) then
-      value = tonumber(value)
-    end
-    -- remove quotes
-    if type(value) == "string" then
-      ---@diagnostic disable-next-line: no-unknown
-      value = value:gsub("^['\"]", ""):gsub("['\"]$", "")
-    end
-    ---@diagnostic disable-next-line: no-unknown
-    opts[key] = value
-  end
-  return source, opts
+  return source, Parser.parse(args)
 end
 
 ---@param line string
