@@ -1,6 +1,7 @@
 ---@class trouble.Node
 ---@field id string
 ---@field depth number
+---@field parent? trouble.Node
 ---@field count? number
 ---@field item? trouble.Item
 ---@field items? trouble.Item[]
@@ -26,6 +27,7 @@ end
 function M:add(node)
   assert(self.index[node.id] == nil, "node already exists")
   self.index[node.id] = node
+  node.parent = self
   table.insert(self.nodes, node)
   return node
 end
