@@ -9,7 +9,7 @@ function M.highlight(buf, lang, regions)
   -- lang = "markdown_inline"
   local parser = vim.treesitter.get_parser(buf, lang)
 
-  parser:set_included_regions({ regions })
+  parser:set_included_regions(regions)
   parser:parse(true)
   local ret = {} ---@type Extmark[]
 
