@@ -87,7 +87,7 @@ function M.setup(opts)
   vim.api.nvim_create_user_command("Trouble", function(input)
     require("trouble.command").execute(input)
   end, {
-    nargs = "+",
+    nargs = "*",
     complete = function(...)
       return require("trouble.command").complete(...)
     end,
