@@ -81,7 +81,7 @@ function M:append(text, opts)
     opts.ts = opts.hl:sub(4)
   end
 
-  for _, line in Util.lines(text) do
+  for l, line in Util.lines(text) do
     local width = #line
     self._col = self._col + width
     table.insert(self._lines[#self._lines], {
@@ -89,7 +89,7 @@ function M:append(text, opts)
       width = width,
       hl = opts.hl,
       ts = opts.ts,
-      line = opts.line,
+      line = opts.line or l,
     })
   end
   return self
@@ -117,7 +117,7 @@ function M:render(buf)
   vim.api.nvim_buf_clear_namespace(buf, M.ns, 0, -1)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 
-  local regions = {} ---@type table<string, number[][]>
+  local regions = {} ---@type table<string, number[][][]>
 
   for l, line in ipairs(self._lines) do
     local col = self.opts.padding or 0
@@ -126,8 +126,19 @@ function M:render(buf)
     for _, segment in ipairs(line) do
       local width = segment.width
       if segment.ts then
-        regions[segment.ts] = regions[segment.ts] or {}
-        table.insert(regions[segment.ts], {
+        regions[segment.ts or ""] = regions[segment.ts] or {}
+        local ts_regions = regions[segment.ts or ""]
+        local last_region = ts_regions[#ts_regions]
+        if not last_region then
+          last_region = {}
+          table.insert(ts_regions, last_region)
+        end
+        -- combine multiline item segments in one region
+        if segment.line and #last_region ~= segment.line - 1 then
+          last_region = {}
+          table.insert(ts_regions, last_region)
+        end
+        table.insert(last_region, {
           row,
           col,
           row,
