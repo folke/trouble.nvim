@@ -2,6 +2,7 @@
 local M = {}
 
 ---@class trouble.Mode: trouble.Config
+---@field filter? trouble.spec.filter
 ---@field sections? trouble.spec.section[]|trouble.spec.section
 
 ---@class trouble.Config
@@ -72,9 +73,7 @@ local defaults = {
   modes = {
     diagnostics_buffer = {
       mode = "diagnostics",
-      sections = {
-        filter = { buf = 0 },
-      },
+      filter = { buf = 0 },
     },
   },
 }
@@ -113,7 +112,10 @@ end
 
 function M.modes()
   require("trouble.source").load()
-  return vim.tbl_keys(options.modes)
+  ---@type string[]
+  local ret = vim.tbl_keys(options.modes)
+  table.sort(ret)
+  return ret
 end
 
 ---@param ...? trouble.Config|string
