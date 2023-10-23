@@ -5,6 +5,7 @@ local Render = require("trouble.view.render")
 local Sort = require("trouble.sort")
 local Source = require("trouble.source")
 local Spec = require("trouble.spec")
+local Text = require("trouble.view.text")
 local Tree = require("trouble.tree")
 local Util = require("trouble.util")
 local Window = require("trouble.view.window")
@@ -214,16 +215,18 @@ end
 ---@param key string
 ---@param action trouble.Action|string
 function M:map(key, action)
+  local desc ---@type string?
   if type(action) == "string" then
+    desc = action:gsub("_", " ")
     action = require("trouble.config.actions")[action]
   end
-  ---@type trouble.ActionFn, string?
-  local fn, desc
+  ---@type trouble.ActionFn
+  local fn
   if type(action) == "function" then
     fn = action
   else
     fn = action.action
-    desc = action.desc
+    desc = action.desc or desc
   end
   self.win:map(key, function()
     fn(self, self:at())
@@ -250,6 +253,35 @@ function M:refresh()
       self:update()
     end, { filter = section.filter, view = self })
   end
+end
+
+function M:help()
+  local text = Text.new({ padding = 1 })
+
+  text:nl():append("# Help ", "Title"):nl()
+  text:append("Press ", "Comment"):append("<q>", "Special"):append(" to close", "Comment"):nl():nl()
+  text:append("# Keymaps ", "Title"):nl():nl()
+  local keys = vim.tbl_keys(self.win.keys)
+  table.sort(keys)
+  for _, key in ipairs(keys) do
+    local desc = self.win.keys[key]
+    text:append("  - ", "@punctuation.special.markdown")
+    text:append(key, "Special"):append(" "):append(desc):nl()
+  end
+  text:trim()
+
+  local win = Window.new({
+    type = "float",
+    size = { width = text:width(), height = text:height() },
+    border = "rounded",
+    wo = { cursorline = false },
+  })
+  win:open():focus()
+  text:render(win.buf)
+  vim.bo[win.buf].modifiable = false
+
+  win:map("<esc>", win.close)
+  win:map("q", win.close)
 end
 
 function M:open()
@@ -298,6 +330,7 @@ function M:render()
       self.renderer:section(section, nodes)
     end
   end
+  self.renderer:trim()
 
   -- calculate initial folds
   if self.renderer.foldlevel == nil then
