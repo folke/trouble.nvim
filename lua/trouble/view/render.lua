@@ -1,6 +1,7 @@
 local Format = require("trouble.format")
 local Indent = require("trouble.view.indent")
 local Text = require("trouble.view.text")
+local Util = require("trouble.util")
 
 ---@class trouble.Render: trouble.Text
 ---@field _locations {item?: trouble.Item, node?: trouble.Item}[] Maps line numbers to items.
@@ -97,6 +98,7 @@ end
 function M:clear()
   self.max_depth = 0
   self._lines = {}
+  self.ts_regions = {}
   self._locations = {}
   self.root_nodes = {}
 end
@@ -172,18 +174,37 @@ function M:item(item, node, format_string, is_group, indent)
   local cache_key = "render:" .. node.depth .. format_string
 
   ---@type TextSegment[]?
-  local line = not is_group and item.cache[cache_key]
+  local segments = not is_group and item.cache[cache_key]
 
   self:append(indent)
-  if line then
-    self:append(line)
+  if segments then
+    self:append(segments)
   else
     local format = Format.format(format_string, { item = item, node = node, opts = self.opts })
     indent:multi_line()
     for _, ff in ipairs(format) do
-      self:append(ff.text, ff.hl, {
-        next_indent = indent,
-      })
+      local text = self.opts.multiline and ff.text or ff.text:gsub("[\n\r]+", " ")
+      local offset ---@type number? start column of the first line
+      local first ---@type string? first line
+      for l, line in Util.lines(text) do
+        if l == 1 then
+          first = line
+        else
+          -- PERF: most items are single line, so do heavy lifting only when more than one line
+          offset = offset or (self:col({ display = true }) - vim.fn.strdisplaywidth(first or ""))
+          self:nl()
+          self:append(indent)
+          local indent_width = indent:width({ display = true })
+          -- align to item column
+          if offset > indent_width then
+            self:append((" "):rep(offset - indent_width))
+          end
+        end
+        self:append(line, {
+          hl = ff.hl,
+          line = l,
+        })
+      end
     end
     -- NOTE:
     -- * don't cache groups, since they can contain aggregates.
