@@ -6,12 +6,13 @@ M.preview = nil ---@type {win:number,buf:number,view:table}?
 
 function M.close()
   local preview = M.preview
+  M.preview = nil
   if not (preview and vim.api.nvim_buf_is_valid(preview.buf)) then
     return
   end
-  M.preview = nil
   Render.reset(preview.buf)
   if vim.api.nvim_win_is_valid(preview.win) then
+    Render.reset(vim.api.nvim_win_get_buf(preview.win))
     Util.noautocmd(function()
       vim.api.nvim_win_set_buf(preview.win, preview.buf)
       vim.api.nvim_win_call(preview.win, function()
