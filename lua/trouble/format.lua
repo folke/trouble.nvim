@@ -7,7 +7,7 @@ local M = {}
 ---@alias trouble.Format {text:string, hl?:string}
 
 ---@alias trouble.Formatter fun(ctx: trouble.Formatter.ctx): trouble.spec.format?
----@alias trouble.Formatter.ctx {item: trouble.Item, node:trouble.Node, field:string, value:string}
+---@alias trouble.Formatter.ctx {item: trouble.Item, node:trouble.Node, field:string, value:string, opts:trouble.Render.opts}
 
 ---@param source string
 ---@param field string
@@ -90,8 +90,10 @@ function M.field(ctx)
   ---@type trouble.Format[]
   local format = { { fi = ctx.field, text = tostring(ctx.item[ctx.field] or "") } }
 
-  if M.formatters[ctx.field] then
-    local result = M.formatters[ctx.field](ctx)
+  local formatter = ctx.opts and ctx.opts.formatters and ctx.opts.formatters[ctx.field] or M.formatters[ctx.field]
+
+  if formatter then
+    local result = formatter(ctx)
     if result then
       result = type(result) == "table" and vim.tbl_islist(result) and result or { result }
       format = {}
@@ -109,7 +111,7 @@ function M.field(ctx)
 end
 
 ---@param format string
----@param ctx {item: trouble.Item, node:trouble.Node}
+---@param ctx {item: trouble.Item, node:trouble.Node, opts:trouble.Render.opts}
 function M.format(format, ctx)
   ---@type trouble.Format[]
   local ret = {}

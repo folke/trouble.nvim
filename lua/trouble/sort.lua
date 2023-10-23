@@ -32,8 +32,9 @@ function M.sort(items, opts, view)
       fields[f] = { sorter = field }
     elseif type(field) == "table" and field.field then
       ---@cast field {field:string, desc?:boolean}
-      if M.sorters[field.field] then
-        fields[f] = { sorter = M.sorters[field.field] }
+      local sorter = view.opts.sorters[field.field] or M.sorters[field.field]
+      if sorter then
+        fields[f] = { sorter = sorter }
       else
         fields[f] = { field = field.field }
       end

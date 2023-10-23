@@ -32,9 +32,16 @@ local defaults = {
       fold_closed = " ",
       ws          = "  ",
     },
+    ---@type table<string, trouble.Formatter>
+    formatters = {}, -- custom formatters
   },
+  ---@type table<string, trouble.FilterFn>
+  filters = {}, -- custom filters
+  ---@type table<string, trouble.Sorter>
+  sorters = {}, -- custom sorters
   ---@type table<string, string|trouble.Action>
   keys = {
+    ["?"] = "help",
     r = "refresh",
     q = "close",
     o = "jump_close",
