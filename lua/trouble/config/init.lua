@@ -9,11 +9,10 @@ local M = {}
 ---@field config? fun(opts:trouble.Config)
 local defaults = {
   debug = false,
-  multiline = true, -- render multi-line messages
   indent_lines = true, -- add an indent guide below the fold icons
   max_items = 200, -- limit number of items that can be displayed
   events = { "BufEnter" }, -- events that trigger refresh. Also used by auto_open and auto_close
-  ---@type trouble.Window.opts?
+  ---@type trouble.Window.opts
   win = {},
   throttle = 100,
   auto_open = false,
@@ -21,6 +20,7 @@ local defaults = {
   auto_preview = true,
   ---@type trouble.Render.opts
   render = {
+    multiline = true, -- render multi-line messages
     -- stylua: ignore
     ---@type trouble.Indent.symbols
     indent = {
