@@ -253,7 +253,7 @@ function M:refresh()
       self.nodes[s] = Tree.build(items, section)
       self.fetching = self.fetching - 1
       self:update()
-    end, { filter = section.filter, view = self })
+    end, { filter = section.filter or self.opts.filter or nil, view = self })
   end
 end
 
