@@ -11,8 +11,6 @@ local M = {
     self:close()
   end,
   cancel = function(self)
-    local Preview = require("trouble.view.preview")
-    Preview.close()
     self:goto_main()
   end,
   preview = function(self, ctx)
