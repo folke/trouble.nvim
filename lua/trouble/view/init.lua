@@ -17,6 +17,7 @@ local Window = require("trouble.view.window")
 ---@field nodes trouble.Node[]
 ---@field renderer trouble.Render
 ---@field private _main? {buf:number, win:number}
+---@field fetching number
 ---@field cache trouble.Cache
 local M = {}
 M.__index = M
@@ -83,30 +84,7 @@ function M:on_mount()
     end
   end, { pattern = "foldlevel", buffer = false })
 
-  local keys = {
-    r = "refresh",
-    q = "close",
-    o = "jump_close",
-    ["<esc>"] = "cancel",
-    ["<cr>"] = "jump",
-    ["<2-leftmouse>"] = "jump",
-    ["<c-s>"] = "jump_split",
-    ["<c-v>"] = "jump_vsplit",
-    p = "preview",
-    P = "toggle_auto_preview",
-    zo = "fold_open",
-    zO = "fold_open_recursive",
-    zc = "fold_close",
-    zC = "fold_close_recursive",
-    za = "fold_toggle",
-    zA = "fold_toggle_recursive",
-    zm = "fold_more",
-    zM = "fold_close_all",
-    zr = "fold_reduce",
-    zR = "fold_open_all",
-  }
-
-  for k, v in pairs(keys) do
+  for k, v in pairs(self.opts.keys) do
     self:map(k, v)
   end
 end
