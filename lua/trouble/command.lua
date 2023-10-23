@@ -66,10 +66,18 @@ function M.complete(_, line, col)
 end
 
 function M.execute(input)
-  local mode, opts = M.parse(input.args)
-  if mode and opts then
-    opts.mode = mode
-    require("trouble").open(opts)
+  if input.args:match("^%s*$") then
+    vim.ui.select(Config.modes(), { prompt = "Select Trouble Mode:" }, function(mode)
+      if mode then
+        require("trouble").open({ mode = mode })
+      end
+    end)
+  else
+    local mode, opts = M.parse(input.args)
+    if mode and opts then
+      opts.mode = mode
+      require("trouble").open(opts)
+    end
   end
 end
 
