@@ -19,6 +19,20 @@ local defaults = {
   auto_open = false,
   auto_close = false,
   auto_preview = true,
+  ---@type trouble.Render.opts
+  render = {
+    -- stylua: ignore
+    ---@type trouble.Indent.symbols
+    indent = {
+      top         = "│ ",
+      middle      = "├╴",
+      last        = "└╴",
+      -- last     = "╰╴", -- rounded
+      fold_open   = " ",
+      fold_closed = " ",
+      ws          = "  ",
+    },
+  },
   ---@type table<string, trouble.Mode>
   modes = {
     diagnostics_buffer = {
