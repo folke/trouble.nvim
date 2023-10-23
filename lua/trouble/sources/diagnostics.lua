@@ -13,32 +13,32 @@ M.highlights = {
 M.modes = {
   diagnostics = {
     events = { "DiagnosticChanged", "BufEnter" },
-    sections =     -- {
-    --   -- Trouble classic for current buffer
-    --   source = "diagnostics",
-    --   groups = {
-    --     { format = "{hl:Title}Diagnostics (current buffer){hl} {filename} {count}" },
-    --   },
-    --   sort = { "severity", "filename", "pos" },
-    --   format = "{severity_icon} {message} {item.source} ({code}) {pos}",
-    --   filter = {
-    --     buf = 0,
-    --   },
-    -- },
-    -- filename group sorted by severity
-    -- items per filename sorted by pos
-{
-      -- Trouble classic for other buffers,
-      -- but only if they are in the current directory
-      source = "diagnostics",
-      groups = {
-        { format = "{hl:Special}󰚢 {hl} {hl:Title}Diagnostics{hl} {count}" },
-        { "severity", format = "{severity_icon} {severity} {count}" },
-        { "filename", format = "{file_icon} {filename} {count}" },
-      },
-      sort = { { buf = 0 }, "severity", "filename", "pos", "message" },
-      format = "{severity_icon} {message} {item.source} ({code}) {pos}",
-      filter = {
+    sections = {
+      --   -- Trouble classic for current buffer
+      --   source = "diagnostics",
+      --   groups = {
+      --     { format = "{hl:Title}Diagnostics (current buffer){hl} {filename} {count}" },
+      --   },
+      --   sort = { "severity", "filename", "pos" },
+      --   format = "{severity_icon} {message} {item.source} ({code}) {pos}",
+      --   filter = {
+      --     buf = 0,
+      --   },
+      -- },
+      -- filename group sorted by severity
+      -- items per filename sorted by pos
+      {
+        -- Trouble classic for other buffers,
+        -- but only if they are in the current directory
+        source = "diagnostics",
+        groups = {
+          { format = "{hl:Special}󰚢 {hl} {hl:Title}Diagnostics{hl} {count}" },
+          { "severity", format = "{severity_icon} {severity} {count}" },
+          { "filename", format = "{file_icon} {filename} {count}" },
+        },
+        sort = { { buf = 0 }, "severity", "filename", "pos", "message" },
+        format = "{severity_icon} {message} {item.source} ({code}) {pos}",
+        -- filter = {
         -- ["not"] = {
         --   any = {
         --     { severity = vim.diagnostic.severity.ERROR },
@@ -48,27 +48,28 @@ M.modes = {
         -- function(item)
         --   return item.filename:find(vim.loop.cwd(), 1, true)
         -- end,
+        -- },
       },
+      -- {
+      --   -- error from all files
+      --   source = "diagnostics",
+      --   groups = { "severity", "code", "filename" },
+      --   filter = {
+      --     -- severity = 1,
+      --   },
+      --   sort = { "filename", "pos" },
+      --   format = "sig {severity_sign} {severity} file: {filename} pos: {pos}",
+      -- },
+      -- {
+      --   -- diagnostics from current buffer
+      --   source = "diagnostics",
+      --   groups = { "severity", "filename" },
+      --   filter = {
+      --     buf = 0,
+      --   },
+      --   sort = { "pos" },
+      -- },
     },
-    -- {
-    --   -- error from all files
-    --   source = "diagnostics",
-    --   groups = { "severity", "code", "filename" },
-    --   filter = {
-    --     -- severity = 1,
-    --   },
-    --   sort = { "filename", "pos" },
-    --   format = "sig {severity_sign} {severity} file: {filename} pos: {pos}",
-    -- },
-    -- {
-    --   -- diagnostics from current buffer
-    --   source = "diagnostics",
-    --   groups = { "severity", "filename" },
-    --   filter = {
-    --     buf = 0,
-    --   },
-    --   sort = { "pos" },
-    -- },
   },
 }
 
