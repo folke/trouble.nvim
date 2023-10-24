@@ -1,9 +1,9 @@
-local Preview = require("trouble.view.preview")
+local Config = require("trouble.config")
 local Util = require("trouble.util")
 
 ---@class trouble.Source
 ---@field highlights? table<string, string>
----@field modes? table<string,trouble.Mode>
+---@field config? trouble.Config
 ---@field setup? fun()
 ---@field get trouble.Source.get|table<string, trouble.Source.get>
 
@@ -29,8 +29,14 @@ function M.register(name, source)
       source.setup()
     end
     require("trouble.config.highlights").source(name, source.highlights)
-    if source.modes then
-      require("trouble.config").register(source.modes)
+    if source.config then
+      source.config.modes = source.config.modes or {}
+      for view in pairs(source.config.views or {}) do
+        source.config.modes[view] = source.config.modes[view] or {
+          sections = { view },
+        }
+      end
+      Config.defaults(source.config)
     end
   end
   M.sources[name] = source

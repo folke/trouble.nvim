@@ -6,20 +6,26 @@ local get_col = vim.lsp.util._get_line_byte_from_position
 ---@type trouble.Source
 local M = {}
 
-M.modes = {}
-for _, mode in ipairs({ "definitions", "references", "implementations", "type_definitions" }) do
-  M.modes["lsp_" .. mode] = {
-    events = { "CursorHold" },
-    sections = {
-      {
-        source = "lsp." .. mode,
-        groups = {
-          { "filename", format = "{file_icon} {filename} {count}" },
-        },
-        sort = { { buf = 0 }, "filename", "pos", "text" },
-        format = "{text:ts} ({item.client}) {pos}",
-      },
+M.config = {
+  views = {},
+  modes = {
+    lsp = {
+      sections = { "lsp_definitions", "lsp_references", "lsp_implementations", "lsp_type_definitions" },
     },
+  },
+}
+
+for _, mode in ipairs({ "definitions", "references", "implementations", "type_definitions" }) do
+  M.config.views["lsp_" .. mode] = {
+    title = "{hl:Title}" .. mode:gsub("^%l", string.upper) .. "{hl} {count}",
+    events = { "CursorHold" },
+    -- events = { "CursorHold", "CursorMoved" },
+    source = "lsp." .. mode,
+    groups = {
+      { "filename", format = "{file_icon} {filename} {count}" },
+    },
+    sort = { { buf = 0 }, "filename", "pos", "text" },
+    format = "{text:ts} ({item.client}) {pos}",
   }
 end
 
@@ -34,16 +40,24 @@ function M.get_locations(method, cb, context)
   ---@diagnostic disable-next-line: inject-field
   params.context = context
 
-  vim.lsp.buf_request_all(buf, method, params, function(results)
-    local items = {} ---@type trouble.Item[]
-    for client_id, result in pairs(results) do
-      if result and result.result then
-        local client = assert(vim.lsp.get_client_by_id(client_id))
-        vim.list_extend(items, M.get_items(client, result.result))
+  local clients = vim.lsp.get_clients({ method = method, bufnr = buf })
+
+  local items = {} ---@type trouble.Item[]
+  local done = 0
+  if #clients == 0 then
+    return cb(items)
+  end
+  for _, client in ipairs(clients) do
+    vim.lsp.buf_request(buf, method, params, function(_, result)
+      done = done + 1
+      if result then
+        vim.list_extend(items, M.get_items(client, result))
       end
-    end
-    cb(items)
-  end)
+      if done == #clients then
+        cb(items)
+      end
+    end)
+  end
 end
 
 ---@param client lsp.Client

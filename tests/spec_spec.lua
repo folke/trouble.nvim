@@ -3,7 +3,7 @@ local Spec = require("trouble.spec")
 describe("parses specs", function()
   it("parses a sort spec", function()
     local f1 = function() end
-    ---@type ({input:trouble.spec.sort, output:trouble.Sort})[]
+    ---@type ({input:trouble.Sort.spec, output:trouble.Sort})[]
     local tests = {
       {
         input = "foo",
@@ -17,8 +17,10 @@ describe("parses specs", function()
         input = { "foo", "-bar" },
         output = { { field = "foo" }, { field = "bar", desc = true } },
       },
-      { input = f1, output = { f1 } },
-      { input = { f1, "foo" }, output = { f1, { field = "foo" } } },
+      { input = f1, output = { { sorter = f1 } } },
+      { input = { buf = 0 }, output = { { filter = { buf = 0 } } } },
+      { input = { { buf = 0 } }, output = { { filter = { buf = 0 } } } },
+      { input = { f1, "foo" }, output = { { sorter = f1 }, { field = "foo" } } },
     }
 
     for _, test in ipairs(tests) do
@@ -27,26 +29,26 @@ describe("parses specs", function()
   end)
 
   it("parses a group spec", function()
-    ---@type ({input:trouble.spec.group, output:trouble.Group})[]
+    ---@type ({input:trouble.Group.spec, output:trouble.Group})[]
     local tests = {
       {
         input = "foo",
         output = { fields = { "foo" }, format = "{foo}" },
       },
       {
-        input = "-foo",
+        input = "foo",
         output = { fields = { "foo" }, format = "{foo}" },
       },
       {
-        input = { "foo", "-bar" },
+        input = { "foo", "bar" },
         output = { fields = { "foo", "bar" }, format = "{foo} {bar}" },
       },
       {
-        input = { "foo", "-bar" },
+        input = { "foo", "bar" },
         output = { fields = { "foo", "bar" }, format = "{foo} {bar}" },
       },
       {
-        input = { "foo", "-bar" },
+        input = { "foo", "bar" },
         output = { fields = { "foo", "bar" }, format = "{foo} {bar}" },
       },
     }
@@ -57,22 +59,29 @@ describe("parses specs", function()
   end)
 
   it("parses a section spec", function()
-    local input = {
-      -- error from all files
-      source = "diagnostics",
-      groups = { "filename" },
-      filter = {
-        severity = 1,
+    local tests = {
+      {
+        input = {
+          -- error from all files
+          source = "diagnostics",
+          groups = { "filename" },
+          filter = {
+            severity = 1,
+          },
+          sort = { "filename", "-pos" },
+        },
+        output = {
+          source = "diagnostics",
+          groups = { { fields = { "filename" }, format = "{filename}" } },
+          sort = { { field = "filename" }, { field = "pos", desc = true } },
+          filter = { severity = 1 },
+          format = "{filename} {pos}",
+        },
       },
-      sort = { "filename", "pos" },
+      { input = "foo" },
     }
-    local output = {
-      source = "diagnostics",
-      groups = { { fields = { "filename" }, format = "{filename}" } },
-      sort = { { field = "filename" }, { field = "pos" } },
-      filter = { severity = 1 },
-      format = "{filename} {pos}",
-    }
-    assert.same(output, Spec.section(input))
+    for _, test in ipairs(tests) do
+      assert.same(test.output, Spec.section(test.input))
+    end
   end)
 end)

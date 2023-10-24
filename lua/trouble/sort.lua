@@ -2,7 +2,7 @@ local Filter = require("trouble.filter")
 
 local M = {}
 
----@type table<string, trouble.Sorter>
+---@type table<string, trouble.SorterFn>
 M.sorters = {
   pos = function(obj)
     -- Use large multipliers for higher priority fields to ensure their precedence in sorting
@@ -15,7 +15,7 @@ M.sorters = {
 
 ---@param items trouble.Item[]
 ---@param view trouble.View
----@param opts? trouble.Sort
+---@param opts? trouble.Sort[]
 function M.sort(items, opts, view)
   if not opts or #opts == 0 then
     return items
@@ -25,25 +25,20 @@ function M.sort(items, opts, view)
   local desc = {} ---@type boolean[]
 
   -- pre-compute fields
-  local fields = {} ---@type {sorter?:trouble.Sorter, field?:string, filter?:trouble.Filter}[]
+  local fields = {} ---@type trouble.Sort[]
   for f, field in ipairs(opts) do
-    if type(field) == "function" then
-      ---@cast field trouble.Sorter
-      fields[f] = { sorter = field }
-    elseif type(field) == "table" and field.field then
-      ---@cast field {field:string, desc?:boolean}
+    if field.field then
+      ---@diagnostic disable-next-line: no-unknown
       local sorter = view.opts.sorters[field.field] or M.sorters[field.field]
       if sorter then
         fields[f] = { sorter = sorter }
       else
         fields[f] = { field = field.field }
       end
-      desc[f] = field.desc
-    elseif type(field) == "table" then
-      fields[f] = { filter = field }
     else
-      error("invalid sort field: " .. vim.inspect(field))
+      fields[f] = field
     end
+    desc[f] = field.desc or false
   end
 
   -- pre-compute keys
