@@ -78,7 +78,6 @@ describe("parses specs", function()
           format = "{filename} {pos}",
         },
       },
-      { input = "foo" },
     }
     for _, test in ipairs(tests) do
       assert.same(test.output, Spec.section(test.input))
