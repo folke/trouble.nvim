@@ -4,7 +4,7 @@ local Util = require("trouble.util")
 local M = {}
 
 ---@alias trouble.spec.format string|trouble.Format|(string|trouble.Format)[]
----@alias trouble.Format {text:string, hl?:string, ts?:string}
+---@alias trouble.Format {text:string, hl?:string}
 
 ---@alias trouble.Formatter fun(ctx: trouble.Formatter.ctx): trouble.spec.format?
 ---@alias trouble.Formatter.ctx {item: trouble.Item, node:trouble.Node, field:string, value:string, opts:trouble.Render.opts}
@@ -56,6 +56,9 @@ M.formatters = {
   end,
   severity_icon = function(ctx)
     local severity = ctx.item.severity or vim.diagnostic.severity.ERROR
+    if not vim.diagnostic.severity[severity] then
+      return
+    end
     local name = Util.camel(vim.diagnostic.severity[severity]:lower())
     local sign = vim.fn.sign_getdefined("DiagnosticSign" .. name)[1]
     return sign and { text = sign.text, hl = sign.texthl } or { text = name or ctx.value }
@@ -88,20 +91,21 @@ M.formatters.severity = M.cached_formatter(M.formatters.severity, "severity")
 ---@param ctx trouble.Formatter.ctx
 function M.field(ctx)
   ---@type trouble.Format[]
-  local format = { { fi = ctx.field, text = tostring(ctx.item[ctx.field] or "") } }
+  local format = { { fi = ctx.field, text = vim.trim(tostring(ctx.item[ctx.field] or "")) } }
 
   local formatter = ctx.opts and ctx.opts.formatters and ctx.opts.formatters[ctx.field] or M.formatters[ctx.field]
 
   if formatter then
     local result = formatter(ctx)
-    if result then
-      result = type(result) == "table" and vim.tbl_islist(result) and result or { result }
-      format = {}
-      ---@cast result (string|trouble.Format)[]
-      for _, f in ipairs(result) do
-        ---@diagnostic disable-next-line: assign-type-mismatch
-        format[#format + 1] = type(f) == "string" and { text = f } or f
-      end
+    if not result then
+      return
+    end
+    result = type(result) == "table" and vim.tbl_islist(result) and result or { result }
+    format = {}
+    ---@cast result (string|trouble.Format)[]
+    for _, f in ipairs(result) do
+      ---@diagnostic disable-next-line: assign-type-mismatch
+      format[#format + 1] = type(f) == "string" and { text = f } or f
     end
   end
   for _, f in ipairs(format) do
@@ -118,7 +122,7 @@ function M.format(format, ctx)
   local hl ---@type string?
   while true do
     ---@type string?,string,string
-    local before, field, after = format:match("^(.-){(.-)}(.*)$")
+    local before, fields, after = format:match("^(.-){(.-)}(.*)$")
     if not before then
       break
     end
@@ -126,22 +130,30 @@ function M.format(format, ctx)
     if #before > 0 then
       ret[#ret + 1] = { text = before, hl = hl }
     end
-    ---@type string,string
-    local field_name, field_hl = field:match("^(.-):(.+)$")
-    if field_name then
-      field = field_name
-    end
-    if field == "hl" then
-      hl = field_hl
-    else
-      ---@cast ctx trouble.Formatter.ctx
-      ctx.field = field
-      ctx.value = ctx.item[field]
-      for _, f in ipairs(M.field(ctx)) do
-        if hl or field_hl then
-          f.hl = field_hl or hl
+
+    for _, field in Util.split(fields, "|") do
+      ---@type string,string
+      local field_name, field_hl = field:match("^(.-):(.+)$")
+      if field_name then
+        field = field_name
+      end
+      if field == "hl" then
+        hl = field_hl
+      else
+        ---@cast ctx trouble.Formatter.ctx
+        ctx.field = field
+        ctx.value = ctx.item[field]
+        local ff = M.field(ctx)
+        if ff then
+          for _, f in ipairs(ff) do
+            if hl or field_hl then
+              f.hl = field_hl or hl
+            end
+            ret[#ret + 1] = f
+          end
+          -- only render the first field
+          break
         end
-        ret[#ret + 1] = f
       end
     end
   end
