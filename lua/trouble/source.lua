@@ -4,10 +4,13 @@ local Util = require("trouble.util")
 ---@field highlights? table<string, string>
 ---@field modes? table<string,trouble.Mode>
 ---@field setup? fun()
----@field get fun(cb:trouble.Source.Callback, ctx: trouble.Source.ctx)
+---@field get trouble.Source.get|table<string, trouble.Source.get>
+
+---@class trouble.Source.
 
 ---@alias trouble.Source.ctx {filter?:trouble.Filter, view:trouble.View}
 ---@alias trouble.Source.Callback fun(items:trouble.Item[])
+---@alias trouble.Source.get fun(cb:trouble.Source.Callback, ctx: trouble.Source.ctx)
 
 local M = {}
 ---@type table<string, trouble.Source>
@@ -20,12 +23,14 @@ function M.register(name, source)
     error("source already registered: " .. name)
   end
   source = source or require("trouble.sources." .. name)
-  if source and source.setup then
-    source.setup()
+  if source then
+    if source.setup then
+      source.setup()
+    end
     require("trouble.config.highlights").source(name, source.highlights)
-  end
-  if source and source.modes then
-    require("trouble.config").register(source.modes)
+    if source.modes then
+      require("trouble.config").register(source.modes)
+    end
   end
   M.sources[name] = source
   return source
@@ -35,8 +40,20 @@ end
 ---@param cb trouble.Source.Callback
 ---@param ctx trouble.Source.ctx
 function M.get(source, cb, ctx)
+  local parent, child = source:match("^(.-)%.(.*)$")
+  source = parent or source
   local s = M.sources[source] or M.register(source)
-  s.get(cb, ctx)
+  if child and type(s.get) ~= "table" then
+    Util.error("source does not support sub-sources: " .. source)
+    return cb({})
+  elseif child and type(s.get[child]) ~= "function" then
+    Util.error("source does not support sub-source: " .. source .. "." .. child)
+    return cb({})
+  end
+  local get = child and s.get[child] or s.get
+  M.call_in_main(function()
+    get(cb, ctx)
+  end, ctx)
 end
 
 function M.load()
