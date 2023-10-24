@@ -19,6 +19,7 @@ local defaults = {
   auto_open = false,
   auto_close = false,
   auto_preview = true,
+  pinned = false,
   ---@type trouble.Render.opts
   render = {
     multiline = true, -- render multi-line messages

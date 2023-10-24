@@ -186,7 +186,9 @@ end
 function M:listen()
   self:main()
   self.win:on("BufEnter", function()
-    if Preview.preview then
+    -- don't update the main window when
+    -- preview is open or when the window is pinned
+    if Preview.preview or self.opts.pinned then
       return
     end
     local buf = vim.api.nvim_get_current_buf()
