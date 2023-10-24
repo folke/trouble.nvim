@@ -196,4 +196,40 @@ function M.split(s, c)
   end
 end
 
+---@param buf number
+---@param rows number[] 1-indexed
+---@return table<number, string>
+function M.get_lines(buf, rows)
+  local uri = vim.uri_from_bufnr(buf)
+
+  if uri:sub(1, 4) ~= "file" then
+    vim.fn.bufload(buf)
+  end
+
+  if vim.api.nvim_buf_is_loaded(buf) then
+    local lines = {} ---@type table<number, string>
+    for _, row in ipairs(rows) do
+      lines[row] = (vim.api.nvim_buf_get_lines(buf, row - 1, row, false) or { "" })[1]
+    end
+    return lines
+  end
+
+  local filename = vim.api.nvim_buf_get_name(buf)
+  local fd = uv.fs_open(filename, "r", 438)
+  if not fd then
+    return {}
+  end
+  local stat = assert(uv.fs_fstat(fd))
+  local data = assert(uv.fs_read(fd, stat.size, 0)) --[[@as string]]
+  assert(uv.fs_close(fd))
+
+  local ret = {} ---@type table<number, string>
+  for row, line in M.lines(data) do
+    if vim.tbl_contains(rows, row) then
+      ret[row] = line
+    end
+  end
+  return ret
+end
+
 return M
