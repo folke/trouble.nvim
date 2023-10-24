@@ -168,6 +168,13 @@ end
 
 ---@param s string
 function M.lines(s)
+  return M.split(s, "\n")
+end
+
+---@param s string
+---@param c? string
+function M.split(s, c)
+  c = c or "\n"
   local pos = 1
   local l = 0
   return function()
@@ -176,7 +183,7 @@ function M.lines(s)
     end
     l = l + 1
 
-    local nl = s:find("\n", pos, true)
+    local nl = s:find(c, pos, true)
     if not nl then
       local lastLine = s:sub(pos)
       pos = -1
