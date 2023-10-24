@@ -6,7 +6,7 @@ local defaults = {
   -- General
   Normal = "NormalFloat",
   Text = "Normal",
-  Preview = "CurSearch",
+  Preview = "Visual",
   -- Item
   FileName = "Directory",
   Source = "Comment",
