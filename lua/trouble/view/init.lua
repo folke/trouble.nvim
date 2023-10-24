@@ -40,7 +40,6 @@ function M.new(opts)
   self.items = {}
   self.fetching = 0
   self.nodes = {}
-  self._main = {}
   self.cache = Cache.new("view")
 
   self.opts.render.padding = self.opts.render.padding or vim.tbl_get(self.opts.win, "padding", "left")
@@ -157,7 +156,7 @@ function M:preview(item)
   return Preview.open(self, item)
 end
 
----@return {buf:number, win:number}?
+---@return {buf:number, win:number, cursor:number[]}?
 function M:main()
   local valid = self._main
     and self._main.win
@@ -167,7 +166,14 @@ function M:main()
   if not valid then
     self._main = self.win:find_main()
   end
-  return self._main
+  if self._main then
+    local cursor = vim.api.nvim_win_get_cursor(self._main.win)
+    -- When the preview is open, use the stored main window cursor
+    if Preview.preview and Preview.preview.win == self._main.win then
+      cursor = Preview.preview.cursor
+    end
+    return { buf = self._main.buf, win = self._main.win, cursor = cursor }
+  end
 end
 
 function M:goto_main()

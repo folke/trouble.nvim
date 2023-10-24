@@ -1,3 +1,4 @@
+local Preview = require("trouble.view.preview")
 local Util = require("trouble.util")
 
 ---@class trouble.Source
@@ -66,6 +67,41 @@ function M.load()
       end, { msg = "Error loading source: " .. name })
     end
   end
+end
+
+---@param fn function
+---@param ctx trouble.Source.ctx
+function M.call_in_main(fn, ctx)
+  local current = {
+    win = vim.api.nvim_get_current_win(),
+    buf = vim.api.nvim_get_current_buf(),
+    cursor = vim.api.nvim_win_get_cursor(0),
+  }
+  local main = ctx and ctx.view and ctx.view:main() or current
+
+  -- if we're still in the main window,
+  -- we can just call the function directly
+  if
+    main.win == current.win
+    and main.buf == current.buf
+    and main.cursor[1] == current.cursor[1]
+    and main.cursor[2] == current.cursor[2]
+  then
+    return fn()
+  end
+
+  -- otherwise, we need to temporarily move to the main window
+  vim.api.nvim_win_call(main.win, function()
+    Util.noautocmd(function()
+      local buf = vim.api.nvim_win_get_buf(main.win)
+      local view = vim.fn.winsaveview()
+      vim.api.nvim_win_set_buf(main.win, main.buf)
+      vim.api.nvim_win_set_cursor(main.win, main.cursor)
+      fn()
+      vim.api.nvim_win_set_buf(main.win, buf)
+      vim.fn.winrestview(view)
+    end)
+  end)
 end
 
 return M
