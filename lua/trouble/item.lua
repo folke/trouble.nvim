@@ -19,6 +19,8 @@ function M.new(opts)
   local self = setmetatable(opts, M)
   self.filename = self.filename or vim.fn.bufname(self.buf)
   self.filename = vim.fn.fnamemodify(self.filename, ":p")
+  self.basename = vim.fn.fnamemodify(self.filename, ":t")
+  self.dirname = vim.fn.fnamemodify(self.filename, ":h")
   self.cache = Cache.new("item")
   return self
 end

@@ -84,6 +84,11 @@ M.formatters = {
       text = vim.fn.fnamemodify(ctx.item.filename, ":p:~:."),
     }
   end,
+  dirname = function(ctx)
+    return {
+      text = vim.fn.fnamemodify(ctx.item.dirname, ":p:~:."),
+    }
+  end,
 }
 M.formatters.severity_icon = M.cached_formatter(M.formatters.severity_icon, "severity")
 M.formatters.severity = M.cached_formatter(M.formatters.severity, "severity")
