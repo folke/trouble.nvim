@@ -37,6 +37,7 @@ describe("Input is parsed correctly", function()
       input = [[a="b" a.b="c"]],
       expected = { a = { b = "c" } }, -- This test is tricky as it will overwrite the first value of 'a'
     },
+    { input = [[a_b = 1]], expected = { a_b = 1 } },
   }
 
   for _, test in ipairs(tests) do
