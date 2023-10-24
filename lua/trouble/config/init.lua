@@ -52,6 +52,7 @@ local defaults = {
     ["<2-leftmouse>"] = "jump",
     ["<c-s>"] = "jump_split",
     ["<c-v>"] = "jump_vsplit",
+    i = "inspect",
     p = "preview",
     P = "toggle_auto_preview",
     zo = "fold_open",
