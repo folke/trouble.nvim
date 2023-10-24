@@ -62,16 +62,16 @@ function M.filter(items, filter, view)
   if not filter or (type(filter) == "table" and vim.tbl_isempty(filter)) then
     return items, {}
   end
-  local pass = {} ---@type trouble.Item[]
-  local fail = {} ---@type trouble.Item[]
+  if type(filter) == "function" then
+    return filter(items)
+  end
+  local ret = {} ---@type trouble.Item[]
   for _, item in ipairs(items) do
     if M.is(item, filter, view) then
-      pass[#pass + 1] = item
-    else
-      fail[#fail + 1] = item
+      ret[#ret + 1] = item
     end
   end
-  return pass, fail
+  return ret
 end
 
 return M

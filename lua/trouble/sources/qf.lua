@@ -21,26 +21,26 @@ local Item = require("trouble.item")
 ---@type trouble.Source
 local M = {}
 
----@type trouble.spec.section[]
-local sections = {
-  {
-    source = "qf.qflist",
-    groups = {
-      { "filename", format = "{file_icon} {filename} {count}" },
+M.config = {
+  views = {
+    qflist = {
+      events = { "BufEnter", "QuickFixCmdPost" },
+      source = "qf.qflist",
+      groups = {
+        { "filename", format = "{file_icon} {filename} {count}" },
+      },
+      sort = { { buf = 0 }, "severity", "filename", "pos", "message" },
+      format = "{severity_icon|item.type:DiagnosticSignWarn} {text} {pos}",
     },
-    sort = { { buf = 0 }, "severity", "filename", "pos", "message" },
-    format = "{severity_icon|item.type:DiagnosticSignWarn} {text} {pos}",
-  },
-}
-
-M.modes = {
-  qflist = {
-    events = { "BufEnter", "QuickFixCmdPost" },
-    sections = sections,
-  },
-  loclist = {
-    events = { "BufEnter" },
-    sections = sections,
+    loclist = {
+      events = { "BufEnter" },
+      source = "qf.loclist",
+      groups = {
+        { "filename", format = "{file_icon} {filename} {count}" },
+      },
+      sort = { { buf = 0 }, "severity", "filename", "pos", "message" },
+      format = "{severity_icon|item.type:DiagnosticSignWarn} {text} {pos}",
+    },
   },
 }
 

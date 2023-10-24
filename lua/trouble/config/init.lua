@@ -2,17 +2,17 @@
 local M = {}
 
 ---@class trouble.Mode: trouble.Config
----@field filter? trouble.spec.filter
----@field sections? trouble.spec.section[]|trouble.spec.section
+---@field filter? trouble.Filter.spec Optional filter to apply to items in all sections
+---@field sections? string[]
 
 ---@class trouble.Config
 ---@field mode? string
 ---@field config? fun(opts:trouble.Config)
+---@field sections table<string,trouble.Section.spec>
 local defaults = {
   debug = false,
   indent_lines = true, -- add an indent guide below the fold icons
   max_items = 200, -- limit number of items that can be displayed
-  events = { "BufEnter" }, -- events that trigger refresh. Also used by auto_open and auto_close
   ---@type trouble.Window.opts
   win = {},
   throttle = 100,
@@ -39,8 +39,10 @@ local defaults = {
   },
   ---@type table<string, trouble.FilterFn>
   filters = {}, -- custom filters
-  ---@type table<string, trouble.Sorter>
+  ---@type table<string, trouble.SorterFn>
   sorters = {}, -- custom sorters
+  ---@type table<string, trouble.Section.spec>
+  views = {}, -- custom sections
   ---@type table<string, string|trouble.Action>
   keys = {
     ["?"] = "help",
@@ -102,14 +104,11 @@ function M.setup(opts)
   return options
 end
 
----@param modes table<string, trouble.Mode>
-function M.register(modes)
-  for name, mode in pairs(modes) do
-    if defaults.modes[name] then
-      error("mode already registered: " .. name)
-    end
-    defaults.modes[name] = mode
-  end
+--- Update the default config.
+--- Should only be used by source to extend the default config.
+---@param config trouble.Config
+function M.defaults(config)
+  options = vim.tbl_deep_extend("force", config, options)
 end
 
 function M.modes()
@@ -125,6 +124,16 @@ end
 function M.get(...)
   options = options or M.setup()
 
+  -- check if we need to load sources
+  for i = 1, select("#", ...) do
+    ---@type trouble.Config?
+    local opts = select(i, ...)
+    if type(opts) == "string" or (type(opts) == "table" and opts.mode) then
+      M.modes() -- trigger loading of sources
+      break
+    end
+  end
+
   ---@type trouble.Config[]
   local all = { {}, defaults, options or {} }
 
@@ -138,9 +147,6 @@ function M.get(...)
       opts = { mode = opts }
     end
     if opts then
-      if opts.mode then
-        M.modes() -- trigger loading of sources
-      end
       table.insert(all, opts)
       local idx = #all
       while opts.mode and not modes[opts.mode] do
