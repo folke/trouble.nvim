@@ -137,13 +137,14 @@ function M.throttle(fn, opts)
     executing = true
     last = vim.loop.now()
     vim.schedule(function()
-      local ok, err = pcall(fn, vim.F.unpack_len(args))
-      executing = false
-      if not ok then
+      xpcall(function()
+        fn(vim.F.unpack_len(args))
+      end, function(err)
         vim.schedule(function()
-          error(err)
+          M.error(err)
         end)
-      end
+      end)
+      executing = false
     end)
   end
 
