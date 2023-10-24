@@ -25,6 +25,9 @@ end
 
 ---@return trouble.Config
 function M.parse(input)
+  if vim.trim(input) == "" then
+    return {}
+  end
   ---@type string[]
   local t = pattern:match(input)
   if not t then
