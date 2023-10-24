@@ -14,26 +14,13 @@ M.modes = {
   diagnostics = {
     events = { "DiagnosticChanged", "BufEnter" },
     sections = {
-      --   -- Trouble classic for current buffer
-      --   source = "diagnostics",
-      --   groups = {
-      --     { format = "{hl:Title}Diagnostics (current buffer){hl} {filename} {count}" },
-      --   },
-      --   sort = { "severity", "filename", "pos" },
-      --   format = "{severity_icon} {message} {item.source} ({code}) {pos}",
-      --   filter = {
-      --     buf = 0,
-      --   },
-      -- },
-      -- filename group sorted by severity
-      -- items per filename sorted by pos
       {
         -- Trouble classic for other buffers,
         -- but only if they are in the current directory
         source = "diagnostics",
         groups = {
-          { format = "{hl:Special}󰚢 {hl} {hl:Title}Diagnostics{hl} {count}" },
-          { "severity", format = "{severity_icon} {severity} {count}" },
+          -- { format = "{hl:Special}󰚢 {hl} {hl:Title}Diagnostics{hl} {count}" },
+          -- { "severity", format = "{severity_icon} {severity} {count}" },
           { "filename", format = "{file_icon} {filename} {count}" },
         },
         sort = { { buf = 0 }, "severity", "filename", "pos", "message" },
@@ -113,8 +100,7 @@ function M.get(cb, ctx)
   local buf = type(ctx.filter) == "table" and ctx.filter.buf or nil
 
   if buf == 0 then
-    local main = ctx.view:main()
-    buf = main and main.buf or vim.api.nvim_get_current_buf()
+    buf = vim.api.nvim_get_current_buf()
   end
 
   if buf then
