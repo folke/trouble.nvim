@@ -1,3 +1,4 @@
+local Cache = require("trouble.cache")
 local Format = require("trouble.format")
 local Indent = require("trouble.view.indent")
 local Text = require("trouble.view.text")
@@ -96,6 +97,7 @@ function M:fold_level(opts)
 end
 
 function M:clear()
+  Cache.langs:clear()
   self.max_depth = 0
   self._lines = {}
   self.ts_regions = {}
@@ -164,6 +166,23 @@ function M:at(row)
   return self._locations[row] or {}
 end
 
+function M.get_lang(buf)
+  local ret = Cache.langs[buf]
+  if ret ~= nil then
+    return ret
+  end
+  local ft = vim.api.nvim_buf_is_loaded(buf) and not vim.b[buf].trouble_preview and vim.bo[buf].filetype
+    or vim.filetype.match({ buf = buf })
+  if ft then
+    local lang = vim.treesitter.language.get_lang(ft)
+    if lang then
+      Cache.langs[buf] = lang
+      return lang
+    end
+  end
+  Cache.langs[buf] = false
+end
+
 ---@param item trouble.Item
 ---@param node trouble.Node
 ---@param format_string string
@@ -186,6 +205,14 @@ function M:item(item, node, format_string, is_group, indent)
       local text = self.opts.multiline and ff.text or ff.text:gsub("[\n\r]+", " ")
       local offset ---@type number? start column of the first line
       local first ---@type string? first line
+      if ff.hl == "ts" then
+        local lang = M.get_lang(item.buf)
+        if lang then
+          ff.hl = "ts." .. lang
+        else
+          ff.hl = nil
+        end
+      end
       for l, line in Util.lines(text) do
         if l == 1 then
           first = line
