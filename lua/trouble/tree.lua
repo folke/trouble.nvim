@@ -41,8 +41,12 @@ function M:is_group()
 end
 
 ---@param item trouble.Item
----@param fields string[]
-function M.get_group_id(item, fields)
+---@param group trouble.Group
+function M.get_group_id(item, group)
+  local fields = group.fields
+  if #fields == 0 then
+    return group.format
+  end
   local id = tostring(item[fields[1]])
   if #fields > 1 then
     for i = 2, #fields do
@@ -63,7 +67,7 @@ function M.build(items, section)
     local node = root
     for depth, group in ipairs(section.groups) do
       -- id is based on the parent id and the group fields
-      local id = node.id .. "#" .. M.get_group_id(item, group.fields)
+      local id = node.id .. "#" .. M.get_group_id(item, group)
       local child = node:get(id)
       if not child then
         child = M.new({ depth = depth, id = id, item = item })
