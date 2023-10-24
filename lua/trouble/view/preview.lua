@@ -12,12 +12,19 @@ function M.close()
   end
   Render.reset(preview.buf)
   if vim.api.nvim_win_is_valid(preview.win) then
-    Render.reset(vim.api.nvim_win_get_buf(preview.win))
+    local other = vim.api.nvim_win_get_buf(preview.win)
+    Render.reset(other)
     Util.noautocmd(function()
       vim.api.nvim_win_set_buf(preview.win, preview.buf)
       vim.api.nvim_win_call(preview.win, function()
         vim.fn.winrestview(preview.view)
       end)
+      -- if the buffer we are previewing wasn't previously loaded,
+      -- unload it again
+      if vim.b[other].trouble_preview then
+        vim.api.nvim_buf_delete(other, { unload = true })
+        vim.b[other].trouble_preview = nil
+      end
     end)
   end
 end
