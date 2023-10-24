@@ -1,4 +1,3 @@
-local Cache = require("trouble.cache")
 local Filter = require("trouble.filter")
 local Preview = require("trouble.view.preview")
 local Render = require("trouble.view.render")
@@ -19,7 +18,6 @@ local Window = require("trouble.view.window")
 ---@field renderer trouble.Render
 ---@field private _main? {buf:number, win:number}
 ---@field fetching number
----@field cache trouble.Cache
 local M = {}
 M.__index = M
 
@@ -31,16 +29,24 @@ function M.new(opts)
   self.opts.win.on_mount = function()
     self:on_mount()
   end
-  self.sections = self.opts.sections and Spec.sections(self.opts.sections) or {}
-  for _, s in ipairs(self.sections) do
-    s.max_items = s.max_items or self.opts.max_items
-  end
-  self.win = Window.new(opts.win)
-  self.opts.win = self.win.opts
   self.items = {}
   self.fetching = 0
   self.nodes = {}
-  self.cache = Cache.new("view")
+  self.sections = {}
+  for _, view in ipairs(self.opts.sections or {}) do
+    local spec = self.opts.views[view]
+    if spec then
+      local section = Spec.section(self.opts.views[view])
+      section.max_items = section.max_items or self.opts.max_items
+      table.insert(self.sections, section)
+      table.insert(self.items, {})
+      table.insert(self.nodes, {})
+    else
+      Util.error("View not found: " .. view)
+    end
+  end
+  self.win = Window.new(opts.win)
+  self.opts.win = self.win.opts
 
   self.opts.render.padding = self.opts.render.padding or vim.tbl_get(self.opts.win, "padding", "left")
 
@@ -193,14 +199,19 @@ function M:listen()
     end
     local buf = vim.api.nvim_get_current_buf()
     local win = vim.api.nvim_get_current_win()
-    if vim.bo[buf].buftype == "" then
+    if vim.bo[buf].buftype == "" and vim.bo[buf].filetype ~= "" then
       self._main = { buf = buf, win = win }
     end
   end, { buffer = false })
 
-  local events = self.opts.events or {}
-  events = type(events) == "string" and { events } or events
-  ---@cast events string[]
+  local events = {} ---@type string[]
+  for _, section in ipairs(self.sections) do
+    for _, e in ipairs(section.events or {}) do
+      if not vim.tbl_contains(events, e) then
+        table.insert(events, e)
+      end
+    end
+  end
   for _, spec in ipairs(events) do
     local event, pattern = spec:match("^(%w+)%s+(.*)$")
     event = event or spec
@@ -246,9 +257,19 @@ function M:refresh()
   if not is_open and not self.opts.auto_open then
     return
   end
-  self.cache:clear()
   for s, section in ipairs(self.sections) do
     self.fetching = self.fetching + 1
+    local done = false
+    local complete = function()
+      if done then
+        return
+      end
+      done = true
+      self.fetching = self.fetching - 1
+    end
+    -- mark as completed after 2 seconds to avoid
+    -- errors staling the fetching count
+    vim.defer_fn(complete, 1000)
     Source.get(section.source, function(items)
       items = Filter.filter(items, self.opts.filter, self)
       items = Filter.filter(items, section.filter, self)
@@ -259,7 +280,7 @@ function M:refresh()
       self.items[s] = items
       -- self.items[s] = vim.list_slice(self.items[s], 1, 10)
       self.nodes[s] = Tree.build(items, section)
-      self.fetching = self.fetching - 1
+      complete()
       self:update()
     end, { filter = section.filter or self.opts.filter or nil, view = self })
   end
