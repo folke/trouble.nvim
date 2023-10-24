@@ -304,7 +304,7 @@ function View:on_win_enter()
 
   -- check if another buffer took over our window
   local parent = self.parent
-  if current_win == self.win and current_buf ~= self.buf then
+  if current_win == self.win and current_buf ~= self.buf and vim.api.nvim_win_is_valid(parent) then
     -- open the buffer in the parent
     vim.api.nvim_win_set_buf(parent, current_buf)
     -- HACK: some window local settings need to be reset
@@ -353,8 +353,8 @@ function View:close()
   if vim.api.nvim_win_is_valid(self.win) then
     if vim.api.nvim_win_is_valid(self.parent) then
       vim.api.nvim_set_current_win(self.parent)
+      vim.api.nvim_win_close(self.win, {})
     end
-    vim.api.nvim_win_close(self.win, {})
   end
   if vim.api.nvim_buf_is_valid(self.buf) then
     vim.api.nvim_buf_delete(self.buf, {})
