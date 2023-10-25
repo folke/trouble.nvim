@@ -15,7 +15,7 @@ M.__index = M
 ---@param symbols? trouble.Indent.symbols
 function M.new(symbols)
   local self = setmetatable({}, M)
-  symbols = vim.tbl_deep_extend("force", Config.render.indent, symbols or {})
+  symbols = vim.tbl_deep_extend("force", Config.icons.indent, symbols or {})
   self.symbols = {}
   for k, v in pairs(symbols) do
     local symbol = v

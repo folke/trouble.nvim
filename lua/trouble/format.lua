@@ -7,7 +7,7 @@ local M = {}
 ---@alias trouble.Format {text:string, hl?:string}
 
 ---@alias trouble.Formatter fun(ctx: trouble.Formatter.ctx): trouble.spec.format?
----@alias trouble.Formatter.ctx {item: trouble.Item, node:trouble.Node, field:string, value:string, opts:trouble.Render.opts}
+---@alias trouble.Formatter.ctx {item: trouble.Item, node:trouble.Node, field:string, value:string, view:trouble.View}
 
 ---@param source string
 ---@param field string
@@ -76,7 +76,7 @@ M.formatters = {
   end,
   count = function(ctx)
     return {
-      text = (" %d "):format(ctx.node.count or 0),
+      text = (" %d "):format(ctx.node:count()),
     }
   end,
   filename = function(ctx)
@@ -89,6 +89,35 @@ M.formatters = {
       text = vim.fn.fnamemodify(ctx.item.dirname, ":p:~:."),
     }
   end,
+  kind_icon = function(ctx)
+    if not ctx.item.kind then
+      return
+    end
+    local icon = ctx.view.opts.icons.kinds[ctx.item.kind]
+    if icon then
+      return {
+        text = icon,
+        hl = "TroubleIcon" .. ctx.item.kind,
+      }
+    end
+  end,
+  directory = function(ctx)
+    if ctx.node:source() == "fs" then
+      local directory = ctx.item.directory or ""
+      local parent = ctx.node:parent_item()
+      if parent and parent.directory then
+        directory = directory:sub(#parent.directory + 1)
+        return { text = directory, hl = "TroubleDirectory" }
+      end
+      return { text = vim.fn.fnamemodify(directory, ":~"), hl = "TroubleDirectory" }
+    end
+  end,
+  directory_icon = function(ctx)
+    if ctx.node:source() == "fs" then
+      local text = ctx.node.folded and ctx.view.opts.icons.folder_closed or ctx.view.opts.icons.folder_open
+      return { text = text, hl = "TroubleIconDirectory" }
+    end
+  end,
 }
 M.formatters.severity_icon = M.cached_formatter(M.formatters.severity_icon, "severity")
 M.formatters.severity = M.cached_formatter(M.formatters.severity, "severity")
@@ -98,7 +127,9 @@ function M.field(ctx)
   ---@type trouble.Format[]
   local format = { { fi = ctx.field, text = vim.trim(tostring(ctx.item[ctx.field] or "")) } }
 
-  local formatter = ctx.opts and ctx.opts.formatters and ctx.opts.formatters[ctx.field] or M.formatters[ctx.field]
+  local opts = ctx.view.opts
+
+  local formatter = opts.formatters and opts.formatters[ctx.field] or M.formatters[ctx.field]
 
   if formatter then
     local result = formatter(ctx)
@@ -120,7 +151,7 @@ function M.field(ctx)
 end
 
 ---@param format string
----@param ctx {item: trouble.Item, node:trouble.Node, opts:trouble.Render.opts}
+---@param ctx {item: trouble.Item, node:trouble.Node, view:trouble.View}
 function M.format(format, ctx)
   ---@type trouble.Format[]
   local ret = {}

@@ -20,23 +20,9 @@ local defaults = {
   auto_close = false,
   auto_preview = true,
   pinned = false,
-  ---@type trouble.Render.opts
-  render = {
-    multiline = true, -- render multi-line messages
-    -- stylua: ignore
-    ---@type trouble.Indent.symbols
-    indent = {
-      top         = "│ ",
-      middle      = "├╴",
-      last        = "└╴",
-      -- last     = "╰╴", -- rounded
-      fold_open   = " ",
-      fold_closed = " ",
-      ws          = "  ",
-    },
-    ---@type table<string, trouble.Formatter>
-    formatters = {}, -- custom formatters
-  },
+  multiline = true, -- render multi-line messages
+  ---@type table<string, trouble.Formatter>
+  formatters = {}, -- custom formatters
   ---@type table<string, trouble.FilterFn>
   filters = {}, -- custom filters
   ---@type table<string, trouble.SorterFn>
@@ -78,6 +64,71 @@ local defaults = {
     diagnostics_buffer = {
       mode = "diagnostics",
       filter = { buf = 0 },
+    },
+    symbols = {
+      mode = "lsp_document_symbols",
+      win = { position = "right" },
+      filter = {
+        kind = {
+          "Class",
+          "Constructor",
+          "Enum",
+          "Field",
+          "Function",
+          "Interface",
+          "Method",
+          "Module",
+          "Namespace",
+          "Package", -- remove package since luals uses it for control flow structures
+          "Property",
+          "Struct",
+          "Trait",
+        },
+      },
+    },
+  },
+  -- stylua: ignore
+  icons = {
+    ---@type trouble.Indent.symbols
+    indent = {
+      top           = "│ ",
+      middle        = "├╴",
+      last          = "└╴",
+      -- last          = "-╴",
+      -- last       = "╰╴", -- rounded
+      fold_open     = " ",
+      fold_closed   = " ",
+      ws            = "  ",
+    },
+    folder_closed   = " ",
+    folder_open     = " ",
+    kinds = {
+      Array         = " ",
+      Boolean       = "󰨙 ",
+      Class         = " ",
+      Constant      = "󰏿 ",
+      Constructor   = " ",
+      Enum          = " ",
+      EnumMember    = " ",
+      Event         = " ",
+      Field         = " ",
+      File          = " ",
+      Function      = "󰊕 ",
+      Interface     = " ",
+      Key           = " ",
+      Method        = "󰊕 ",
+      Module        = " ",
+      Namespace     = "󰦮 ",
+      Null          = " ",
+      Number        = "󰎠 ",
+      Object        = " ",
+      Operator      = " ",
+      Package       = " ",
+      Property      = " ",
+      String        = " ",
+      Struct        = "󰆼 ",
+      TypeParameter = " ",
+      Variable      = "󰀫 ",
     },
   },
 }

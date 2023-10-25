@@ -11,7 +11,7 @@ local Util = require("trouble.util")
 ---@field foldlevel? number
 ---@field foldenable boolean
 ---@field max_depth number
----@field opts trouble.Render.opts
+---@field view trouble.View
 local M = setmetatable({}, Text)
 M.__index = M
 
@@ -19,12 +19,14 @@ M.__index = M
 ---@field indent? trouble.Indent.symbols
 ---@field formatters? table<string, trouble.Formatter>
 
----@param opts? trouble.Render.opts|trouble.Text.opts
-function M.new(opts)
+---@param opts trouble.Text.opts
+---@param view trouble.View
+function M.new(view, opts)
   local text = Text.new(opts)
   ---@type trouble.Render
   ---@diagnostic disable-next-line: assign-type-mismatch
   local self = setmetatable(text, M)
+  self.view = view
   self._folded = {}
   self.foldenable = true
   self:clear()
@@ -48,20 +50,22 @@ function M:fold(node, opts)
   end
   local stack = { node }
   while #stack > 0 do
-    local n = table.remove(stack)
-    if action == "open" then
-      self._folded[n.id] = nil
-      local parent = n.parent
-      while parent do
-        self._folded[parent.id] = nil
-        parent = parent.parent
+    local n = table.remove(stack) --[[@as trouble.Node]]
+    if not n:is_leaf() then
+      if action == "open" then
+        self._folded[n.id] = nil
+        local parent = n.parent
+        while parent do
+          self._folded[parent.id] = nil
+          parent = parent.parent
+        end
+      else
+        self._folded[n.id] = true
       end
-    else
-      self._folded[n.id] = true
-    end
-    if opts.recursive then
-      for _, c in ipairs(n.nodes or {}) do
-        table.insert(stack, c)
+      if opts.recursive then
+        for _, c in ipairs(n.children or {}) do
+          table.insert(stack, c)
+        end
       end
     end
   end
@@ -70,14 +74,14 @@ end
 ---@param opts {level?:number, add?:number}
 function M:fold_level(opts)
   self.foldenable = true
-  self.foldlevel = self.foldlevel or self.max_depth or 0
+  self.foldlevel = self.foldlevel or (self.max_depth - 1) or 0
   if opts.level then
     self.foldlevel = opts.level
   end
   if opts.add then
     self.foldlevel = self.foldlevel + opts.add
   end
-  self.foldlevel = math.min(self.max_depth, self.foldlevel)
+  self.foldlevel = math.min(self.max_depth - 1, self.foldlevel)
   self.foldlevel = math.max(0, self.foldlevel)
   local stack = {}
   for _, node in ipairs(self.root_nodes) do
@@ -85,13 +89,15 @@ function M:fold_level(opts)
   end
   while #stack > 0 do
     local node = table.remove(stack)
-    if node.depth > self.foldlevel then
-      self._folded[node.id] = true
-    else
-      self._folded[node.id] = nil
-    end
-    for _, c in ipairs(node.nodes or {}) do
-      table.insert(stack, c)
+    if not node:is_leaf() then
+      if node:depth() > self.foldlevel then
+        self._folded[node.id] = true
+      else
+        self._folded[node.id] = nil
+      end
+      for _, c in ipairs(node.children or {}) do
+        table.insert(stack, c)
+      end
     end
   end
 end
@@ -108,10 +114,10 @@ end
 ---@param section trouble.Section
 ---@param nodes trouble.Node[]
 function M:section(section, nodes)
-  self.max_depth = math.max(self.max_depth, #section.groups)
   for n, node in ipairs(nodes) do
     table.insert(self.root_nodes, node)
-    self:node(node, section, Indent.new(self.opts.indent), n == #nodes)
+    self.max_depth = math.max(self.max_depth, node:degree())
+    self:node(node, section, Indent.new(self.view.opts.icons.indent), n == #nodes)
   end
 end
 
@@ -124,14 +130,17 @@ end
 ---@param indent trouble.Indent
 ---@param is_last boolean
 function M:node(node, section, indent, is_last)
+  node.folded = self:is_folded(node)
   if node.item then
     ---@type trouble.Indent.type
     local symbol = self:is_folded(node) and "fold_closed"
-      or node.depth == 1 and "fold_open"
+      or node:depth() == 1 and "fold_open"
       or is_last and "last"
       or "middle"
+    symbol = node:depth() == 1 and node:is_leaf() and "ws" or symbol
     indent:add(symbol)
-    self:item(node.item, node, section.groups[node.depth].format, true, indent)
+    -- self:item(node.item, node, section.groups[node.depth].format, true, indent)
+    self:item(node, section, indent)
     indent:del()
   end
 
@@ -139,19 +148,10 @@ function M:node(node, section, indent, is_last)
     return -- don't render children
   end
 
-  indent:add(is_last and "ws" or "top")
+  indent:add((is_last or node:depth() == 1) and "ws" or "top")
 
-  -- internal node
-  for i, n in ipairs(node.nodes or {}) do
-    self:node(n, section, indent, i == #node.nodes)
-  end
-
-  -- leaf node
-  for i, item in ipairs(node.items or {}) do
-    local symbol = i == #node.items and "last" or "middle"
-    indent:add(symbol)
-    self:item(item, node, section.format, false, indent)
-    indent:del()
+  for i, n in ipairs(node.children or {}) do
+    self:node(n, section, indent, i == #node.children)
   end
 
   indent:del()
@@ -183,14 +183,18 @@ function M.get_lang(buf)
   Cache.langs[buf] = false
 end
 
----@param item trouble.Item
 ---@param node trouble.Node
----@param format_string string
----@param is_group boolean
+---@param section trouble.Section
 ---@param indent trouble.Indent
-function M:item(item, node, format_string, is_group, indent)
+function M:item(node, section, indent)
+  local item = node.item
+  if not item then
+    return
+  end
+  local is_group = node.group ~= nil
   local row = self:row()
-  local cache_key = "render:" .. node.depth .. format_string
+  local format_string = node.group and node.group.format or section.format
+  local cache_key = "render:" .. node:depth() .. format_string
 
   ---@type TextSegment[]?
   local segments = not is_group and item.cache[cache_key]
@@ -199,7 +203,7 @@ function M:item(item, node, format_string, is_group, indent)
   if segments then
     self:append(segments)
   else
-    local format = Format.format(format_string, { item = item, node = node, opts = self.opts })
+    local format = Format.format(format_string, { item = item, node = node, view = self.view })
     indent:multi_line()
     for _, ff in ipairs(format) do
       local text = self.opts.multiline and ff.text or ff.text:gsub("[\n\r]+", " ")
