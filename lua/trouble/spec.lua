@@ -9,7 +9,7 @@
 ---@class trouble.Section.spec
 ---@field source string
 ---@field title? string
----@field events? string[]
+---@field events? (string|trouble.Event)[]
 ---@field groups? trouble.Group.spec[]|trouble.Group.spec
 ---@field sort? trouble.Sort.spec
 ---@field filter? trouble.Filter.spec
@@ -18,6 +18,11 @@
 ---@field max_items? number
 
 ---@alias trouble.Filter table<string, any>|fun(items: trouble.Item[]): trouble.Item[]
+
+---@class trouble.Event
+---@field event string|string[]
+---@field pattern? string|string[]
+---@field main? boolean When true, this event will refresh only when it is the main window
 
 ---@class trouble.Sort
 ---@field field? string
@@ -35,7 +40,7 @@
 ---@field groups trouble.Group[]
 ---@field format string
 ---@field flatten? boolean when true, items with a natural hierarchy will be flattened
----@field events? string[]
+---@field events trouble.Event[]
 ---@field sort? trouble.Sort[]
 ---@field filter? trouble.Filter
 ---@field max_items? number
@@ -47,13 +52,26 @@ local M = {}
 function M.section(spec)
   local groups = type(spec.groups) == "string" and { spec.groups } or spec.groups
   ---@cast groups trouble.Group.spec[]
+  local events = {} ---@type trouble.Event[]
+  for _, e in ipairs(spec.events or {}) do
+    if type(e) == "string" then
+      local event, pattern = e:match("^(%w+)%s+(.*)$")
+      event = event or e
+      events[#events + 1] = { event = event, pattern = pattern }
+    elseif type(e) == "table" and e.event then
+      events[#events + 1] = e
+    else
+      error("invalid event: " .. vim.inspect(e))
+    end
+  end
+
   local ret = {
     source = spec.source,
     groups = vim.tbl_map(M.group, groups or {}),
     sort = spec.sort and M.sort(spec.sort) or nil,
     filter = spec.filter,
     format = spec.format or "{filename} {pos}",
-    events = spec.events,
+    events = events,
     flatten = spec.flatten,
   }
   -- A title is just a group without fields

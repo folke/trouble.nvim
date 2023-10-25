@@ -12,7 +12,7 @@ M.config = {
   views = {
     lsp_document_symbols = {
       title = "{hl:Title}Document Symbols{hl} {count}",
-      events = { "BufEnter", "BufWritePost", "BufReadPost" },
+      events = { "BufEnter", { event = "TextChanged", main = true } },
       -- events = { "CursorHold", "CursorMoved" },
       source = "lsp.document_symbols",
       flatten = false,
@@ -40,7 +40,7 @@ M.config = {
 for _, mode in ipairs({ "definitions", "references", "implementations", "type_definitions", "declarations" }) do
   M.config.views["lsp_" .. mode] = {
     title = "{hl:Title}" .. mode:gsub("^%l", string.upper) .. "{hl} {count}",
-    events = { "CursorHold" },
+    events = { { event = "CursorHold", main = true } },
     -- events = { "CursorHold", "CursorMoved" },
     source = "lsp." .. mode,
     groups = {
