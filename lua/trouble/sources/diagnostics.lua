@@ -20,7 +20,9 @@ M.config = {
       groups = {
         -- { format = "{hl:Special}󰚢 {hl} {hl:Title}Diagnostics{hl} {count}" },
         -- { "severity", format = "{severity_icon} {severity} {count}" },
-        { "filename", format = "{file_icon} {filename} {count}" },
+        -- { "dirname", format = "{hl:Special} {hl} {dirname} {count}" },
+        { "directory" },
+        { "filename", format = "{file_icon} {basename} {count}" },
       },
       sort = { { buf = 0 }, "severity", "filename", "pos", "message" },
       format = "{severity_icon} {message:md} {item.source} ({code}) {pos}",
