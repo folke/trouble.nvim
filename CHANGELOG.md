@@ -1,5 +1,38 @@
 # Changelog
 
+## [2.10.0](https://github.com/folke/trouble.nvim/compare/v2.9.1...v2.10.0) (2023-10-18)
+
+
+### Features
+
+* `open({focus=false})` now works as intended ([600fe24](https://github.com/folke/trouble.nvim/commit/600fe24ad04f130030fa54f0c70949ff084810a3))
+
+
+### Bug Fixes
+
+* **auto_open:** dont steal focus on auto open. Fixes [#344](https://github.com/folke/trouble.nvim/issues/344) ([1f00b6f](https://github.com/folke/trouble.nvim/commit/1f00b6f730c5ef6bcfeb829a5659ed3780778087))
+
+## [2.9.1](https://github.com/folke/trouble.nvim/compare/v2.9.0...v2.9.1) (2023-10-09)
+
+
+### Bug Fixes
+
+* **preview:** skip non-existing. Fixes [#87](https://github.com/folke/trouble.nvim/issues/87). Fixes [#188](https://github.com/folke/trouble.nvim/issues/188). Fixes [#336](https://github.com/folke/trouble.nvim/issues/336). ([#338](https://github.com/folke/trouble.nvim/issues/338)) ([5e78824](https://github.com/folke/trouble.nvim/commit/5e7882429ee2e235148ab759a6159950afd8021a))
+
+## [2.9.0](https://github.com/folke/trouble.nvim/compare/v2.8.0...v2.9.0) (2023-10-07)
+
+
+### Features
+
+* Make floating window configuration customizable ([#310](https://github.com/folke/trouble.nvim/issues/310)) ([ef0336a](https://github.com/folke/trouble.nvim/commit/ef0336a818e562439e25638b866cb4638a0fdc26))
+
+
+### Bug Fixes
+
+* check that view is valid before render and focus ([#319](https://github.com/folke/trouble.nvim/issues/319)) ([81e1643](https://github.com/folke/trouble.nvim/commit/81e1643a7c6b426535cf23ebdb28baec4ab7428e))
+* only filter msg if sev is hardcoded ([#328](https://github.com/folke/trouble.nvim/issues/328)) ([0ccc43d](https://github.com/folke/trouble.nvim/commit/0ccc43d61e0f9278056a8eeefbe022ce71707a85))
+* **qf:** properly deal with invalid qf entries. Fixes [#87](https://github.com/folke/trouble.nvim/issues/87). Fixes [#188](https://github.com/folke/trouble.nvim/issues/188). Fixes [#336](https://github.com/folke/trouble.nvim/issues/336) ([46b60e9](https://github.com/folke/trouble.nvim/commit/46b60e9fb942d60740c647f61fd779f05e7b9392))
+
 ## [2.8.0](https://github.com/folke/trouble.nvim/compare/v2.7.0...v2.8.0) (2023-07-25)
 
 

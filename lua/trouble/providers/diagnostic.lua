@@ -31,7 +31,7 @@ function M.diagnostics(_, buf, cb, options)
   end
 
   local messages = {}
-  if options.severity ~= nil then
+  if severity[options.severity] then
     table.insert(messages, { text = "filter:", group = "Information" })
     table.insert(messages, { text = severity[options.severity], group = "Sign" .. util.severity[options.severity] })
   end

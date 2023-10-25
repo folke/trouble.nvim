@@ -12,19 +12,27 @@ function M.get_list(winid)
     local row = (item.lnum == 0 and 1 or item.lnum) - 1
     local col = (item.col == 0 and 1 or item.col) - 1
 
-    local pitem = {
-      row = row,
-      col = col,
-      message = item.text,
-      severity = severities[item.type] or 0,
-      range = {
-        start = { line = row, character = col },
-        ["end"] = { line = row, character = -1 },
-      },
-    }
-
-    table.insert(ret, util.process_item(pitem, item.bufnr))
+    if item.valid == 1 then
+      ret[#ret + 1] = {
+        row = row,
+        col = col,
+        message = item.text,
+        severity = severities[item.type] or 0,
+        bufnr = item.bufnr,
+        range = {
+          start = { line = row, character = col },
+          ["end"] = { line = row, character = -1 },
+        },
+      }
+    elseif #ret > 0 then
+      ret[#ret].message = ret[#ret].message .. "\n" .. item.text
+    end
   end
+
+  for i, item in ipairs(ret) do
+    ret[i] = util.process_item(item)
+  end
+
   return ret
 end
 

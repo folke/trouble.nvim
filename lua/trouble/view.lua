@@ -55,6 +55,7 @@ local function wipe_rogue_buffer()
   end
 end
 
+---@return TroubleView
 function View:new(opts)
   opts = opts or {}
 
@@ -141,6 +142,7 @@ function View:setup(opts)
   self:set_option("bufhidden", "wipe")
   self:set_option("buftype", "nofile")
   self:set_option("swapfile", false)
+  self:set_option("cursorline", true, true)
   self:set_option("buflisted", false)
   self:set_option("winfixwidth", true, true)
   self:set_option("wrap", false, true)
@@ -361,21 +363,26 @@ end
 
 function View.create(opts)
   opts = opts or {}
-  if opts.win then
-    View.switch_to(opts.win)
-    vim.cmd("enew")
-  else
-    vim.cmd("below new")
-    local pos = { bottom = "J", top = "K", left = "H", right = "L" }
-    vim.cmd("wincmd " .. (pos[config.options.position] or "K"))
-  end
-  local buffer = View:new(opts)
-  buffer:setup(opts)
+  ---@type TroubleView
+  local view
+  vim.api.nvim_win_call(0, function()
+    if opts.win then
+      View.switch_to(opts.win)
+      vim.cmd("enew")
+    else
+      vim.cmd("below new")
+      local pos = { bottom = "J", top = "K", left = "H", right = "L" }
+      vim.cmd("wincmd " .. (pos[config.options.position] or "K"))
+    end
+    view = View:new(opts)
+    view:setup(opts)
+  end)
 
-  if opts and opts.auto then
-    buffer:switch_to_parent()
+  if opts.focus == true then
+    view:focus()
   end
-  return buffer
+
+  return view
 end
 
 function View:get_cursor()
@@ -487,11 +494,18 @@ function View:_preview()
   if not vim.api.nvim_win_is_valid(self.parent) then
     return
   end
+  if not vim.api.nvim_win_is_valid(self.win) then
+    return
+  end
 
   local item = self:current_item()
   if not item then
     return
   end
+  if item.bufnr == 0 then
+    return
+  end
+
   util.debug("preview")
 
   if item.is_file ~= true then
