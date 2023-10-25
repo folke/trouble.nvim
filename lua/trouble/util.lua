@@ -108,7 +108,7 @@ end
 -- throttle with trailing execution
 ---@generic T: fun()
 ---@param fn T
----@param opts? {ms:number, is_running?:fun():boolean}
+---@param opts? {ms:number, debounce?:boolean, is_running?:fun():boolean}
 ---@return T
 function M.throttle(fn, opts)
   opts = opts or {}
@@ -151,12 +151,15 @@ function M.throttle(fn, opts)
   function throttle.schedule()
     local now = vim.loop.now()
     local delay = opts.ms - (now - last)
+    if opts.debounce then
+      delay = opts.ms
+    end
     timer:start(math.max(0, delay), 0, throttle.run)
   end
 
   return function(...)
     args = vim.F.pack_len(...)
-    if timer:is_active() then
+    if timer:is_active() and not opts.debounce then
       return
     elseif throttle.is_running() then
       trailing = true

@@ -108,7 +108,7 @@ function M.new(opts)
   if opts.type == "split" then
     opts.relative = opts.relative or "editor"
     opts.position = opts.position or "bottom"
-    opts.size = opts.size or (opts.position == "bottom" or opts.position == "top") and 10 or 50
+    opts.size = opts.size or (opts.position == "bottom" or opts.position == "top") and 10 or 30
     opts.win = opts.win or vim.api.nvim_get_current_win()
   elseif opts.type == "float" then
     opts.relative = opts.relative or "editor"

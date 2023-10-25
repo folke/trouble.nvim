@@ -21,6 +21,10 @@ M.filters = {
     end
     return false
   end,
+  kind = function(item, kind, view)
+    kind = type(kind) == "table" and kind or { kind }
+    return vim.tbl_contains(kind, item.kind)
+  end,
 }
 
 ---@param item trouble.Item
