@@ -14,7 +14,12 @@ local M = {
     self:goto_main()
   end,
   preview = function(self, ctx)
-    self:preview(ctx.item)
+    local Preview = require("trouble.view.preview")
+    if Preview.preview then
+      Preview.close()
+    else
+      self:preview(ctx.item)
+    end
   end,
   toggle_auto_preview = function(self)
     self.opts.auto_preview = not self.opts.auto_preview
@@ -57,7 +62,7 @@ local M = {
     end
   end,
   inspect = function(_, ctx)
-    vim.print(ctx.item)
+    vim.print(ctx.item or (ctx.node and ctx.node.item))
   end,
   fold_reduce = function(self)
     self:fold_level({ add = vim.v.count1 })
