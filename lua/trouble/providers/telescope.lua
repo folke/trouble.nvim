@@ -9,7 +9,7 @@ local function item_to_result(item)
   local row = (item.lnum or 1) - 1
   local col = (item.col or 1) - 1
 
-  if not item.bufnr then
+  if item.filename and not item.bufnr then
     local fname = vim.fn.fnamemodify(item.filename, ":p")
     if vim.fn.filereadable(fname) == 0 and item.cwd then
       fname = vim.fn.fnamemodify(item.cwd .. "/" .. item.filename, ":p")
