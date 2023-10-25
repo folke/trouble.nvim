@@ -33,23 +33,42 @@ describe("parses specs", function()
     local tests = {
       {
         input = "foo",
-        output = { fields = { "foo" }, format = "{foo}" },
+        output = { type = "fields", fields = { "foo" }, format = "{foo}" },
       },
       {
         input = "foo",
-        output = { fields = { "foo" }, format = "{foo}" },
+        output = { type = "fields", fields = { "foo" }, format = "{foo}" },
       },
       {
         input = { "foo", "bar" },
-        output = { fields = { "foo", "bar" }, format = "{foo} {bar}" },
+        output = { type = "fields", fields = { "foo", "bar" }, format = "{foo} {bar}" },
       },
       {
         input = { "foo", "bar" },
-        output = { fields = { "foo", "bar" }, format = "{foo} {bar}" },
+        output = { type = "fields", fields = { "foo", "bar" }, format = "{foo} {bar}" },
       },
       {
         input = { "foo", "bar" },
-        output = { fields = { "foo", "bar" }, format = "{foo} {bar}" },
+        output = { type = "fields", fields = { "foo", "bar" }, format = "{foo} {bar}" },
+      },
+      {
+        input = {
+          type = "hierarchy",
+          format = "{kind_icon} {symbol.name} {text:Comment} {pos}",
+        },
+        output = {
+          type = "hierarchy",
+          format = "{kind_icon} {symbol.name} {text:Comment} {pos}",
+        },
+      },
+      {
+        input = {
+          type = "directory",
+        },
+        output = {
+          type = "directory",
+          format = "{directory_icon} {directory} {count}",
+        },
       },
     }
 
@@ -72,7 +91,7 @@ describe("parses specs", function()
         },
         output = {
           source = "diagnostics",
-          groups = { { fields = { "filename" }, format = "{filename}" } },
+          groups = { { type = "fields", fields = { "filename" }, format = "{filename}" } },
           sort = { { field = "filename" }, { field = "pos", desc = true } },
           filter = { severity = 1 },
           format = "{filename} {pos}",

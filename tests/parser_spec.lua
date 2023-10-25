@@ -30,6 +30,10 @@ describe("Input is parsed correctly", function()
       expected = { empty = "", nonempty = "not empty" },
     },
     {
+      input = [[win.position="right" win.relative="win"]],
+      expected = { win = { position = "right", relative = "win" } },
+    },
+    {
       input = [[a.b="c" a = "b"]],
       expected = { a = "b" }, -- This test is tricky as it will overwrite the first value of 'a'
     },

@@ -4,7 +4,8 @@ local Util = require("trouble.util")
 ---@alias trouble.Pos {[1]:number, [2]:number}
 
 ---@class trouble.Item: {[string]: any}
----@field idx? number
+---@field id? string
+---@field parent? trouble.Item
 ---@field buf number
 ---@field filename string
 ---@field pos trouble.Pos (1,0)-indexed
@@ -16,22 +17,31 @@ local M = {}
 
 ---@param opts trouble.Item | {filename?:string}
 function M.new(opts)
-  local self = setmetatable(opts, M)
+  local self = opts
+  assert(self.buf, "buf is required")
+  assert(self.source, "source is required")
+  self.pos = self.pos or { 1, 0 }
+  self.end_pos = self.end_pos or self.pos
+  self.item = self.item or {}
   self.filename = self.filename or vim.fn.bufname(self.buf)
   self.filename = vim.fn.fnamemodify(self.filename, ":p")
   self.basename = vim.fn.fnamemodify(self.filename, ":t")
-  self.dirname = vim.fn.fnamemodify(self.filename, ":h")
+  self.dirname = self.dirname or vim.fn.fnamemodify(self.filename, ":h")
   self.cache = Cache.new("item")
-  return self
+  return setmetatable(self, M)
 end
 
 function M:__index(k)
   if type(k) ~= "string" then
     return
   end
+  if M[k] then
+    return M[k]
+  end
+  local item = rawget(self, "item")
   ---@cast k string
-  if self.item[k] ~= nil then
-    return self.item[k]
+  if item and item[k] ~= nil then
+    return item[k]
   end
 
   local obj = self
@@ -52,8 +62,16 @@ function M:__index(k)
   end
 end
 
+---@param item trouble.Item
+function M:add_child(item)
+  item.parent = self
+end
+
 ---@param items trouble.Item[]
-function M.add_text(items)
+---@param opts? {mode?:"range"|"full"|"after", multiline?:boolean}
+function M.add_text(items, opts)
+  opts = opts or {}
+  opts.mode = opts.mode or "range"
   local buf_rows = {} ---@type table<number, number[]>
 
   for _, item in ipairs(items) do
@@ -62,6 +80,9 @@ function M.add_text(items)
       buf_rows[item.buf] = buf_rows[item.buf] or {}
       for r = item.pos[1], item.end_pos and item.end_pos[1] or item.pos[1] do
         table.insert(buf_rows[item.buf], r)
+        if not opts.multiline then
+          break
+        end
       end
     end
   end
@@ -77,13 +98,19 @@ function M.add_text(items)
       for row = item.pos[1], item.end_pos[1] do
         local line = buf_lines[item.buf][row] or ""
         if row == item.pos[1] and row == item.end_pos[1] then
-          line = line
+          if opts.mode == "after" then
+            line = line:sub(item.pos[2] + 1)
+          elseif opts.mode == "range" then
+            line = line:sub(item.pos[2] + 1, item.end_pos[2])
+          end
         elseif row == item.pos[1] then
           line = line:sub(item.pos[2] + 1)
         elseif row == item.end_pos[1] then
           line = line:sub(1, item.end_pos[2]) --[[@as string]]
         end
-        lines[#lines + 1] = line
+        if line ~= "" then
+          lines[#lines + 1] = line
+        end
       end
       item.item.text = table.concat(lines, "\n")
     end

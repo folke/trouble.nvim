@@ -48,9 +48,10 @@ function M.new(opts)
   self.win = Window.new(opts.win)
   self.opts.win = self.win.opts
 
-  self.opts.render.padding = self.opts.render.padding or vim.tbl_get(self.opts.win, "padding", "left")
-
-  self.renderer = Render.new(self.opts.render)
+  self.renderer = Render.new(self, {
+    padding = vim.tbl_get(self.opts.win, "padding", "left") or 0,
+    multiline = self.opts.multiline,
+  })
   self.refresh = Util.throttle(self.refresh, {
     ms = 200,
     is_running = function()
@@ -73,7 +74,7 @@ function M:on_mount()
     Preview.close()
   end)
 
-  local preview = Util.throttle(self.preview, { ms = 100 })
+  local preview = Util.throttle(self.preview, { ms = 100, debounce = true })
   self.win:on("CursorMoved", function()
     if self.opts.auto_preview then
       local loc = self:at()
@@ -274,11 +275,7 @@ function M:refresh()
       items = Filter.filter(items, self.opts.filter, self)
       items = Filter.filter(items, section.filter, self)
       items = Sort.sort(items, section.sort, self)
-      for i, item in ipairs(items) do
-        item.idx = i
-      end
       self.items[s] = items
-      -- self.items[s] = vim.list_slice(self.items[s], 1, 10)
       self.nodes[s] = Tree.build(items, section)
       complete()
       self:update()
@@ -328,7 +325,7 @@ end
 function M:count()
   local count = 0
   for _, node in ipairs(self.nodes) do
-    count = count + #node.items
+    count = count + node:count()
   end
   return count
 end
@@ -356,7 +353,7 @@ function M:render()
     self.renderer:nl()
   end
   for s, section in ipairs(self.sections) do
-    local nodes = self.nodes[s].nodes
+    local nodes = self.nodes[s].children
     if nodes and #nodes > 0 then
       self.renderer:section(section, nodes)
     end
@@ -382,6 +379,11 @@ function M:render()
 
   -- when window is at top, dont move cursor
   if view.topline == 1 then
+    return
+  end
+
+  local new_loc = self:at()
+  if new_loc.node and loc.node and new_loc.node.id == loc.node.id then
     return
   end
 

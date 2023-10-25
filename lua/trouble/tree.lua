@@ -1,85 +1,239 @@
+local Item = require("trouble.item")
+local Util = require("trouble.util")
+
 ---@class trouble.Node
 ---@field id string
----@field depth number
 ---@field parent? trouble.Node
----@field count? number
 ---@field item? trouble.Item
----@field items? trouble.Item[]
----@field nodes? trouble.Node[]
 ---@field index? table<string, trouble.Node>
+---@field group? trouble.Group
+---@field folded? boolean
+---@field children? trouble.Node[]
+---@field private _depth number
+---@field private _count? number
+---@field private _degree? number
 local M = {}
 
----@param opts {id: string, depth: number, item?: trouble.Item}
+---@alias trouble.GroupFn fun(item: trouble.Item, parent: trouble.Node, group: trouble.Group): trouble.Node
+
+---@param opts {id: string, item?: trouble.Item}
 function M.new(opts)
   local self = setmetatable(opts, { __index = M })
-  self.nodes = {}
+  self.id = self.id or self.item and self.item.id or nil
+  self.children = {}
   self.index = {}
-  self.items = {}
-  self.count = 0
   return self
 end
 
+-- Max depth of the tree
+function M:degree()
+  if not self._degree then
+    self._degree = 0
+    for _, child in ipairs(self.children or {}) do
+      self._degree = math.max(self._degree, child:degree())
+    end
+    self._degree = self._degree + 1
+  end
+  return self._degree
+end
+
+-- Depth of this node
+function M:depth()
+  if not self._depth then
+    self._depth = self.parent and (self.parent:depth() + 1) or 0
+  end
+  return self._depth
+end
+
+-- Number of actual items in the tree
+-- This excludes internal group nodes
+function M:count()
+  if not self._count then
+    self._count = 0
+    for _, child in ipairs(self.children or {}) do
+      self._count = self._count + child:count()
+    end
+    if not self.group then
+      self._count = self._count + 1
+    end
+  end
+  return self._count
+end
+
 ---@param idx number|string
+---@return trouble.Node?
 function M:get(idx)
-  return type(idx) == "number" and self.nodes[idx] or self.index[idx]
+  return type(idx) == "number" and self.children[idx] or self.index[idx]
+end
+
+-- Source of the item of this node
+function M:source()
+  return self.item and self.item.source
+end
+
+-- Width of the node (number of children)
+function M:width()
+  return self.children and #self.children or 0
+end
+
+-- Item of the parent node
+function M:parent_item()
+  return self.parent and self.parent.item
 end
 
 function M:add(node)
-  assert(self.index[node.id] == nil, "node already exists")
-  self.index[node.id] = node
+  if node.id then
+    assert(self.index[node.id] == nil, "node already exists")
+    self.index[node.id] = node
+  end
   node.parent = self
-  table.insert(self.nodes, node)
+  table.insert(self.children, node)
   return node
 end
 
 function M:is_leaf()
-  return not self:is_group()
+  return self.children == nil or #self.children == 0
 end
 
-function M:is_group()
-  return self.nodes and #self.nodes > 0
-end
-
----@param item trouble.Item
----@param group trouble.Group
-function M.get_group_id(item, group)
-  local fields = group.fields
-  if #fields == 0 then
-    return group.format
-  end
-  local id = tostring(item[fields[1]])
-  if #fields > 1 then
-    for i = 2, #fields do
-      id = id .. "|" .. tostring(item[fields[i]])
-    end
-  end
-  return id
-end
-
+--- Build a tree from a list of items and a section.
 ---@param items trouble.Item[]
 ---@param section trouble.Section
 function M.build(items, section)
-  local root = M.new({ depth = 0, id = "" })
+  local root = M.new({ id = "$root" })
+  local node_items = {} ---@type table<trouble.Node, trouble.Item[]>
+
+  -- create the group nodes
   for i, item in ipairs(items) do
     if section.max_items and i > section.max_items then
       break
     end
     local node = root
-    for depth, group in ipairs(section.groups) do
-      -- id is based on the parent id and the group fields
-      local id = node.id .. "#" .. M.get_group_id(item, group)
-      local child = node:get(id)
-      if not child then
-        child = M.new({ depth = depth, id = id, item = item })
-        node:add(child)
-      end
-      node = child
-      node.count = node.count + 1
+    for _, group in ipairs(section.groups) do
+      local builder = M.builders[group.directory and "directory" or "fields"]
+      assert(builder, "unknown group type: " .. vim.inspect(group))
+      node = builder.group(item, node, group)
     end
-    table.insert(node.items, item)
+    node_items[node] = node_items[node] or {}
+    table.insert(node_items[node], item)
   end
-  -- dd(root)
+
+  -- add the items to the nodes.
+  -- this will structure items by their parent node unless flatten is true
+  for node, nitems in pairs(node_items) do
+    M.add_items(node, nitems, { flatten = section.flatten })
+  end
+
+  -- post process the tree
+  for _, group in ipairs(section.groups) do
+    local builder = M.builders[group.directory and "directory" or "fields"]
+    if builder.post then
+      root = builder.post(root) or root
+    end
+  end
   return root
 end
+
+--- This will add all the items to the root node,
+--- structured by their parent item, unless flatten is true.
+---@param root trouble.Node
+---@param items trouble.Item[]
+---@param opts? {flatten?: boolean}
+function M.add_items(root, items, opts)
+  opts = opts or {}
+  local item_nodes = {} ---@type table<trouble.Item, trouble.Node>
+  for _, item in ipairs(items) do
+    item_nodes[item] = M.new({ item = item })
+  end
+  for _, item in ipairs(items) do
+    local node = item_nodes[item]
+    local parent_node = root
+    if not opts.flatten then
+      local parent = item.parent
+      while parent do
+        if item_nodes[parent] then
+          parent_node = item_nodes[parent]
+          break
+        end
+        parent = parent.parent
+      end
+    end
+    parent_node:add(node)
+  end
+end
+
+---@alias trouble.Group.builder {group:trouble.GroupFn, post?:(fun(node: trouble.Node):trouble.Node?)}
+---@type table<"directory"|"fields", trouble.Group.builder>
+M.builders = {
+  fields = {
+    group = function(item, parent, group)
+      -- id is based on the parent id and the group fields
+      local id = group.format
+      if #group.fields > 0 then
+        local values = {} ---@type string[]
+        for i = 1, #group.fields do
+          values[#values + 1] = tostring(item[group.fields[i]])
+        end
+        id = table.concat(values, "|")
+      end
+      id = parent.id .. "#" .. id
+      local child = parent:get(id)
+      if not child then
+        child = M.new({ id = id, item = item, group = group })
+        parent:add(child)
+      end
+      return child
+    end,
+  },
+
+  directory = {
+    group = function(item, root, group)
+      local filename = vim.api.nvim_buf_get_name(item.buf)
+      filename = vim.fn.fnamemodify(filename, ":p")
+      local dirname = vim.fn.fnamemodify(filename, ":h"):gsub("[/\\]+$", ""):gsub("[\\]", "/")
+
+      local directory = ""
+      local parent = root
+      for _, part in Util.split(dirname, "/") do
+        directory = directory .. part .. "/"
+        local id = (root.id or "") .. "#" .. directory
+        local child = parent:get(id)
+        if not child then
+          local dir = Item.new({
+            source = "fs",
+            id = id,
+            pos = { 1, 0 },
+            end_pos = { 1, 0 },
+            buf = item.buf,
+            dirname = directory,
+            item = { directory = directory },
+          })
+          child = M.new({ id = id, item = dir, group = group })
+          parent:add(child)
+        end
+        parent = child
+      end
+      return parent
+    end,
+    post = function(root)
+      ---@param node trouble.Node
+      local function collapse(node)
+        if node:source() == "fs" then
+          if node:width() == 1 then
+            local child = node.children[1]
+            if child:source() == "fs" then
+              child.parent = node.parent
+              return collapse(child)
+            end
+          end
+        end
+        for c, child in ipairs(node.children or {}) do
+          node.children[c] = collapse(child)
+        end
+        return node
+      end
+      return collapse(root)
+    end,
+  },
+}
 
 return M

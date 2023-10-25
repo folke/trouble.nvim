@@ -13,6 +13,7 @@
 ---@field groups? trouble.Group.spec[]|trouble.Group.spec
 ---@field sort? trouble.Sort.spec
 ---@field filter? trouble.Filter.spec
+---@field flatten? boolean when true, items with a natural hierarchy will be flattened
 ---@field format? string
 ---@field max_items? number
 
@@ -25,13 +26,15 @@
 ---@field desc? boolean
 
 ---@class trouble.Group
----@field fields string[]
----@field format string
+---@field fields? string[]
+---@field format? string
+---@field directory? boolean
 
 ---@class trouble.Section
 ---@field source string
 ---@field groups trouble.Group[]
 ---@field format string
+---@field flatten? boolean when true, items with a natural hierarchy will be flattened
 ---@field events? string[]
 ---@field sort? trouble.Sort[]
 ---@field filter? trouble.Filter
@@ -51,6 +54,7 @@ function M.section(spec)
     filter = spec.filter,
     format = spec.format or "{filename} {pos}",
     events = spec.events,
+    flatten = spec.flatten,
   }
   -- A title is just a group without fields
   if spec.title then
@@ -107,19 +111,28 @@ function M.group(spec)
       ret.fields[#ret.fields + 1] = v
     elseif k == "format" then
       ---@cast v string
-      ret.format = v
+      ret[k] = v
     else
       error("invalid `group` key: " .. k)
     end
   end
-  ret.format = ret.format and ret.format ~= "" and ret.format
-    or table.concat(
-      ---@param f string
-      vim.tbl_map(function(f)
-        return "{" .. f .. "}"
-      end, ret.fields),
-      " "
-    )
+  ret.directory = vim.tbl_contains(ret.fields, "directory")
+  if ret.directory and #ret.fields > 1 then
+    error("group: cannot specify other fields with `directory`")
+  end
+  if ret.format == "" then
+    if ret.directory then
+      ret.format = "{directory_icon} {directory} {count}"
+    else
+      ret.format = table.concat(
+        ---@param f string
+        vim.tbl_map(function(f)
+          return "{" .. f .. "}"
+        end, ret.fields),
+        " "
+      )
+    end
+  end
   return ret
 end
 
