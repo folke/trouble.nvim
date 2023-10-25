@@ -205,24 +205,25 @@ function M:listen()
     end
   end, { buffer = false })
 
-  local events = {} ---@type string[]
   for _, section in ipairs(self.sections) do
-    for _, e in ipairs(section.events or {}) do
-      if not vim.tbl_contains(events, e) then
-        table.insert(events, e)
-      end
+    for _, event in ipairs(section.events or {}) do
+      vim.api.nvim_create_autocmd(event.event, {
+        group = self.win:augroup(),
+        pattern = event.pattern,
+        callback = function(e)
+          if event.main then
+            local main = self:main()
+            if main and main.buf ~= e.buf then
+              return
+            end
+          end
+          if e.event == "BufEnter" and vim.bo[e.buf].buftype ~= "" then
+            return
+          end
+          self:refresh()
+        end,
+      })
     end
-  end
-  for _, spec in ipairs(events) do
-    local event, pattern = spec:match("^(%w+)%s+(.*)$")
-    event = event or spec
-    vim.api.nvim_create_autocmd(event, {
-      group = self.win:augroup(),
-      pattern = pattern,
-      callback = function()
-        self:refresh()
-      end,
-    })
   end
 end
 
