@@ -43,6 +43,7 @@ M.config = {
     },
   },
 }
+M.config.views.quickfix = M.config.views.qflist
 
 local severities = {
   E = vim.diagnostic.severity.ERROR,
@@ -69,10 +70,10 @@ function M.get_list(opts)
 
   local ret = {} ---@type trouble.Item[]
   for _, item in pairs(list and list.items or {}) do
-    local row = item.lnum or 1
-    local col = math.max(0, (item.col or 1) - 1)
-    local end_row = item.end_lnum or row
-    local end_col = math.max(0, (item.end_col or col) - 1)
+    local row = item.lnum == 0 and 1 or item.lnum
+    local col = (item.col == 0 and 1 or item.col) - 1
+    local end_row = item.end_lnum == 0 and row or item.end_lnum
+    local end_col = item.end_col == 0 and col or (item.end_col - 1)
 
     if item.valid == 1 then
       ret[#ret + 1] = Item.new({
@@ -89,7 +90,7 @@ function M.get_list(opts)
       ret[#ret].item.text = ret[#ret].item.text .. "\n" .. item.text
     end
   end
-  Item.add_text(ret)
+  Item.add_text(ret, { mode = "full" })
   return ret
 end
 
