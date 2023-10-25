@@ -13,9 +13,7 @@ M.config = {
     lsp_document_symbols = {
       title = "{hl:Title}Document Symbols{hl} {count}",
       events = { "BufEnter", { event = "TextChanged", main = true } },
-      -- events = { "CursorHold", "CursorMoved" },
       source = "lsp.document_symbols",
-      flatten = false,
       groups = {
         { "filename", format = "{file_icon} {filename} {count}" },
       },

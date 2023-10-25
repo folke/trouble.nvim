@@ -9,6 +9,7 @@ local M = {}
 ---@field mode? string
 ---@field config? fun(opts:trouble.Config)
 ---@field sections table<string,trouble.Section.spec>
+---@field formatters table<string,trouble.Formatter>
 local defaults = {
   debug = false,
   indent_lines = true, -- add an indent guide below the fold icons
