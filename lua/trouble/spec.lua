@@ -134,22 +134,22 @@ function M.group(spec)
       error("invalid `group` key: " .. k)
     end
   end
-  ret.directory = vim.tbl_contains(ret.fields, "directory")
-  if ret.directory and #ret.fields > 1 then
-    error("group: cannot specify other fields with `directory`")
+  if vim.tbl_contains(ret.fields, "directory") then
+    ret.directory = true
+    ret.format = ret.format == "" and "{directory_icon} {directory} {count}" or ret.format
+    if #ret.fields > 1 then
+      error("group: cannot specify other fields with `directory`")
+    end
+    ret.fields = nil
   end
   if ret.format == "" then
-    if ret.directory then
-      ret.format = "{directory_icon} {directory} {count}"
-    else
-      ret.format = table.concat(
-        ---@param f string
-        vim.tbl_map(function(f)
-          return "{" .. f .. "}"
-        end, ret.fields),
-        " "
-      )
-    end
+    ret.format = table.concat(
+      ---@param f string
+      vim.tbl_map(function(f)
+        return "{" .. f .. "}"
+      end, ret.fields),
+      " "
+    )
   end
   return ret
 end
