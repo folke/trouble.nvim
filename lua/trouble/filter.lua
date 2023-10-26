@@ -1,7 +1,7 @@
 local M = {}
 
 ---@alias trouble.FilterFn fun(item:trouble.Item, value: any, view:trouble.View): boolean
----@type table<string, trouble.FilterFn>
+---@class trouble.Filters: {[string]: trouble.FilterFn}
 M.filters = {
   buf = function(item, buf, view)
     local main = view:main()
@@ -21,10 +21,6 @@ M.filters = {
     end
     return false
   end,
-  kind = function(item, kind, view)
-    kind = type(kind) == "table" and kind or { kind }
-    return vim.tbl_contains(kind, item.kind)
-  end,
 }
 
 ---@param item trouble.Item
@@ -32,30 +28,30 @@ M.filters = {
 ---@param view trouble.View
 function M.is(item, filter, view)
   filter = type(filter) == "table" and filter or { filter }
-  local is = true
   for k, v in pairs(filter) do
-    if type(k) == "number" then
+    ---@type trouble.FilterFn?
+    local filter_fn = view.opts.filters[k] or M.filters[k]
+    if filter_fn then
+      if not filter_fn(item, v, view) then
+        return false
+      end
+    elseif type(k) == "number" then
       if type(v) == "function" then
         if not v(item) then
-          is = false
-          break
+          return false
         end
       elseif not item[v] then
-        is = false
-        break
+        return false
       end
-    elseif view.opts.filters[k] or M.filters[k] then
-      local f = view.opts.filters[k] or M.filters[k]
-      if not f(item, v, view) then
-        is = false
-        break
+    elseif type(v) == "table" then
+      if not vim.tbl_contains(v, item[k]) then
+        return false
       end
     elseif item[k] ~= v then
-      is = false
-      break
+      return false
     end
   end
-  return is
+  return true
 end
 
 ---@param items trouble.Item[]
