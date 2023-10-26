@@ -1,63 +1,9 @@
----@diagnostic disable: no-unknown
-local lpeg = vim.lpeg
-local P, S, R = lpeg.P, lpeg.S, lpeg.R
-local C, Ct, Cs = lpeg.C, lpeg.Ct, lpeg.Cs
-
 local M = {}
 
----@type vim.lpeg.Pattern|Capture
-local pattern
-do
-  -- Basic Definitions
-  local ws = S(" \t") ^ 0 -- Optional whitespace
-  local eq = P("=") -- Equals sign
-  local key_component = R("az", "AZ", "09", "__") ^ 1 -- Single component of a key
-  local dot = P(".") -- Dot separator
-  local full_key = C(key_component * (dot * key_component) ^ 0) -- Full dot-separated key
-  ---@type vim.lpeg.Pattern|Capture
-  local value = (P('"') * (P("\\") * P(1) + (1 - P('"'))) ^ 0 * P('"')) -- Values that are quoted strings
-    + (1 - S(" \t\n\r")) ^ 1 -- Unquoted values
-  local pair = full_key * ws * eq * ws * Cs(value) -- Capture the full key-value pair
-
-  -- Main pattern
-  pattern = Ct(ws * pair * (ws * pair) ^ 0 * ws)
-end
-
----@return trouble.Config
-function M.parse(input)
-  if vim.trim(input) == "" then
-    return {}
-  end
-  ---@type string[]
-  local t = pattern:match(input)
-  if not t then
-    error("Invalid input: " .. input)
-  end
-
-  -- Convert list to a table of key-value pairs
-  local parts = {} ---@type string[]
-  for i = 1, #t, 2 do
-    local k = t[i]
-    local v = t[i + 1]
-    parts[#parts + 1] = string.format("{%q,%s}", k, v)
-  end
-
-  local chunk = loadstring("return {" .. table.concat(parts, ", ") .. "}")
-  if not chunk then
-    error("Failed to parse input: " .. input)
-  end
-  local ret = {}
-  ---@diagnostic disable-next-line: no-unknown
-  for _, pair in pairs(chunk()) do
-    M.set(ret, pair[1], pair[2])
-  end
-  return ret
-end
-
----@param t table
+---@param t table<any, any>
 ---@param dotted_key string
 ---@param value any
-function M.set(t, dotted_key, value)
+function M.dotset(t, dotted_key, value)
   local keys = vim.split(dotted_key, ".", { plain = true })
   for i = 1, #keys - 1 do
     local key = keys[i]
@@ -67,7 +13,67 @@ function M.set(t, dotted_key, value)
     end
     t = t[key]
   end
+  ---@diagnostic disable-next-line: no-unknown
   t[keys[#keys]] = value
+end
+
+---@return {args: string[], opts: table<string, any>, errors: string[]}
+function M.parse(input)
+  ---@type string?, string?
+  local positional, options = input:match("^%s*(.-)%s*([a-z%._]+%s*=.*)$")
+  positional = positional or input
+  positional = vim.trim(positional)
+  local ret = {
+    args = positional == "" and {} or vim.split(positional, "%s+"),
+    opts = {},
+    errors = {},
+  }
+  if not options then
+    return ret
+  end
+  input = options
+  local parser = vim.treesitter.get_string_parser(input, "lua")
+  parser:parse()
+  local query = vim.treesitter.query.parse(
+    "lua",
+    [[
+      (ERROR) @error
+      (assignment_statement (variable_list name: (_)) @name)
+      (assignment_statement (expression_list value: (_)) @value)
+      (_ value: (identifier) @global (#has-ancestor? @global expression_list))
+    ]]
+  )
+  ---@type table<string, any>
+  local env = {
+    dotset = M.dotset,
+    opts = ret.opts,
+  }
+  local lines = {} ---@type string[]
+  local name = ""
+  ---@diagnostic disable-next-line: missing-parameter
+  for id, node in query:iter_captures(parser:trees()[1]:root(), input) do
+    local capture = query.captures[id]
+    local text = vim.treesitter.get_node_text(node, input)
+    if capture == "name" then
+      name = text
+    elseif capture == "value" then
+      table.insert(lines, ("dotset(opts, %q, %s)"):format(name, text))
+    elseif capture == "global" then
+      env[text] = text
+    elseif capture == "error" then
+      table.insert(ret.errors, text)
+    end
+  end
+  local ok, err = pcall(function()
+    local code = table.concat(lines, "\n")
+    -- selene: allow(incorrect_standard_library_use)
+    local chunk = load(code, "trouble", "t", env)
+    chunk()
+  end)
+  if not ok then
+    table.insert(ret.errors, err)
+  end
+  return ret
 end
 
 return M
