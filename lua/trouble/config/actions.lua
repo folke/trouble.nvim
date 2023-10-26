@@ -1,8 +1,8 @@
----@alias trouble.Action.ctx {item?: trouble.Item, node?: trouble.Node}
+---@alias trouble.Action.ctx {item?: trouble.Item, node?: trouble.Node, opts?: table}
 ---@alias trouble.ActionFn fun(view:trouble.View, ctx:trouble.Action.ctx)
 ---@alias trouble.Action trouble.ActionFn|{action:trouble.ActionFn, desc?:string}
 
----@type table<string, trouble.Action>
+---@class trouble.actions: {[string]: trouble.Action}
 local M = {
   refresh = function(self)
     self:refresh()
@@ -12,6 +12,9 @@ local M = {
   end,
   cancel = function(self)
     self:goto_main()
+  end,
+  focus = function(self)
+    self.win:focus()
   end,
   preview = function(self, ctx)
     local Preview = require("trouble.view.preview")
@@ -30,8 +33,23 @@ local M = {
       Preview.close()
     end
   end,
+  toggle_auto_refresh = function(self)
+    self.opts.auto_refresh = not self.opts.auto_refresh
+  end,
   help = function(self)
     self:help()
+  end,
+  next = function(self, ctx)
+    self:move({ down = vim.v.count1, jump = ctx.opts.jump })
+  end,
+  prev = function(self, ctx)
+    self:move({ up = vim.v.count1, jump = ctx.opts.jump })
+  end,
+  first = function(self, ctx)
+    self:move({ idx = vim.v.count1, jump = ctx.opts.jump })
+  end,
+  last = function(self, ctx)
+    self:move({ idx = -vim.v.count1, jump = ctx.opts.jump })
   end,
   jump_only = function(self, ctx)
     if ctx.item then
@@ -96,6 +114,10 @@ local M = {
     self:render()
   end,
 }
+
+-- FIXME: make deprecation warnings instead
+-- backward compatibility with Trouble v2
+M.previous = M.prev
 
 for _, fold_action in ipairs({ "toggle", "open", "close" }) do
   for _, recursive in ipairs({ true, false }) do

@@ -20,6 +20,7 @@ local defaults = {
   auto_open = false,
   auto_close = false,
   auto_preview = true,
+  auto_refresh = true,
   pinned = false,
   multiline = true, -- render multi-line messages
   ---@type table<string, trouble.Formatter>
@@ -34,6 +35,7 @@ local defaults = {
   keys = {
     ["?"] = "help",
     r = "refresh",
+    R = "toggle_auto_refresh",
     q = "close",
     o = "jump_close",
     ["<esc>"] = "cancel",
@@ -41,6 +43,14 @@ local defaults = {
     ["<2-leftmouse>"] = "jump",
     ["<c-s>"] = "jump_split",
     ["<c-v>"] = "jump_vsplit",
+    -- go down to next item (accepts count)
+    -- j = "next",
+    ["}"] = "next",
+    ["]]"] = "next",
+    -- go up to prev item (accepts count)
+    -- k = "prev",
+    ["{"] = "prev",
+    ["[["] = "prev",
     i = "inspect",
     p = "preview",
     P = "toggle_auto_preview",
@@ -191,6 +201,7 @@ function M.get(...)
 
   ---@type table<string, boolean>
   local modes = {}
+  local first_mode ---@type string?
 
   for i = 1, select("#", ...) do
     ---@type trouble.Config?
@@ -202,6 +213,7 @@ function M.get(...)
       table.insert(all, opts)
       local idx = #all
       while opts.mode and not modes[opts.mode] do
+        first_mode = first_mode or opts.mode
         modes[opts.mode or ""] = true
         opts = options.modes[opts.mode] or {}
         table.insert(all, idx, opts)
@@ -214,7 +226,7 @@ function M.get(...)
   if type(ret.config) == "function" then
     ret.config(ret)
   end
-
+  ret.mode = first_mode
   if ret.mode then
     ret.modes = {}
   end
