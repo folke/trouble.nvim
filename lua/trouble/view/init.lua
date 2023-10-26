@@ -20,10 +20,24 @@ local Window = require("trouble.view.window")
 ---@field fetching number
 local M = {}
 M.__index = M
+local _idx = 0
+---@type table<trouble.View, number>
+M._views = setmetatable({}, { __mode = "k" })
+
+-- local timer = assert(vim.loop.new_timer())
+-- timer:start(
+--   3000,
+--   3000,
+--   vim.schedule_wrap(function()
+--     dd("views", vim.tbl_count(M._views))
+--   end)
+-- )
 
 ---@param opts trouble.Mode
 function M.new(opts)
   local self = setmetatable({}, M)
+  _idx = _idx + 1
+  M._views[self] = _idx
   self.opts = opts or {}
   self.opts.win = self.opts.win or {}
   self.opts.win.on_mount = function()
@@ -52,14 +66,16 @@ function M.new(opts)
     padding = vim.tbl_get(self.opts.win, "padding", "left") or 0,
     multiline = self.opts.multiline,
   })
-  self.refresh = Util.throttle(self.refresh, {
+  local _self = Util.weak(self)
+  self.refresh = Util.throttle(M.refresh, {
     ms = 200,
     is_running = function()
-      return self.fetching > 0
+      local this = _self()
+      return this and this.fetching > 0
     end,
   })
-  self.update = Util.throttle(self.update, { ms = 10 })
-  self.render = Util.throttle(self.render, { ms = 10 })
+  self.update = Util.throttle(M.update, { ms = 10 })
+  self.render = Util.throttle(M.render, { ms = 10 })
 
   if self.opts.auto_open then
     self:listen()
@@ -68,26 +84,63 @@ function M.new(opts)
   return self
 end
 
+---@alias trouble.View.filter {debug?: boolean, open?:boolean, mode?: string}
+
+---@param filter? trouble.View.filter
+function M.get(filter)
+  filter = filter or {}
+  ---@type {idx:number, mode?: string, view: trouble.View, is_open: boolean}[]
+  local ret = {}
+  for view, idx in pairs(M._views) do
+    local is_open = view.win:valid()
+    local ok = is_open or view.opts.auto_open
+    ok = ok and (not filter.mode or filter.mode == view.opts.mode)
+    ok = ok and (not filter.open or is_open)
+    if ok then
+      ret[#ret + 1] = {
+        idx = idx,
+        mode = view.opts.mode,
+        view = not filter.debug and view or {},
+        is_open = is_open,
+      }
+    end
+  end
+  table.sort(ret, function(a, b)
+    return a.idx < b.idx
+  end)
+  return ret
+end
+
 function M:on_mount()
   self:listen()
   self.win:on("WinLeave", function()
     Preview.close()
   end)
 
-  local preview = Util.throttle(self.preview, { ms = 100, debounce = true })
+  local _self = Util.weak(self)
+
+  local preview = Util.throttle(M.preview, { ms = 100, debounce = true })
   self.win:on("CursorMoved", function()
-    if self.opts.auto_preview then
-      local loc = self:at()
+    local this = _self()
+    if not this then
+      return true
+    end
+    if this.opts.auto_preview then
+      local loc = this:at()
       if loc and loc.item then
-        preview(self, loc.item)
+        preview(this, loc.item)
       end
     end
   end)
 
   self.win:on("OptionSet", function()
-    local foldlevel = vim.wo[self.win.win].foldlevel
-    if foldlevel ~= self.renderer.foldlevel then
-      self:fold_level({ level = foldlevel })
+    local this = _self()
+    if not this then
+      return true
+    end
+    local foldlevel = vim.wo[this.win.win].foldlevel
+    if foldlevel ~= this.renderer.foldlevel then
+      this:fold_level({ level = foldlevel })
     end
   end, { pattern = "foldlevel", buffer = false })
 
@@ -191,17 +244,22 @@ function M:goto_main()
 end
 
 function M:listen()
+  local _self = Util.weak(self)
   self:main()
   self.win:on("BufEnter", function()
+    local this = _self()
+    if not this then
+      return true
+    end
     -- don't update the main window when
     -- preview is open or when the window is pinned
-    if Preview.preview or self.opts.pinned then
+    if Preview.preview or this.opts.pinned then
       return
     end
     local buf = vim.api.nvim_get_current_buf()
     local win = vim.api.nvim_get_current_win()
     if vim.bo[buf].buftype == "" and vim.bo[buf].filetype ~= "" then
-      self._main = { buf = buf, win = win }
+      this._main = { buf = buf, win = win }
     end
   end, { buffer = false })
 
@@ -211,8 +269,15 @@ function M:listen()
         group = self.win:augroup(),
         pattern = event.pattern,
         callback = function(e)
+          local this = _self()
+          if not this then
+            return true
+          end
+          if not this.opts.auto_refresh then
+            return
+          end
           if event.main then
-            local main = self:main()
+            local main = this:main()
             if main and main.buf ~= e.buf then
               return
             end
@@ -220,7 +285,7 @@ function M:listen()
           if e.event == "BufEnter" and vim.bo[e.buf].buftype ~= "" then
             return
           end
-          self:refresh()
+          this:refresh()
         end,
       })
     end
@@ -249,9 +314,57 @@ function M:map(key, action)
     fn = action.action
     desc = action.desc or desc
   end
+  local _self = Util.weak(self)
   self.win:map(key, function()
-    fn(self, self:at())
+    local this = _self()
+    if this then
+      this:action(fn)
+    end
   end, desc)
+end
+
+---@param opts? {idx?: number, up?:number, down?:number, jump?:boolean}
+function M:move(opts)
+  opts = opts or {}
+  local cursor = vim.api.nvim_win_get_cursor(self.win.win)
+  local from = 1
+  local to = vim.api.nvim_buf_line_count(self.win.buf)
+  local todo = opts.idx or opts.up or opts.down or 0
+
+  if opts.idx and opts.idx < 0 then
+    from, to = to, 1
+    todo = math.abs(todo)
+  elseif opts.down then
+    from = cursor[1] + 1
+  elseif opts.up then
+    from = cursor[1] - 1
+    to = 1
+  end
+
+  for row = from, to, from > to and -1 or 1 do
+    local info = self.renderer:at(row)
+    if info.item and info.first_line then
+      todo = todo - 1
+      if todo == 0 then
+        vim.api.nvim_win_set_cursor(self.win.win, { row, cursor[2] })
+        if opts.jump then
+          self:jump(info.item)
+        end
+        break
+      end
+    end
+  end
+end
+
+---@param action trouble.Action
+---@param opts? table
+function M:action(action, opts)
+  local at = self:at() or {}
+  action(self, {
+    item = at.item,
+    node = at.node,
+    opts = type(opts) == "table" and opts or {},
+  })
 end
 
 function M:refresh()
@@ -316,11 +429,13 @@ end
 function M:open()
   self.win:open()
   self:refresh()
+  return self
 end
 
 function M:close()
   Preview.close()
   self.win:close()
+  return self
 end
 
 function M:count()
