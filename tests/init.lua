@@ -23,14 +23,18 @@ function M.load(plugin)
 end
 
 function M.setup()
-  vim.cmd([[set runtimepath=$VIMRUNTIME]])
-  vim.opt.runtimepath:append(M.root())
-  vim.opt.packpath = { M.root(".tests/site") }
-  M.load("nvim-lua/plenary.nvim")
   vim.env.XDG_CONFIG_HOME = M.root(".tests/config")
   vim.env.XDG_DATA_HOME = M.root(".tests/data")
   vim.env.XDG_STATE_HOME = M.root(".tests/state")
   vim.env.XDG_CACHE_HOME = M.root(".tests/cache")
+  vim.opt.rtp = {
+    vim.fn.stdpath("data") .. "/site",
+    vim.env.VIMRUNTIME,
+    M.root(),
+    vim.fn.fnamemodify(vim.v.progpath, ":p:h:h") .. "/lib/nvim",
+  }
+  vim.opt.packpath = { M.root(".tests/site") }
+  M.load("nvim-lua/plenary.nvim")
 end
 
 M.setup()

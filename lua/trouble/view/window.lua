@@ -1,3 +1,5 @@
+local Util = require("trouble.util")
+
 ---@class trouble.Split
 ---@field type "split"
 ---@field relative "editor" | "win" cursor is only valid for float
@@ -72,7 +74,6 @@ local float_options = {
 
 ---@type trouble.Window.opts
 local defaults = {
-  enter = false,
   padding = { top = 0, left = 1 },
   bo = {
     bufhidden = "wipe",
@@ -283,8 +284,14 @@ function M:on(events, fn, opts)
   elseif opts.buffer == false then
     opts.buffer = nil
   end
+  local weak_self = Util.weak(self)
   opts.callback = function()
-    return fn(self)
+    local _self = weak_self()
+    if not _self then
+      -- delete the autocmd
+      return true
+    end
+    return fn(_self)
   end
   opts.group = self:augroup()
   vim.api.nvim_create_autocmd(events, opts)
@@ -298,8 +305,11 @@ function M:map(key, fn, desc)
     error("Cannot create a keymap for an invalid window")
   end
   self.keys[key] = desc or key
+  local weak_self = Util.weak(self)
   vim.keymap.set("n", key, function()
-    fn(self)
+    if weak_self() then
+      fn(weak_self())
+    end
   end, {
     nowait = true,
     buffer = self.buf,

@@ -5,7 +5,7 @@ local Text = require("trouble.view.text")
 local Util = require("trouble.util")
 
 ---@class trouble.Render: trouble.Text
----@field _locations {item?: trouble.Item, node?: trouble.Item}[] Maps line numbers to items.
+---@field _locations {item?: trouble.Item, node?: trouble.Node, first_line?:boolean}[] Maps line numbers to items.
 ---@field _folded table<string, true>
 ---@field root_nodes trouble.Node[]
 ---@field foldlevel? number
@@ -161,7 +161,6 @@ end
 --- For a group, only the node is returned.
 --- To get the group item used for formatting, use `node.items[1]`.
 ---@param row number
----@return {item?: trouble.Item, node?: trouble.Node}
 function M:at(row)
   return self._locations[row] or {}
 end
@@ -248,6 +247,7 @@ function M:item(node, section, indent)
 
   for r = row, self:row() do
     self._locations[r] = {
+      first_line = r == row,
       item = not is_group and item or nil,
       node = node,
     }
