@@ -24,7 +24,9 @@ M.__index = M
 M.ns = vim.api.nvim_create_namespace("trouble.text")
 
 function M.reset(buf)
-  vim.api.nvim_buf_clear_namespace(buf, M.ns, 0, -1)
+  if vim.api.nvim_buf_is_valid(buf) then
+    vim.api.nvim_buf_clear_namespace(buf, M.ns, 0, -1)
+  end
 end
 
 ---@param opts? trouble.Text.opts
