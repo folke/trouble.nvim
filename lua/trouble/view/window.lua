@@ -170,7 +170,7 @@ function M:mount()
   end
 end
 
----@return {win:number,buf:number}?
+---@return {win:number,buf:number, path:string}?
 function M:find_main()
   local wins = vim.api.nvim_list_wins()
   table.insert(wins, 1, vim.api.nvim_get_current_win())
@@ -178,10 +178,20 @@ function M:find_main()
     if win ~= self.win then
       local b = vim.api.nvim_win_get_buf(win)
       if vim.bo[b].buftype == "" then
-        return { win = win, buf = b }
+        return M.win_info(win)
       end
     end
   end
+end
+
+---@return {win:number,buf:number, path:string}
+function M.win_info(win)
+  local b = vim.api.nvim_win_get_buf(win)
+  return {
+    win = win,
+    buf = b,
+    path = vim.fs.normalize(vim.api.nvim_buf_get_name(b)),
+  }
 end
 
 function M:check_alien()

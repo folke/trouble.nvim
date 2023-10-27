@@ -16,7 +16,7 @@ local Window = require("trouble.view.window")
 ---@field items trouble.Item[][]
 ---@field nodes trouble.Node[]
 ---@field renderer trouble.Render
----@field private _main? {buf:number, win:number}
+---@field private _main? {buf:number, win:number, path:string}
 ---@field fetching number
 local M = {}
 M.__index = M
@@ -170,17 +170,24 @@ end
 function M:jump(item, opts)
   opts = opts or {}
   item = item or self:at().item
+  Preview.close()
   if not item then
     return vim.notify("No item to jump to", vim.log.levels.WARN, { title = "Trouble" })
   end
 
-  if not vim.bo[item.buf].buflisted then
-    vim.bo[item.buf].buflisted = true
+  if not (item.buf or item.filename) then
+    Util.warn("No buffer or filename for item")
+    return
   end
+
+  item.buf = item.buf or vim.fn.bufadd(item.filename)
+
   if not vim.api.nvim_buf_is_loaded(item.buf) then
     vim.fn.bufload(item.buf)
   end
-  Preview.close()
+  if not vim.bo[item.buf].buflisted then
+    vim.bo[item.buf].buflisted = true
+  end
   local main = self:main()
   local win = main and main.win or 0
 
@@ -216,7 +223,7 @@ function M:preview(item)
   return Preview.open(self, item)
 end
 
----@return {buf:number, win:number, cursor:number[]}?
+---@return {buf:number, win:number, path:string, cursor:number[]}?
 function M:main()
   local valid = self._main
     and self._main.win
@@ -232,7 +239,7 @@ function M:main()
     if Preview.preview and Preview.preview.win == self._main.win then
       cursor = Preview.preview.cursor
     end
-    return { buf = self._main.buf, win = self._main.win, cursor = cursor }
+    return { buf = self._main.buf, path = self._main.path, win = self._main.win, cursor = cursor }
   end
 end
 
@@ -259,7 +266,8 @@ function M:listen()
     local buf = vim.api.nvim_get_current_buf()
     local win = vim.api.nvim_get_current_win()
     if vim.bo[buf].buftype == "" and vim.bo[buf].filetype ~= "" then
-      this._main = { buf = buf, win = win }
+      ---@diagnostic disable-next-line: invisible
+      this._main = Window.win_info(win)
     end
   end, { buffer = false })
 
