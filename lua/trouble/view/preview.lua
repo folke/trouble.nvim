@@ -2,23 +2,24 @@ local Render = require("trouble.view.render")
 local Util = require("trouble.util")
 
 local M = {}
-M.preview = nil ---@type {win:number,buf:number,view:table,cursor:number[], preview_buf:number}?
+M.preview = nil ---@type {item:trouble.Item, win:number, buf: number, close:fun()}?
+
+function M.is_open()
+  return M.preview ~= nil
+end
+
+function M.item()
+  return M.preview and M.preview.item
+end
 
 function M.close()
   local preview = M.preview
   M.preview = nil
-  if not (preview and vim.api.nvim_buf_is_valid(preview.buf)) then
+  if not preview then
     return
   end
-  Render.reset(preview.preview_buf)
-  if vim.api.nvim_win_is_valid(preview.win) then
-    Util.noautocmd(function()
-      vim.api.nvim_win_set_buf(preview.win, preview.buf)
-      vim.api.nvim_win_call(preview.win, function()
-        vim.fn.winrestview(preview.view)
-      end)
-    end)
-  end
+  Render.reset(preview.buf)
+  preview.close()
 end
 
 --- Create a preview buffer for an item.
@@ -28,80 +29,116 @@ end
 function M.create(item)
   local buf = item.buf or vim.fn.bufnr(item.filename)
 
-  if buf and vim.api.nvim_buf_is_loaded(buf) then
-    return buf
-  end
-
-  buf = vim.api.nvim_create_buf(false, true)
-  vim.bo[buf].bufhidden = "wipe"
-  local lines = Util.get_lines({ path = item.filename, buf = item.buf })
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-  local ft = item:get_ft()
-  if ft then
-    local lang = vim.treesitter.language.get_lang(ft)
-    if not pcall(vim.treesitter.start, buf, lang) then
-      vim.bo[buf].syntax = ft
+  -- create a scratch preview buffer when needed
+  if not (buf and vim.api.nvim_buf_is_loaded(buf)) then
+    buf = vim.api.nvim_create_buf(false, true)
+    vim.bo[buf].bufhidden = "wipe"
+    vim.bo[buf].buftype = "nofile"
+    local lines = Util.get_lines({ path = item.filename, buf = item.buf })
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+    local ft = item:get_ft()
+    if ft then
+      local lang = vim.treesitter.language.get_lang(ft)
+      if not pcall(vim.treesitter.start, buf, lang) then
+        vim.bo[buf].syntax = ft
+      end
     end
   end
-  return buf
-end
 
----@param view trouble.View
----@param item trouble.Item
-function M.open(view, item)
-  if M.preview then
-    M.close()
-  end
-
-  local main = view:main()
-  if not main then
-    Util.debug("No main window")
-    return
-  end
-
-  if not vim.api.nvim_buf_is_valid(item.buf) then
-    Util.debug("Item has invalid buffer", item)
-    return
-  end
-
-  local buf = M.create(item)
-
-  M.preview = {
-    win = main.win,
-    buf = main.buf,
-    view = vim.api.nvim_win_call(main.win, vim.fn.winsaveview),
-    cursor = vim.api.nvim_win_get_cursor(main.win),
-    preview_buf = buf,
-  }
-
-  -- no autocmds should be triggered. So LSP's etc won't try to attach in the preview
-  Util.noautocmd(function()
-    vim.api.nvim_win_set_buf(main.win, buf)
-    vim.api.nvim_win_set_cursor(main.win, item.pos)
-  end)
-
-  local end_pos = item.end_pos or item.pos
-  end_pos[1] = end_pos[1] or item.pos[1]
-  end_pos[2] = end_pos[2] or item.pos[2]
+  -- make sure we highlight at least one character
+  local end_pos = { item.end_pos[1], item.end_pos[2] }
   if end_pos[1] == item.pos[1] and end_pos[2] == item.pos[2] then
     end_pos[2] = end_pos[2] + 1
   end
 
+  -- highlight the line
   vim.api.nvim_buf_set_extmark(buf, Render.ns, item.pos[1] - 1, 0, {
     end_row = end_pos[1],
-    -- end_col = end_pos[2],
     hl_group = "CursorLine",
     hl_eol = true,
     strict = false,
   })
-  -- only highlight the range if it's on the same line
+
+  -- highlight the range
   vim.api.nvim_buf_set_extmark(buf, Render.ns, item.pos[1] - 1, item.pos[2], {
     end_row = end_pos[1] - 1,
     end_col = end_pos[2],
     hl_group = "TroublePreview",
     strict = false,
   })
+
+  return buf
+end
+
+---@param view trouble.View
+---@param item trouble.Item
+function M.open(view, item)
+  if M.item() == item then
+    return
+  end
+  if M.preview then
+    M.close()
+  end
+
+  local buf = M.create(item)
+
+  M.preview = M.preview_win(buf, view)
+  M.preview.buf = buf
+  M.preview.item = item
+
+  -- no autocmds should be triggered. So LSP's etc won't try to attach in the preview
+  Util.noautocmd(function()
+    vim.api.nvim_win_set_cursor(M.preview.win, item.pos)
+  end)
+
   return item
+end
+
+---@param buf number
+---@param view trouble.View
+function M.preview_win(buf, view)
+  view.preview_win.opts.win = view.win.win
+  view.preview_win:open()
+  Util.noautocmd(function()
+    view.preview_win:set_buf(buf)
+    view.preview_win:set_options("win")
+  end)
+
+  return {
+    win = view.preview_win.win,
+    close = function()
+      view.preview_win:close()
+    end,
+  }
+end
+
+---@param buf number
+---@param view trouble.View
+function M.preview_main(buf, view)
+  local main = view:main()
+  if not main then
+    Util.debug("No main window")
+    return
+  end
+
+  local main_view = vim.api.nvim_win_call(main.win, vim.fn.winsaveview)
+  Util.noautocmd(function()
+    vim.api.nvim_win_set_buf(main.win, buf)
+  end)
+
+  return {
+    win = main.win,
+    close = function()
+      if vim.api.nvim_win_is_valid(main.win) then
+        Util.noautocmd(function()
+          vim.api.nvim_win_set_buf(main.win, main.buf)
+          vim.api.nvim_win_call(main.win, function()
+            vim.fn.winrestview(main_view)
+          end)
+        end)
+      end
+    end,
+  }
 end
 
 return M

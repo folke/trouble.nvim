@@ -1,5 +1,10 @@
 local Util = require("trouble.util")
 
+---@class trouble.Window.info
+---@field win number
+---@field buf number
+---@field filename string
+
 ---@class trouble.Split
 ---@field type "split"
 ---@field relative "editor" | "win" cursor is only valid for float
@@ -78,6 +83,7 @@ local defaults = {
   bo = {
     bufhidden = "wipe",
     filetype = "trouble",
+    buftype = "nofile",
   },
   wo = {
     cursorcolumn = false,
@@ -163,14 +169,20 @@ function M:mount()
 
   self:on("WinClosed", function()
     self:augroup(true)
-  end, { buffer = false, pattern = self.win .. "" })
+  end, { win = true })
 
   if self.opts.on_mount then
     self.opts.on_mount(self)
   end
 end
 
----@return {win:number,buf:number, path:string}?
+function M:set_buf(buf)
+  self.buf = buf
+  if self.win and vim.api.nvim_win_is_valid(self.win) then
+    vim.api.nvim_win_set_buf(self.win, buf)
+  end
+end
+
 function M:find_main()
   local wins = vim.api.nvim_list_wins()
   table.insert(wins, 1, vim.api.nvim_get_current_win())
@@ -184,13 +196,14 @@ function M:find_main()
   end
 end
 
----@return {win:number,buf:number, path:string}
+---@return trouble.Window.info
 function M.win_info(win)
   local b = vim.api.nvim_win_get_buf(win)
   return {
     win = win,
     buf = b,
-    path = vim.fs.normalize(vim.api.nvim_buf_get_name(b)),
+    filename = vim.fs.normalize(vim.api.nvim_buf_get_name(b)),
+    cursor = vim.api.nvim_win_get_cursor(win),
   }
 end
 
@@ -214,8 +227,6 @@ function M:close()
   self:augroup(true)
   pcall(vim.api.nvim_win_close, self.win, true)
   self.win = nil
-  pcall(vim.api.nvim_buf_delete, self.buf, { force = true })
-  self.buf = nil
 end
 
 function M:open()
@@ -244,13 +255,15 @@ function M:mount_split(opts)
   local size = opts.size
   if size <= 1 then
     local vertical = opts.position == "left" or opts.position == "right"
-    size = math.floor(parent_size[vertical and "height" or "width"] * size)
+    size = math.floor(parent_size[vertical and "width" or "height"] * size)
   end
   local cmd = split_commands[opts.relative][opts.position]
-  vim.api.nvim_win_call(opts.win, function()
-    vim.cmd("silent noswapfile " .. cmd .. " " .. size .. "split")
-    vim.api.nvim_win_set_buf(0, self.buf)
-    self.win = vim.api.nvim_get_current_win()
+  Util.noautocmd(function()
+    vim.api.nvim_win_call(opts.win, function()
+      vim.cmd("silent noswapfile " .. cmd .. " " .. size .. "split")
+      vim.api.nvim_win_set_buf(0, self.buf)
+      self.win = vim.api.nvim_get_current_win()
+    end)
   end)
 end
 
@@ -274,6 +287,9 @@ function M:mount_float(opts)
   config.col = math.abs(opts.position[2]) <= 1 and math.floor((parent_size.width - config.width) * opts.position[2])
     or opts.position[2]
   config.col = config.col < 0 and (parent_size.width + config.col) or config.col
+  if config.relative ~= "win" then
+    config.win = nil
+  end
 
   self.win = vim.api.nvim_open_win(self.buf, false, config)
 end
@@ -285,23 +301,29 @@ function M:focus()
 end
 
 ---@param events string|string[]
----@param fn fun(self:trouble.Window):boolean?
----@param opts? vim.api.keyset.create_autocmd | {buffer: false}
+---@param fn fun(self:trouble.Window, event:{buf:number}):boolean?
+---@param opts? vim.api.keyset.create_autocmd | {buffer: false, win?:boolean}
 function M:on(events, fn, opts)
   opts = opts or {}
-  if opts.buffer == nil then
+  if opts.win then
+    opts.pattern = self.win .. ""
+    opts.win = nil
+  elseif opts.buffer == nil then
     opts.buffer = self.buf
   elseif opts.buffer == false then
     opts.buffer = nil
   end
-  local weak_self = Util.weak(self)
-  opts.callback = function()
-    local _self = weak_self()
-    if not _self then
+  if opts.pattern then
+    opts.buffer = nil
+  end
+  local _self = Util.weak(self)
+  opts.callback = function(e)
+    local this = _self()
+    if not this then
       -- delete the autocmd
       return true
     end
-    return fn(_self)
+    return fn(this, e)
   end
   opts.group = self:augroup()
   vim.api.nvim_create_autocmd(events, opts)
