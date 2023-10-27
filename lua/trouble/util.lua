@@ -140,6 +140,7 @@ function M.throttle(fn, opts)
       xpcall(function()
         local _args = vim.F.unpack_len(args)
         if not trailing then
+        if not trailing and not timer:is_active() then
           args = {} -- clear args so they can be gc'd
         end
         fn(_args)
@@ -203,37 +204,49 @@ function M.split(s, c)
   end
 end
 
----@param buf number
----@param rows number[] 1-indexed
+--- Gets lines from a file or buffer
+---@param opts {path?:string, buf?: number, rows?: number[]}
 ---@return table<number, string>
-function M.get_lines(buf, rows)
-  local uri = vim.uri_from_bufnr(buf)
+function M.get_lines(opts)
+  if opts.buf then
+    local uri = vim.uri_from_bufnr(opts.buf)
 
-  if uri:sub(1, 4) ~= "file" then
-    vim.fn.bufload(buf)
-  end
-
-  if vim.api.nvim_buf_is_loaded(buf) then
-    local lines = {} ---@type table<number, string>
-    for _, row in ipairs(rows) do
-      lines[row] = (vim.api.nvim_buf_get_lines(buf, row - 1, row, false) or { "" })[1]
+    if uri:sub(1, 4) ~= "file" then
+      vim.fn.bufload(opts.buf)
     end
-    return lines
+
+    if vim.api.nvim_buf_is_loaded(opts.buf) then
+      local lines = {} ---@type table<number, string>
+      if not opts.rows then
+        return vim.api.nvim_buf_get_lines(opts.buf, 0, -1, false)
+      end
+      for _, row in ipairs(opts.rows) do
+        lines[row] = vim.api.nvim_buf_get_lines(opts.buf, row - 1, row, false)[1]
+      end
+      return lines
+    end
+    opts.path = vim.uri_to_fname(uri)
+  elseif not opts.path then
+    error("buf or filename is required")
   end
 
-  local filename = vim.api.nvim_buf_get_name(buf)
-  local fd = uv.fs_open(filename, "r", 438)
+  local fd = uv.fs_open(opts.path, "r", 438)
   if not fd then
     return {}
   end
   local stat = assert(uv.fs_fstat(fd))
   local data = assert(uv.fs_read(fd, stat.size, 0)) --[[@as string]]
   assert(uv.fs_close(fd))
+  local todo = opts.rows and #opts.rows or -1
 
   local ret = {} ---@type table<number, string>
   for row, line in M.lines(data) do
-    if vim.tbl_contains(rows, row) then
+    if not opts.rows or vim.tbl_contains(opts.rows, row) then
+      todo = todo - 1
       ret[row] = line
+      if todo == 0 then
+        break
+      end
     end
   end
   return ret
