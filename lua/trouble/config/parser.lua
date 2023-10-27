@@ -66,6 +66,7 @@ function M.parse(input)
   end
   local ok, err = pcall(function()
     local code = table.concat(lines, "\n")
+    env.vim = vim
     -- selene: allow(incorrect_standard_library_use)
     local chunk = load(code, "trouble", "t", env)
     chunk()
