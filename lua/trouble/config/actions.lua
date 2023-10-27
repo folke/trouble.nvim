@@ -18,7 +18,7 @@ local M = {
   end,
   preview = function(self, ctx)
     local Preview = require("trouble.view.preview")
-    if Preview.preview then
+    if Preview.is_open() then
       Preview.close()
     else
       self:preview(ctx.item)
