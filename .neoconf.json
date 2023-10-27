@@ -3,7 +3,8 @@
     "library": {
       "plugins": [
         "plenary.nvim",
-        "nvim-web-devicons"
+        "nvim-web-devicons",
+        "telescope.nvim"
       ]
     }
   },

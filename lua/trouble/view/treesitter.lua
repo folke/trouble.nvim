@@ -9,6 +9,7 @@ function M.highlight(buf, lang, regions)
   -- lang = "markdown_inline"
   local parser = vim.treesitter.get_parser(buf, lang)
 
+  ---@diagnostic disable-next-line: invisible
   parser:set_included_regions(regions)
   parser:parse(true)
   local ret = {} ---@type Extmark[]
@@ -24,6 +25,7 @@ function M.highlight(buf, lang, regions)
       return
     end
 
+    ---@diagnostic disable-next-line: missing-parameter
     local iter = query:iter_captures(tstree:root(), buf)
 
     for capture, node, metadata in iter do
@@ -34,7 +36,7 @@ function M.highlight(buf, lang, regions)
       local name = query.captures[capture]
       local hl = 0
       if not vim.startswith(name, "_") then
-        hl = "@" .. name .. "." .. lang
+        hl = vim.api.nvim_get_hl_id_by_name("@" .. name .. "." .. lang)
       end
 
       if hl and name ~= "spell" then
