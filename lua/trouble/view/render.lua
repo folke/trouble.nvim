@@ -165,16 +165,6 @@ function M:at(row)
   return self._locations[row] or {}
 end
 
----@param item trouble.Item
-function M.get_lang(item)
-  local lang = Cache.langs[item.filename]
-  if lang == nil then
-    lang = item:get_lang()
-    Cache.langs[item.filename] = lang or false -- cache misses too
-  end
-  return lang
-end
-
 ---@param node trouble.Node
 ---@param section trouble.Section
 ---@param indent trouble.Indent
@@ -202,7 +192,7 @@ function M:item(node, section, indent)
       local offset ---@type number? start column of the first line
       local first ---@type string? first line
       if ff.hl == "ts" then
-        local lang = M.get_lang(item)
+        local lang = item:get_lang()
         if lang then
           ff.hl = "ts." .. lang
         else

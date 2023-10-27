@@ -187,25 +187,24 @@ M.builders = {
 
   directory = {
     group = function(item, root, group)
-      local filename = vim.api.nvim_buf_get_name(item.buf)
-      filename = vim.fn.fnamemodify(filename, ":p")
-      local dirname = vim.fn.fnamemodify(filename, ":h"):gsub("[/\\]+$", ""):gsub("[\\]", "/")
-
+      if not item.dirname then
+        return root
+      end
       local directory = ""
       local parent = root
-      for _, part in Util.split(dirname, "/") do
+      for _, part in Util.split(item.dirname, "/") do
         directory = directory .. part .. "/"
         local id = (root.id or "") .. "#" .. directory
         local child = parent:get(id)
         if not child then
           local dir = Item.new({
+            filename = directory,
             source = "fs",
             id = id,
             pos = { 1, 0 },
             end_pos = { 1, 0 },
-            buf = item.buf,
             dirname = directory,
-            item = { directory = directory },
+            item = { directory = directory, type = "directory" },
           })
           child = M.new({ id = id, item = dir, group = group })
           parent:add(child)
@@ -220,7 +219,7 @@ M.builders = {
         if node:source() == "fs" then
           if node:width() == 1 then
             local child = node.children[1]
-            if child:source() == "fs" then
+            if child:source() == "fs" and child.item.type == "directory" then
               child.parent = node.parent
               return collapse(child)
             end

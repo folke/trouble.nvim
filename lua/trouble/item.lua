@@ -6,7 +6,7 @@ local Util = require("trouble.util")
 ---@class trouble.Item: {[string]: any}
 ---@field id? string
 ---@field parent? trouble.Item
----@field buf number
+---@field buf? number
 ---@field filename string
 ---@field pos trouble.Pos (1,0)-indexed
 ---@field end_pos? trouble.Pos (1,0)-indexed
@@ -18,15 +18,20 @@ local M = {}
 ---@param opts trouble.Item | {filename?:string}
 function M.new(opts)
   local self = opts
-  assert(self.buf, "buf is required")
   assert(self.source, "source is required")
   self.pos = self.pos or { 1, 0 }
   self.end_pos = self.end_pos or self.pos
   self.item = self.item or {}
-  self.filename = self.filename or vim.fn.bufname(self.buf)
-  self.filename = vim.fn.fnamemodify(self.filename, ":p")
-  self.basename = vim.fn.fnamemodify(self.filename, ":t")
-  self.dirname = self.dirname or vim.fn.fnamemodify(self.filename, ":h")
+  if self.buf and not self.filename then
+    self.filename = vim.api.nvim_buf_get_name(self.buf)
+  end
+  assert(self.filename, "filename is required")
+  if self.filename then
+    self.filename = vim.fs.normalize(self.filename)
+    local parts = vim.split(self.filename, "/", { plain = true })
+    self.basename = table.remove(parts)
+    self.dirname = table.concat(parts, "/")
+  end
   self.cache = Cache.new("item")
   return setmetatable(self, M)
 end
@@ -36,10 +41,13 @@ function M:get_ft()
   if self.buf and vim.api.nvim_buf_is_loaded(self.buf) then
     return vim.bo[self.buf].filetype
   end
-  local ft = self.cache.ft
+  if not self.filename then
+    return
+  end
+  local ft = Cache.ft[self.filename]
   if ft == nil then
     ft = vim.filetype.match({ filename = self.filename })
-    self.cache.ft = ft or false -- cache misses too
+    Cache.ft[self.filename] = ft or false -- cache misses too
   end
   return ft
 end
