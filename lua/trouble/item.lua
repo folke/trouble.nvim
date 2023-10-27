@@ -31,6 +31,24 @@ function M.new(opts)
   return setmetatable(self, M)
 end
 
+---@return string?
+function M:get_ft()
+  if self.buf and vim.api.nvim_buf_is_loaded(self.buf) then
+    return vim.bo[self.buf].filetype
+  end
+  local ft = self.cache.ft
+  if ft == nil then
+    ft = vim.filetype.match({ filename = self.filename })
+    self.cache.ft = ft or false -- cache misses too
+  end
+  return ft
+end
+
+function M:get_lang()
+  local ft = self:get_ft()
+  return ft and ft ~= "" and vim.treesitter.language.get_lang(ft) or nil
+end
+
 function M:__index(k)
   if type(k) ~= "string" then
     return
@@ -45,6 +63,7 @@ function M:__index(k)
   end
 
   local obj = self
+
   local start = 1
   while type(obj) == "table" do
     local dot = k:find(".", start, true)
