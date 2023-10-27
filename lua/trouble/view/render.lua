@@ -165,21 +165,14 @@ function M:at(row)
   return self._locations[row] or {}
 end
 
-function M.get_lang(buf)
-  local ret = Cache.langs[buf]
-  if ret ~= nil then
-    return ret
+---@param item trouble.Item
+function M.get_lang(item)
+  local lang = Cache.langs[item.filename]
+  if lang == nil then
+    lang = item:get_lang()
+    Cache.langs[item.filename] = lang or false -- cache misses too
   end
-  local ft = vim.api.nvim_buf_is_loaded(buf) and not vim.b[buf].trouble_preview and vim.bo[buf].filetype
-    or vim.filetype.match({ buf = buf })
-  if ft then
-    local lang = vim.treesitter.language.get_lang(ft)
-    if lang then
-      Cache.langs[buf] = lang
-      return lang
-    end
-  end
-  Cache.langs[buf] = false
+  return lang
 end
 
 ---@param node trouble.Node
@@ -209,7 +202,7 @@ function M:item(node, section, indent)
       local offset ---@type number? start column of the first line
       local first ---@type string? first line
       if ff.hl == "ts" then
-        local lang = M.get_lang(item.buf)
+        local lang = M.get_lang(item)
         if lang then
           ff.hl = "ts." .. lang
         else
