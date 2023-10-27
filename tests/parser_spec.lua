@@ -18,6 +18,10 @@ describe("Input is parsed correctly", function()
       expected = { opts = { a = { b = "c" } }, errors = {}, args = {} },
     },
     {
+      input = [[vim=vim.diagnostic.severity.ERROR]],
+      expected = { opts = { vim = vim.diagnostic.severity.ERROR }, errors = {}, args = {} },
+    },
+    {
       input = [[x.y.z = "value" a.b = 2]],
       expected = { opts = { x = { y = { z = "value" } }, a = { b = 2 } }, errors = {}, args = {} },
     },
