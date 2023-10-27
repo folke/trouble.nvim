@@ -6,7 +6,7 @@ M.filters = {
   buf = function(item, buf, view)
     local main = view:main()
     if buf == 0 then
-      return main and main.path == item.filename or false
+      return main and main.filename == item.filename or false
     end
     return item.buf == buf
   end,

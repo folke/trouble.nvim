@@ -11,27 +11,19 @@ local Window = require("trouble.view.window")
 
 ---@class trouble.View
 ---@field win trouble.Window
+---@field preview_win trouble.Window
 ---@field opts trouble.Mode
 ---@field sections trouble.Section[]
 ---@field items trouble.Item[][]
 ---@field nodes trouble.Node[]
 ---@field renderer trouble.Render
----@field private _main? {buf:number, win:number, path:string}
+---@field private _main? trouble.Window.info
 ---@field fetching number
 local M = {}
 M.__index = M
 local _idx = 0
 ---@type table<trouble.View, number>
 M._views = setmetatable({}, { __mode = "k" })
-
--- local timer = assert(vim.loop.new_timer())
--- timer:start(
---   3000,
---   3000,
---   vim.schedule_wrap(function()
---     dd("views", vim.tbl_count(M._views))
---   end)
--- )
 
 ---@param opts trouble.Mode
 function M.new(opts)
@@ -61,6 +53,17 @@ function M.new(opts)
   end
   self.win = Window.new(opts.win)
   self.opts.win = self.win.opts
+  self.preview_win = Window.new({
+    type = "float",
+    -- position = "right",
+    relative = "editor",
+    border = "rounded",
+    title = "Preview",
+    title_pos = "center",
+    position = { 0, -2 },
+    size = { width = 0.3, height = 0.3 },
+    zindex = 200,
+  })
 
   self.renderer = Render.new(self, {
     padding = vim.tbl_get(self.opts.win, "padding", "left") or 0,
@@ -206,6 +209,7 @@ function M:jump(item, opts)
   vim.api.nvim_win_set_buf(win, item.buf)
   -- order of the below seems important with splitkeep=screen
   vim.api.nvim_set_current_win(win)
+  -- FIXME:
   vim.api.nvim_win_set_cursor(win, item.pos)
   if vim.b[item.buf].trouble_preview then
     vim.cmd.edit()
@@ -223,7 +227,6 @@ function M:preview(item)
   return Preview.open(self, item)
 end
 
----@return {buf:number, win:number, path:string, cursor:number[]}?
 function M:main()
   local valid = self._main
     and self._main.win
@@ -233,14 +236,7 @@ function M:main()
   if not valid then
     self._main = self.win:find_main()
   end
-  if self._main then
-    local cursor = vim.api.nvim_win_get_cursor(self._main.win)
-    -- When the preview is open, use the stored main window cursor
-    if Preview.preview and Preview.preview.win == self._main.win then
-      cursor = Preview.preview.cursor
-    end
-    return { buf = self._main.buf, path = self._main.path, win = self._main.win, cursor = cursor }
-  end
+  return self._main
 end
 
 function M:goto_main()
@@ -253,23 +249,39 @@ end
 function M:listen()
   local _self = Util.weak(self)
   self:main()
+
+  -- track main window
   self.win:on("BufEnter", function()
     local this = _self()
     if not this then
       return true
     end
+    -- FIXME:
+    assert(not Preview.is_open())
     -- don't update the main window when
     -- preview is open or when the window is pinned
-    if Preview.preview or this.opts.pinned then
+    if this.opts.pinned then
       return
     end
     local buf = vim.api.nvim_get_current_buf()
     local win = vim.api.nvim_get_current_win()
-    if vim.bo[buf].buftype == "" and vim.bo[buf].filetype ~= "" then
+    if vim.bo[buf].buftype == "" then
       ---@diagnostic disable-next-line: invisible
       this._main = Window.win_info(win)
     end
   end, { buffer = false })
+
+  self.win:on("WinEnter", function()
+    local this = _self()
+    if not this then
+      return true
+    end
+    ---@diagnostic disable-next-line: invisible
+    if this._main and vim.api.nvim_win_is_valid(this._main.win) then
+      ---@diagnostic disable-next-line: invisible
+      this._main = Window.win_info(this._main.win)
+    end
+  end, { win = true })
 
   for _, section in ipairs(self.sections) do
     for _, event in ipairs(section.events or {}) do
@@ -513,18 +525,21 @@ function M:render()
 
   -- Move cursor to the same item
   local cursor = vim.api.nvim_win_get_cursor(self.win.win)
+  local item_row ---@type number?
   for row, l in pairs(self.renderer._locations) do
     if loc.node and loc.item then
       if l.node and l.item and loc.node.id == l.node.id and l.item == loc.item then
-        cursor[1] = row
-        vim.api.nvim_win_set_cursor(self.win.win, cursor)
+        item_row = row
         break
       end
     elseif loc.node and l.node and loc.node.id == l.node.id then
-      cursor[1] = row
-      vim.api.nvim_win_set_cursor(self.win.win, cursor)
+      item_row = row
       break
     end
+  end
+  if item_row and item_row ~= cursor[1] then
+    vim.api.nvim_win_set_cursor(self.win.win, { item_row, cursor[2] })
+    return
   end
 end
 
