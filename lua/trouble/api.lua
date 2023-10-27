@@ -56,7 +56,7 @@ function M.open(opts)
   local view, _opts = M.get(opts)
   if view then
     view:open()
-    if _opts.focus then
+    if _opts.focus ~= false then
       view.win:focus()
     end
     return view, _opts
