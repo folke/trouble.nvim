@@ -72,14 +72,15 @@ end
 function M.add_text(items, opts)
   opts = opts or {}
   opts.mode = opts.mode or "range"
-  local buf_rows = {} ---@type table<number, number[]>
+  local todo = {} ---@type table<string, {buf?:number, rows:number[]}>
 
   for _, item in ipairs(items) do
-    if not item.item.text then
+    if not item.item.text and item.filename then
       -- schedule to get the lines
-      buf_rows[item.buf] = buf_rows[item.buf] or {}
+      todo[item.filename] = todo[item.filename] or { rows = {} }
+      todo[item.filename].buf = todo[item.filename].buf or item.buf
       for r = item.pos[1], item.end_pos and item.end_pos[1] or item.pos[1] do
-        table.insert(buf_rows[item.buf], r)
+        table.insert(todo[item.filename].rows, r)
         if not opts.multiline then
           break
         end
@@ -88,15 +89,19 @@ function M.add_text(items, opts)
   end
 
   -- get the lines and range text
-  local buf_lines = {} ---@type table<number, table<number, string>>
-  for buf, rows in pairs(buf_rows) do
-    buf_lines[buf] = Util.get_lines(buf, rows)
+  local buf_lines = {} ---@type table<string, table<number, string>>
+  for path, t in pairs(todo) do
+    buf_lines[path] = Util.get_lines({
+      rows = t.rows,
+      buf = t.buf,
+      path = path,
+    })
   end
   for _, item in ipairs(items) do
-    if not item.item.text then
+    if not item.item.text and item.filename then
       local lines = {} ---@type string[]
       for row = item.pos[1], item.end_pos[1] do
-        local line = buf_lines[item.buf][row] or ""
+        local line = buf_lines[item.filename][row] or ""
         if row == item.pos[1] and row == item.end_pos[1] then
           if opts.mode == "after" then
             line = line:sub(item.pos[2] + 1)
