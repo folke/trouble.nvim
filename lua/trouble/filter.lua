@@ -5,7 +5,9 @@ local M = {}
 M.filters = {
   buf = function(item, buf, view)
     local main = view:main()
-    buf = buf == 0 and main and main.buf or buf
+    if buf == 0 then
+      return main and main.path == item.filename or false
+    end
     return item.buf == buf
   end,
   ["not"] = function(item, filter, view)
