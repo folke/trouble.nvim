@@ -1,3 +1,4 @@
+local Config = require("trouble.config")
 local Filter = require("trouble.filter")
 local Preview = require("trouble.view.preview")
 local Render = require("trouble.view.render")
@@ -38,18 +39,10 @@ function M.new(opts)
   self.items = {}
   self.fetching = 0
   self.nodes = {}
-  self.sections = {}
-  for _, view in ipairs(self.opts.sections or {}) do
-    local spec = self.opts.views[view]
-    if spec then
-      local section = Spec.section(self.opts.views[view])
-      section.max_items = section.max_items or self.opts.max_items
-      table.insert(self.sections, section)
-      table.insert(self.items, {})
-      table.insert(self.nodes, {})
-    else
-      Util.error("View not found: " .. view)
-    end
+  self.sections = Spec.sections(self.opts)
+  for _ in ipairs(self.sections) do
+    self.items[#self.items + 1] = {}
+    self.nodes[#self.nodes + 1] = {}
   end
   self.win = Window.new(opts.win)
   self.opts.win = self.win.opts

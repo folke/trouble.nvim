@@ -30,12 +30,6 @@ function M.register(name, source)
     end
     require("trouble.config.highlights").source(name, source.highlights)
     if source.config then
-      source.config.modes = source.config.modes or {}
-      for view in pairs(source.config.views or {}) do
-        source.config.modes[view] = source.config.modes[view] or {
-          sections = { view },
-        }
-      end
       Config.defaults(source.config)
     end
   end
