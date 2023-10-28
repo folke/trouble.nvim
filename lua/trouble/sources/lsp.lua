@@ -8,7 +8,6 @@ local get_col = vim.lsp.util._get_line_byte_from_position
 ---@diagnostic disable-next-line: missing-fields
 local M = {}
 
----@diagnostic disable-next-line: missing-fields
 M.config = {
   modes = {
     lsp_document_symbols = {

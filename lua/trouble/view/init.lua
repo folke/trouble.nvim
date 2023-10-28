@@ -1,4 +1,3 @@
-local Config = require("trouble.config")
 local Filter = require("trouble.filter")
 local Preview = require("trouble.view.preview")
 local Render = require("trouble.view.render")
@@ -32,8 +31,8 @@ function M.new(opts)
   _idx = _idx + 1
   M._views[self] = _idx
   self.opts = opts or {}
-  self.opts.win = self.opts.win or {}
-  self.opts.win.on_mount = function()
+  self.opts.results.win = self.opts.results.win or {}
+  self.opts.results.win.on_mount = function()
     self:on_mount()
   end
   self.items = {}
@@ -44,8 +43,8 @@ function M.new(opts)
     self.items[#self.items + 1] = {}
     self.nodes[#self.nodes + 1] = {}
   end
-  self.win = Window.new(opts.win)
-  self.opts.win = self.win.opts
+  self.win = Window.new(self.opts.results.win)
+  self.opts.results.win = self.win.opts
   self.preview_win = Window.new({
     type = "float",
     -- position = "right",
@@ -59,8 +58,8 @@ function M.new(opts)
   })
 
   self.renderer = Render.new(self, {
-    padding = vim.tbl_get(self.opts.win, "padding", "left") or 0,
-    multiline = self.opts.multiline,
+    padding = vim.tbl_get(self.opts.results.win, "padding", "left") or 0,
+    multiline = self.opts.results.multiline,
   })
   local _self = Util.weak(self)
   self.refresh = Util.throttle(M.refresh, {
@@ -478,7 +477,7 @@ function M:render()
   -- render sections
   self.renderer:clear()
   self.renderer:nl()
-  for _ = 1, vim.tbl_get(self.opts.win, "padding", "top") or 0 do
+  for _ = 1, vim.tbl_get(self.opts.results.win, "padding", "top") or 0 do
     self.renderer:nl()
   end
   for s, section in ipairs(self.sections) do
