@@ -36,6 +36,15 @@ function M:width(opts)
   return ret
 end
 
+-- Returns a new indent with all the symbols replaced with whitespace
+function M:indent()
+  local new = setmetatable({}, M)
+  for k, v in pairs(self) do
+    new[k] = type(k) == "number" and self.symbols.ws or v
+  end
+  return new
+end
+
 function M:clone()
   local new = setmetatable({}, M)
   for k, v in pairs(self) do

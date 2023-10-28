@@ -29,7 +29,7 @@ function M.sort(items, opts, view)
   for f, field in ipairs(opts) do
     if field.field then
       ---@diagnostic disable-next-line: no-unknown
-      local sorter = view.opts.sorters[field.field] or M.sorters[field.field]
+      local sorter = view.opts.sorters and view.opts.sorters[field.field] or M.sorters[field.field]
       if sorter then
         fields[f] = { sorter = sorter }
       else

@@ -181,6 +181,10 @@ function M:item(node, section, indent)
   ---@type TextSegment[]?
   local segments = not is_group and item.cache[cache_key]
 
+  if not self.view.opts.results.indent_guides then
+    indent = indent:indent()
+  end
+
   self:append(indent)
   if segments then
     self:append(segments)

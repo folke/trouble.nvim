@@ -32,7 +32,7 @@ function M.is(item, filter, view)
   filter = type(filter) == "table" and filter or { filter }
   for k, v in pairs(filter) do
     ---@type trouble.FilterFn?
-    local filter_fn = view.opts.filters[k] or M.filters[k]
+    local filter_fn = view.opts.filters and view.opts.filters[k] or M.filters[k]
     if filter_fn then
       if not filter_fn(item, v, view) then
         return false
