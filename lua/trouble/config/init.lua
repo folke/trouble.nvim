@@ -1,14 +1,12 @@
 ---@class trouble.Config.mod: trouble.Config
 local M = {}
 
----@class trouble.Mode: trouble.Config
----@field filter? trouble.Filter.spec Optional filter to apply to items in all sections
+---@class trouble.Mode: trouble.Config,trouble.Section.spec
 ---@field sections? string[]
 
 ---@class trouble.Config
 ---@field mode? string
 ---@field config? fun(opts:trouble.Config)
----@field sections table<string,trouble.Section.spec>
 ---@field formatters table<string,trouble.Formatter>
 local defaults = {
   debug = false,
@@ -29,8 +27,6 @@ local defaults = {
   filters = {}, -- custom filters
   ---@type table<string, trouble.SorterFn>
   sorters = {}, -- custom sorters
-  ---@type table<string, trouble.Section.spec>
-  views = {}, -- custom sections
   ---@type table<string, string|trouble.Action>
   keys = {
     ["?"] = "help",
@@ -175,8 +171,12 @@ end
 
 function M.modes()
   require("trouble.source").load()
-  ---@type string[]
-  local ret = vim.tbl_keys(options.modes)
+  local ret = {} ---@type string[]
+  for k, v in pairs(options.modes) do
+    if v.source or v.mode or v.sections then
+      ret[#ret + 1] = k
+    end
+  end
   table.sort(ret)
   return ret
 end
@@ -227,9 +227,6 @@ function M.get(...)
     ret.config(ret)
   end
   ret.mode = first_mode
-  if ret.mode then
-    ret.modes = {}
-  end
 
   return ret
 end

@@ -40,12 +40,16 @@ function M.debug(msg, ...)
 end
 
 ---@param str string
-function M.camel(str)
+---@param sep? string
+function M.camel(str, sep)
   local parts = vim.split(str, "[%.%-%_]")
   ---@diagnostic disable-next-line: no-unknown
-  return table.concat(vim.tbl_map(function(part)
-    return part:sub(1, 1):upper() .. part:sub(2)
-  end, parts))
+  return table.concat(
+    vim.tbl_map(function(part)
+      return part:sub(1, 1):upper() .. part:sub(2)
+    end, parts),
+    sep or ""
+  )
 end
 
 -- throttle with trailing execution

@@ -1,3 +1,5 @@
+local Config = require("trouble.config")
+
 ---@alias trouble.SorterFn fun(item: trouble.Item): any?
 
 ---@alias trouble.Sort.spec string|trouble.SorterFn|(string|trouble.SorterFn|trouble.Filter.spec)[]
@@ -81,11 +83,21 @@ function M.section(spec)
   return ret
 end
 
----@param spec trouble.Section.spec|trouble.Section.spec[]
+---@param mode trouble.Mode
 ---@return trouble.Section[]
-function M.sections(spec)
-  spec = vim.tbl_islist(spec) and spec or { spec }
-  return vim.tbl_map(M.section, spec)
+function M.sections(mode)
+  local ret = {} ---@type trouble.Section[]
+
+  if mode.sections then
+    for _, s in ipairs(mode.sections) do
+      ret[#ret + 1] = M.section(Config.get(mode, { sections = false }, s) --[[@as trouble.Mode]])
+    end
+  else
+    local section = M.section(mode)
+    section.max_items = section.max_items or mode.max_items
+    ret[#ret + 1] = section
+  end
+  return ret
 end
 
 ---@param spec trouble.Sort.spec
