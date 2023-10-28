@@ -22,7 +22,7 @@ local Item = require("trouble.item")
 local M = {}
 
 M.config = {
-  views = {
+  modes = {
     qflist = {
       events = { "BufEnter", "QuickFixCmdPost" },
       source = "qf.qflist",
@@ -43,7 +43,7 @@ M.config = {
     },
   },
 }
-M.config.views.quickfix = M.config.views.qflist
+M.config.modes.quickfix = M.config.modes.qflist
 
 local severities = {
   E = vim.diagnostic.severity.ERROR,

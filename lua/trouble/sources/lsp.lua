@@ -1,6 +1,7 @@
 ---@diagnostic disable: inject-field
 local methods = vim.lsp.protocol.Methods
 local Item = require("trouble.item")
+local Util = require("trouble.util")
 local get_col = vim.lsp.util._get_line_byte_from_position
 
 ---@type trouble.Source
@@ -9,7 +10,7 @@ local M = {}
 
 ---@diagnostic disable-next-line: missing-fields
 M.config = {
-  views = {
+  modes = {
     lsp_document_symbols = {
       title = "{hl:Title}Document Symbols{hl} {count}",
       events = { "BufEnter", { event = "TextChanged", main = true } },
@@ -21,8 +22,14 @@ M.config = {
       -- sort = { { buf = 0 }, { kind = "Function" }, "filename", "pos", "text" },
       format = "{kind_icon} {symbol.name} {text:Comment} {pos}",
     },
-  },
-  modes = {
+    lsp_base = {
+      events = { { event = "CursorHold", main = true } },
+      groups = {
+        { "filename", format = "{file_icon} {filename} {count}" },
+      },
+      sort = { { buf = 0 }, "filename", "pos", "text" },
+      format = "{text:ts} ({item.client}) {pos}",
+    },
     lsp = {
       sections = {
         "lsp_definitions",
@@ -36,16 +43,10 @@ M.config = {
 }
 
 for _, mode in ipairs({ "definitions", "references", "implementations", "type_definitions", "declarations" }) do
-  M.config.views["lsp_" .. mode] = {
-    title = "{hl:Title}" .. mode:gsub("^%l", string.upper) .. "{hl} {count}",
-    events = { { event = "CursorHold", main = true } },
-    -- events = { "CursorHold", "CursorMoved" },
+  M.config.modes["lsp_" .. mode] = {
+    mode = "lsp_base",
+    title = "{hl:Title}" .. Util.camel(mode, " ") .. "{hl} {count}",
     source = "lsp." .. mode,
-    groups = {
-      { "filename", format = "{file_icon} {filename} {count}" },
-    },
-    sort = { { buf = 0 }, "filename", "pos", "text" },
-    format = "{text:ts} ({item.client}) {pos}",
   }
 end
 

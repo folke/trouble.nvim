@@ -11,7 +11,7 @@ M.highlights = {
 }
 
 M.config = {
-  views = {
+  modes = {
     diagnostics = {
       events = { "DiagnosticChanged", "BufEnter" },
       -- Trouble classic for other buffers,
