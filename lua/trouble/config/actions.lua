@@ -24,17 +24,17 @@ local M = {
       self:preview(ctx.item)
     end
   end,
-  toggle_auto_preview = function(self)
-    self.opts.auto_preview = not self.opts.auto_preview
+  toggle_preview = function(self)
+    self.opts.preview.auto_open = not self.opts.preview.auto_open
     local Preview = require("trouble.view.preview")
-    if self.opts.auto_preview then
+    if self.opts.preview.auto_open then
       self:preview()
     else
       Preview.close()
     end
   end,
-  toggle_auto_refresh = function(self)
-    self.opts.auto_refresh = not self.opts.auto_refresh
+  toggle_refresh = function(self)
+    self.opts.results.auto_refresh = not self.opts.results.auto_refresh
   end,
   help = function(self)
     self:help()

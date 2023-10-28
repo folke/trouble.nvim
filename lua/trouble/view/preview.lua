@@ -8,6 +8,10 @@ function M.is_open()
   return M.preview ~= nil
 end
 
+function M.is_win(win)
+  return M.preview and M.preview.win == win
+end
+
 function M.item()
   return M.preview and M.preview.item
 end
@@ -82,7 +86,13 @@ function M.open(view, item)
 
   local buf = M.create(item)
 
-  M.preview = M.preview_win(buf, view)
+  if view.opts.preview.win == "main" then
+    M.preview = M.preview_main(buf, view)
+  else
+    assert(type(view.opts.preview.win) == "table", "Invalid preview window")
+    M.preview = M.preview_win(buf, view)
+  end
+
   M.preview.buf = buf
   M.preview.item = item
 
