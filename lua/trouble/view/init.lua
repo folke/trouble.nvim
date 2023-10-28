@@ -11,7 +11,7 @@ local Window = require("trouble.view.window")
 
 ---@class trouble.View
 ---@field win trouble.Window
----@field preview_win trouble.Window
+---@field preview_win? trouble.Window
 ---@field opts trouble.Mode
 ---@field sections trouble.Section[]
 ---@field items trouble.Item[][]
@@ -39,23 +39,11 @@ function M.new(opts)
   self.fetching = 0
   self.nodes = {}
   self.sections = Spec.sections(self.opts)
-  for _ in ipairs(self.sections) do
-    self.items[#self.items + 1] = {}
-    self.nodes[#self.nodes + 1] = {}
-  end
   self.win = Window.new(self.opts.results.win)
   self.opts.results.win = self.win.opts
-  self.preview_win = Window.new({
-    type = "float",
-    -- position = "right",
-    relative = "editor",
-    border = "rounded",
-    title = "Preview",
-    title_pos = "center",
-    position = { 0, -2 },
-    size = { width = 0.3, height = 0.3 },
-    zindex = 200,
-  })
+
+  ---@diagnostic disable-next-line: param-type-mismatch
+  self.preview_win = self.opts.preview.win ~= "main" and Window.new(self.opts.preview.win) or nil
 
   self.renderer = Render.new(self, {
     padding = vim.tbl_get(self.opts.results.win, "padding", "left") or 0,
@@ -72,7 +60,7 @@ function M.new(opts)
   self.update = Util.throttle(M.update, { ms = 10 })
   self.render = Util.throttle(M.render, { ms = 10 })
 
-  if self.opts.auto_open then
+  if self.opts.results.auto_open then
     self:listen()
     self:refresh()
   end
@@ -88,7 +76,7 @@ function M.get(filter)
   local ret = {}
   for view, idx in pairs(M._views) do
     local is_open = view.win:valid()
-    local ok = is_open or view.opts.auto_open
+    local ok = is_open or view.opts.results.auto_open
     ok = ok and (not filter.mode or filter.mode == view.opts.mode)
     ok = ok and (not filter.open or is_open)
     if ok then
@@ -120,7 +108,7 @@ function M:on_mount()
     if not this then
       return true
     end
-    if this.opts.auto_preview then
+    if this.opts.preview.auto_open then
       local loc = this:at()
       if loc and loc.item then
         preview(this, loc.item)
@@ -201,11 +189,7 @@ function M:jump(item, opts)
   vim.api.nvim_win_set_buf(win, item.buf)
   -- order of the below seems important with splitkeep=screen
   vim.api.nvim_set_current_win(win)
-  -- FIXME:
   vim.api.nvim_win_set_cursor(win, item.pos)
-  if vim.b[item.buf].trouble_preview then
-    vim.cmd.edit()
-  end
   return item
 end
 
@@ -228,6 +212,10 @@ function M:main()
   if not valid then
     self._main = self.win:find_main()
   end
+  -- update the cursor, unless the preview is showing in the main window
+  if self._main and not Preview.is_win(self._main.win) then
+    self._main.cursor = vim.api.nvim_win_get_cursor(self._main.win)
+  end
   return self._main
 end
 
@@ -248,8 +236,6 @@ function M:listen()
     if not this then
       return true
     end
-    -- FIXME:
-    assert(not Preview.is_open())
     -- don't update the main window when
     -- preview is open or when the window is pinned
     if this.opts.pinned then
@@ -285,7 +271,7 @@ function M:listen()
           if not this then
             return true
           end
-          if not this.opts.auto_refresh then
+          if not this.opts.results.auto_refresh then
             return
           end
           if event.main then
@@ -381,7 +367,7 @@ end
 
 function M:refresh()
   local is_open = self.win:valid()
-  if not is_open and not self.opts.auto_open then
+  if not is_open and not self.opts.results.auto_open then
     return
   end
   for s, section in ipairs(self.sections) do
@@ -452,18 +438,21 @@ end
 
 function M:count()
   local count = 0
-  for _, node in ipairs(self.nodes) do
+  for _, node in pairs(self.nodes) do
     count = count + node:count()
   end
   return count
 end
 
 function M:update()
-  if self.opts.auto_close and self:count() == 0 then
+  if self.opts.results.auto_close and self:count() == 0 then
     return self:close()
   end
-  if self.opts.auto_open and not self.win:valid() and self:count() > 0 then
-    return self:open()
+  if self.opts.results.auto_open and not self.win:valid() then
+    if self:count() == 0 then
+      return
+    end
+    self:open()
   end
   self:render()
 end
@@ -481,7 +470,7 @@ function M:render()
     self.renderer:nl()
   end
   for s, section in ipairs(self.sections) do
-    local nodes = self.nodes[s].children
+    local nodes = self.nodes[s] and self.nodes[s].children
     if nodes and #nodes > 0 then
       self.renderer:section(section, nodes)
     end

@@ -13,10 +13,6 @@ local M = {}
 local defaults = {
   debug = false,
   throttle = 100,
-  auto_open = false,
-  auto_close = false,
-  auto_preview = true,
-  auto_refresh = true,
   pinned = false,
   results = {
     ---@type trouble.Window.opts
@@ -24,12 +20,22 @@ local defaults = {
     indent_guides = true, -- show indent guides
     multiline = true, -- render multi-line messages
     max_items = 200, -- limit number of items that can be displayed per section
+    auto_open = false,
+    auto_close = false,
+    auto_refresh = true,
+  },
+  preview = {
+    -- preview window, or "main", to show the preview in
+    -- the main editor window
+    ---@type trouble.Window.opts|"main"
+    win = "main",
+    auto_open = true, -- automatically open preview when on an item
   },
   ---@type table<string, string|trouble.Action>
   keys = {
     ["?"] = "help",
     r = "refresh",
-    R = "toggle_auto_refresh",
+    R = "toggle_refresh",
     q = "close",
     o = "jump_close",
     ["<esc>"] = "cancel",
@@ -47,7 +53,7 @@ local defaults = {
     ["[["] = "prev",
     i = "inspect",
     p = "preview",
-    P = "toggle_auto_preview",
+    P = "toggle_preview",
     zo = "fold_open",
     zO = "fold_open_recursive",
     zc = "fold_close",
@@ -90,6 +96,22 @@ local defaults = {
           "Property",
           "Struct",
           "Trait",
+        },
+      },
+    },
+    preview_float = {
+      mode = "diagnostics",
+      preview = {
+        win = {
+          type = "float",
+          -- position = "right",
+          relative = "editor",
+          border = "rounded",
+          title = "Preview",
+          title_pos = "center",
+          position = { 0, -2 },
+          size = { width = 0.3, height = 0.3 },
+          zindex = 200,
         },
       },
     },
