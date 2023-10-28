@@ -7,26 +7,24 @@ local M = {}
 ---@class trouble.Config
 ---@field mode? string
 ---@field config? fun(opts:trouble.Config)
----@field formatters table<string,trouble.Formatter>
+---@field formatters? table<string,trouble.Formatter> custom formatters
+---@field filters? table<string, trouble.FilterFn> custom filters
+---@field sorters? table<string, trouble.SorterFn> custom sorters
 local defaults = {
   debug = false,
-  indent_lines = true, -- add an indent guide below the fold icons
-  max_items = 200, -- limit number of items that can be displayed
-  ---@type trouble.Window.opts
-  win = {},
   throttle = 100,
   auto_open = false,
   auto_close = false,
   auto_preview = true,
   auto_refresh = true,
   pinned = false,
-  multiline = true, -- render multi-line messages
-  ---@type table<string, trouble.Formatter>
-  formatters = {}, -- custom formatters
-  ---@type table<string, trouble.FilterFn>
-  filters = {}, -- custom filters
-  ---@type table<string, trouble.SorterFn>
-  sorters = {}, -- custom sorters
+  results = {
+    ---@type trouble.Window.opts
+    win = {},
+    indent_guides = true, -- show indent guides
+    multiline = true, -- render multi-line messages
+    max_items = 200, -- limit number of items that can be displayed per section
+  },
   ---@type table<string, string|trouble.Action>
   keys = {
     ["?"] = "help",
@@ -74,7 +72,9 @@ local defaults = {
     },
     symbols = {
       mode = "lsp_document_symbols",
-      win = { position = "right" },
+      results = {
+        win = { position = "right" },
+      },
       filter = {
         kind = {
           "Class",
