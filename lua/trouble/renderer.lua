@@ -47,9 +47,26 @@ function renderer.render(view, opts)
 
     -- check for auto close
     if opts.auto and config.options.auto_close then
-      if count == 0 then
-        view:close()
-        return
+      local count_in_severity = 0
+
+      if config.options.auto_open and config.options.auto_open ~= true then
+        for _, auto_sev in ipairs(config.options.auto_open) do
+          for _, item in ipairs(items) do
+            if item.severity == auto_sev then
+              count_in_severity = count_in_severity + 1
+            end
+          end
+        end
+
+        if count_in_severity == 0 then
+          view:close()
+          return
+        end
+      else
+        if count == 0 then
+          view:close()
+          return
+        end
       end
     end
 
