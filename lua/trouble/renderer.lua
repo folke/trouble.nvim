@@ -48,6 +48,7 @@ function renderer.render(view, opts)
     -- check for auto close
     if opts.auto and config.options.auto_close then
       if count == 0 then
+        vim.notify("No results found", vim.log.levels.INFO)
         view:close()
         return
       end
