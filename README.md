@@ -255,3 +255,4 @@ The table below shows all the highlight groups defined for Trouble.
 | _TroubleHint_            |
 | _TroubleTextHint_        |
 | _TroubleText_            |
+| _TroubleCursorLine_      |

@@ -18,6 +18,7 @@ local links = {
   Preview = "Search",
   Indent = "LineNr",
   SignOther = "TroubleSignInformation",
+  CursorLine = "CursorLine",
 }
 
 function M.setup()

@@ -283,6 +283,7 @@ The table below shows all the highlight groups defined for Trouble.
   TroubleHint
   TroubleTextHint
   TroubleText
+  TroubleCursorLine
 ==============================================================================
 2. Links                                                  *trouble.nvim-links*
 
