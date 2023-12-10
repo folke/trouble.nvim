@@ -22,7 +22,11 @@ function M.references(win, buf, cb, options)
       return cb({})
     end
     if result == nil or #result == 0 then
-      return cb({})
+      if vim.tbl_isempty(result) then
+        return cb({})
+      else
+        result = { result }
+      end
     end
     local ret = util.locations_to_items({ result }, 0)
     cb(ret)
@@ -40,7 +44,11 @@ function M.implementations(win, buf, cb, options)
       return cb({})
     end
     if result == nil or #result == 0 then
-      return cb({})
+      if vim.tbl_isempty(result) then
+        return cb({})
+      else
+        result = { result }
+      end
     end
     local ret = util.locations_to_items({ result }, 0)
     cb(ret)
@@ -58,7 +66,11 @@ function M.definitions(win, buf, cb, options)
       return cb({})
     end
     if result == nil or #result == 0 then
-      return cb({})
+      if vim.tbl_isempty(result) then
+        return cb({})
+      else
+        result = { result }
+      end
     end
     for _, value in ipairs(result) do
       value.uri = value.targetUri or value.uri
