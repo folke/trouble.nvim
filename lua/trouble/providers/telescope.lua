@@ -32,13 +32,15 @@ local function item_to_result(item)
 end
 
 --- Shows all Telescope results in Trouble.
-function M.open_with_trouble(prompt_bufnr, _mode)
+--- Set 'append' to true to append to the trouble list instead of replacing it.
+function M.open_with_trouble(prompt_bufnr, _mode, opts)
+  opts = opts or {}
   local action_state = require("telescope.actions.state")
   local actions = require("telescope.actions")
   local picker = action_state.get_current_picker(prompt_bufnr)
   local manager = picker.manager
 
-  M.results = {}
+  M.results = opts.append and M.results or {}
   for item in manager:iter() do
     table.insert(M.results, item_to_result(item))
   end
@@ -48,12 +50,14 @@ function M.open_with_trouble(prompt_bufnr, _mode)
 end
 
 --- Shows the selected Telescope results in Trouble.
-function M.open_selected_with_trouble(prompt_bufnr, _mode)
+--- Set 'append' to true to append to the trouble list instead of replacing it.
+function M.open_selected_with_trouble(prompt_bufnr, _mode, opts)
+  opts = opts or {}
   local action_state = require("telescope.actions.state")
   local actions = require("telescope.actions")
   local picker = action_state.get_current_picker(prompt_bufnr)
 
-  M.results = {}
+  M.results = opts.append and M.results or {}
   for _, item in ipairs(picker:get_multi_selection()) do
     table.insert(M.results, item_to_result(item))
   end
@@ -64,13 +68,14 @@ end
 
 --- Shows the selected Telescope results in Trouble.
 --- If no results are currently selected, shows all of them.
-function M.smart_open_with_trouble(prompt_bufnr, _mode)
+--- Set 'append' to true to append to the trouble list instead of replacing it.
+function M.smart_open_with_trouble(prompt_bufnr, _mode, opts)
   local action_state = require("telescope.actions.state")
   local picker = action_state.get_current_picker(prompt_bufnr)
   if #picker:get_multi_selection() > 0 then
-    M.open_selected_with_trouble(prompt_bufnr, _mode)
+    M.open_selected_with_trouble(prompt_bufnr, _mode, opts)
   else
-    M.open_with_trouble(prompt_bufnr, _mode)
+    M.open_with_trouble(prompt_bufnr, _mode, opts)
   end
 end
 

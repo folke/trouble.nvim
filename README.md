@@ -224,7 +224,17 @@ telescope.setup {
 }
 ```
 
-When you open telescope, you can now hit `<c-t>` to open the results in **Trouble**
+When you open telescope, you can now hit `<c-t>` to open the results in **Trouble**.
+
+You can also choose to *append* to the **Trouble** list, by using something like
+```lua
+function(nr, mode) trouble.open_with_trouble(nr, mode, { append = true }) end
+```
+as action.
+
+There's also `open_selected_with_trouble` and `smart_open_with_trouble`; the latter one
+opens selected results, if any results are selected, and otherwise opens all search
+results.
 
 ## 🎨 Colors
 
