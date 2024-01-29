@@ -197,6 +197,8 @@ function Trouble.action(action)
     view:jump({ precmd = "vsplit" })
   elseif action == "open_tab" then
     view:jump({ precmd = "tabe" })
+  elseif action == "open_tab_drop" then
+    view:jump({ precmd = "tab drop" })
   end
   if action == "jump_close" then
     view:jump()

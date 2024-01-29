@@ -11,6 +11,12 @@ function M.jump_to_item(win, precmd, item)
   vim.cmd("normal! m'")
 
   View.switch_to(win)
+
+  local drop = precmd:find("drop")
+  if drop then
+    precmd = "tabe"
+  end
+
   if precmd then
     vim.cmd(precmd)
   end
@@ -20,7 +26,15 @@ function M.jump_to_item(win, precmd, item)
   if not vim.api.nvim_buf_is_loaded(item.bufnr) then
     vim.fn.bufload(item.bufnr)
   end
-  vim.api.nvim_set_current_buf(item.bufnr)
+
+  if drop then
+    local empty_bufnr = vim.api.nvim_get_current_buf()
+    vim.cmd.drop(item.filename) -- switch to existing tab
+    vim.cmd.bdelete(empty_bufnr) -- delete empty tab
+  else
+    vim.api.nvim_set_current_buf(item.bufnr)
+  end
+
   vim.api.nvim_win_set_cursor(win or 0, { item.start.line + 1, item.start.character })
   vim.api.nvim_exec_autocmds("User", { pattern = "TroubleJump", modeline = false })
 end
