@@ -19,7 +19,7 @@ local function get_icon(file)
   end
   local fname = vim.fn.fnamemodify(file, ":t")
   local ext = vim.fn.fnamemodify(file, ":e")
-  return icons.get_icon(fname, ext, { default = true })
+  return icons.get_icon(fname, ext, { default = true }) or ""
 end
 
 local function update_signs()
