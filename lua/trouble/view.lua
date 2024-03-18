@@ -171,6 +171,7 @@ function View:setup(opts)
           silent = true,
           noremap = true,
           nowait = true,
+          desc = "Trouble " .. action,
         }
       )
     end
