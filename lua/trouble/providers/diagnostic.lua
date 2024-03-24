@@ -52,7 +52,6 @@ function M.get_signs()
         return signs_text[i]
 
       end)
-      print(sign)
       if not status then
         sign = v:sub(1, 1)
       end
