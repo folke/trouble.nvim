@@ -12,6 +12,7 @@ local Util = require("trouble.util")
 ---@field foldenable boolean
 ---@field max_depth number
 ---@field view trouble.View
+---@field opts trouble.Config
 local M = setmetatable({}, Text)
 M.__index = M
 
@@ -19,14 +20,14 @@ M.__index = M
 ---@field indent? trouble.Indent.symbols
 ---@field formatters? table<string, trouble.Formatter>
 
----@param opts trouble.Text.opts
----@param view trouble.View
-function M.new(view, opts)
-  local text = Text.new(opts)
+---@param text_opts trouble.Text.opts
+---@param opts trouble.Config
+function M.new(opts, text_opts)
+  local text = Text.new(text_opts)
   ---@type trouble.Render
   ---@diagnostic disable-next-line: assign-type-mismatch
   local self = setmetatable(text, M)
-  self.view = view
+  self.opts = opts
   self._folded = {}
   self.foldenable = true
   self:clear()
@@ -88,6 +89,7 @@ function M:fold_level(opts)
     table.insert(stack, node)
   end
   while #stack > 0 do
+    ---@type trouble.Node
     local node = table.remove(stack)
     if not node:is_leaf() then
       if node:depth() > self.foldlevel then
@@ -111,13 +113,23 @@ function M:clear()
   self.root_nodes = {}
 end
 
----@param section trouble.Section
+---@param sections trouble.Section[]
+function M:sections(sections)
+  for _, section in ipairs(sections) do
+    local nodes = section.node and section.node.children
+    if nodes and #nodes > 0 then
+      self:section(section.section, nodes)
+    end
+  end
+end
+
+---@param section trouble.Section.opts
 ---@param nodes trouble.Node[]
 function M:section(section, nodes)
   for n, node in ipairs(nodes) do
     table.insert(self.root_nodes, node)
     self.max_depth = math.max(self.max_depth, node:degree())
-    self:node(node, section, Indent.new(self.view.opts.icons.indent), n == #nodes)
+    self:node(node, section, Indent.new(self.opts.icons.indent), n == #nodes)
   end
 end
 
@@ -126,7 +138,7 @@ function M:is_folded(node)
 end
 
 ---@param node trouble.Node
----@param section trouble.Section
+---@param section trouble.Section.opts
 ---@param indent trouble.Indent
 ---@param is_last boolean
 function M:node(node, section, indent, is_last)
@@ -166,7 +178,7 @@ function M:at(row)
 end
 
 ---@param node trouble.Node
----@param section trouble.Section
+---@param section trouble.Section.opts
 ---@param indent trouble.Indent
 function M:item(node, section, indent)
   local item = node.item
@@ -181,18 +193,19 @@ function M:item(node, section, indent)
   ---@type TextSegment[]?
   local segments = not is_group and item.cache[cache_key]
 
-  if not self.view.opts.results.indent_guides then
+  if not self.opts.results.indent_guides then
     indent = indent:indent()
   end
-
-  self:append(indent)
+  if self._opts.indent ~= false then
+    self:append(indent)
+  end
   if segments then
     self:append(segments)
   else
-    local format = Format.format(format_string, { item = item, node = node, view = self.view })
+    local format = Format.format(format_string, { item = item, node = node, opts = self.opts })
     indent:multi_line()
     for _, ff in ipairs(format) do
-      local text = self.opts.multiline and ff.text or ff.text:gsub("[\n\r]+", " ")
+      local text = self._opts.multiline and ff.text or ff.text:gsub("[\n\r]+", " ")
       local offset ---@type number? start column of the first line
       local first ---@type string? first line
       if ff.hl == "ts" then
@@ -228,7 +241,8 @@ function M:item(node, section, indent)
     -- * don't cache multi-line items
     -- * don't cache the indent part of the line
     if not is_group and self:row() == row then
-      item.cache[cache_key] = vim.list_slice(self._lines[#self._lines], #indent + 1)
+      item.cache[cache_key] =
+        vim.list_slice(self._lines[#self._lines], self._opts.indent == false and 1 or (#indent + 1))
     end
   end
 
