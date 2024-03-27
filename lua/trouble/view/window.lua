@@ -1,28 +1,29 @@
 local Util = require("trouble.util")
 
----@class trouble.Window.info
----@field win number
----@field buf number
----@field filename string
-
----@class trouble.Split
+---@class trouble.Window.split
 ---@field type "split"
 ---@field relative "editor" | "win" cursor is only valid for float
----@field win? number
 ---@field size number
 ---@field position "top" | "bottom" | "left" | "right"
 
----@class trouble.Float
+---@class trouble.Window.float
 ---@field type "float"
 ---@field relative "editor" | "win" | "cursor" cursor is only valid for float
 ---@field size {width: number, height: number}
 ---@field position {[1]: number, [2]: number}
 
----@class trouble.Window.opts: trouble.Split,trouble.Float
+---@class trouble.Window.main
+---@field type "main"
+
+---@class trouble.Window.base
 ---@field padding? {top?:number, left?:number}
 ---@field wo? vim.wo
 ---@field bo? vim.bo
+---@field minimal? boolean (defaults to true)
+---@field win? number
 ---@field on_mount? fun(self: trouble.Window)
+
+---@alias trouble.Window.opts trouble.Window.base|trouble.Window.split|trouble.Window.float|trouble.Window.main
 
 ---@class trouble.Window
 ---@field opts trouble.Window.opts
@@ -85,6 +86,11 @@ local defaults = {
     filetype = "trouble",
     buftype = "nofile",
   },
+  wo = {},
+}
+
+---@type trouble.Window.opts
+local minimal = {
   wo = {
     cursorcolumn = false,
     cursorline = true,
@@ -110,7 +116,13 @@ local defaults = {
 function M.new(opts)
   local self = setmetatable({}, M)
   self.id = next_id()
-  opts = vim.tbl_deep_extend("force", defaults, opts or {})
+  opts = opts or {}
+
+  if opts.minimal == nil then
+    opts.minimal = opts.type ~= "main"
+  end
+
+  opts = vim.tbl_deep_extend("force", {}, defaults, opts.minimal and minimal or {}, opts or {})
   opts.type = opts.type or "split"
   if opts.type == "split" then
     opts.relative = opts.relative or "editor"
@@ -121,6 +133,11 @@ function M.new(opts)
     opts.relative = opts.relative or "editor"
     opts.size = opts.size or { width = 0.8, height = 0.8 }
     opts.position = opts.position or { 0.5, 0.5 }
+  elseif opts.type == "main" then
+    opts.type = "float"
+    opts.relative = "win"
+    opts.position = { 0, 0 }
+    opts.size = { width = 1, height = 1 }
   end
   self.opts = opts
   return self
@@ -149,7 +166,11 @@ function M:set_options(type)
       win = self.win,
     } or { buf = self.buf })
     if not ok then
-      vim.notify("Error setting option " .. k .. ": " .. err, vim.log.levels.ERROR, { title = "Trouble" })
+      vim.notify(
+        "Error setting option `" .. k .. "=" .. v .. "`\n\n" .. err,
+        vim.log.levels.ERROR,
+        { title = "Trouble" }
+      )
     end
   end
 end
