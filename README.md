@@ -308,201 +308,201 @@ You can use the following functions in your keybindings:
 <!-- api:start -->
 
 ```lua
---- Opens trouble with the given mode.
---- If a view is already open with the same mode,
---- it will be focused unless `opts.focus = false`.
---- When a view is already open and `opts.new = true`,
---- a new view will be created.
+-- Opens trouble with the given mode.
+-- If a view is already open with the same mode,
+-- it will be focused unless `opts.focus = false`.
+-- When a view is already open and `opts.new = true`,
+-- a new view will be created.
 ---@param opts? trouble.Mode | { new?: boolean } | string
 ---@return trouble.View
 require("trouble").open(opts)
 
---- Closes the last open view matching the filter.
+-- Closes the last open view matching the filter.
 ---@param opts? trouble.Mode|string
 ---@return trouble.View?
 require("trouble").close(opts)
 
---- Toggle the view with the given mode.
+-- Toggle the view with the given mode.
 ---@param opts? trouble.Mode|string
 ---@return trouble.View
 require("trouble").toggle(opts)
 
---- Returns true if there is an open view matching the mode.
+-- Returns true if there is an open view matching the mode.
 ---@param opts? trouble.Mode|string
 require("trouble").is_open(opts)
 
---- Refresh all open views. Normally this is done automatically,
---- unless you disabled auto refresh.
+-- Refresh all open views. Normally this is done automatically,
+-- unless you disabled auto refresh.
 ---@param opts? trouble.Mode|string
 require("trouble").refresh(opts)
 
---- Get all items from the active view for a given mode.
+-- Get all items from the active view for a given mode.
 ---@param opts? trouble.Mode|string
 require("trouble").get_items(opts)
 
---- Renders a trouble list as a statusline component.
---- Check the docs for examples.
+-- Renders a trouble list as a statusline component.
+-- Check the docs for examples.
 ---@param opts? trouble.Mode|string
 ---@return {get: (fun():string), has: (fun():boolean)}
 require("trouble").statusline(opts)
 
---- Closes the preview and goes to the main window.
-The Trouble window is not closed.
+-- Closes the preview and goes to the main window.
+-- The Trouble window is not closed.
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").cancel(opts)
 
---- Go to the first item
+-- Go to the first item
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").first(opts)
 
---- Focus the trouble window
+-- Focus the trouble window
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").focus(opts)
 
---- Fold close 
+-- Fold close 
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_close(opts)
 
---- fold close all
+-- fold close all
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_close_all(opts)
 
---- Fold close recursive
+-- Fold close recursive
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_close_recursive(opts)
 
---- fold disable
+-- fold disable
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_disable(opts)
 
---- fold enable
+-- fold enable
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_enable(opts)
 
---- fold more
+-- fold more
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_more(opts)
 
---- Fold open 
+-- Fold open 
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_open(opts)
 
---- fold open all
+-- fold open all
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_open_all(opts)
 
---- Fold open recursive
+-- Fold open recursive
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_open_recursive(opts)
 
---- fold reduce
+-- fold reduce
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_reduce(opts)
 
---- Fold toggle 
+-- Fold toggle 
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_toggle(opts)
 
---- fold toggle enable
+-- fold toggle enable
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_toggle_enable(opts)
 
---- Fold toggle recursive
+-- Fold toggle recursive
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_toggle_recursive(opts)
 
---- fold update
+-- fold update
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_update(opts)
 
---- fold update all
+-- fold update all
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_update_all(opts)
 
---- Show the help
+-- Show the help
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").help(opts)
 
---- Dump the item to the console
+-- Dump the item to the console
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").inspect(opts)
 
---- Jump to the item if on an item, otherwise fold the node
+-- Jump to the item if on an item, otherwise fold the node
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").jump(opts)
 
---- Jump to the item and close the trouble window
+-- Jump to the item and close the trouble window
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").jump_close(opts)
 
---- Jump to the item if on an item, otherwise do nothing
+-- Jump to the item if on an item, otherwise do nothing
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").jump_only(opts)
 
---- Open the item in a split
+-- Open the item in a split
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").jump_split(opts)
 
---- Open the item in a vsplit
+-- Open the item in a vsplit
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").jump_vsplit(opts)
 
---- Go to the last item
+-- Go to the last item
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").last(opts)
 
---- Go to the next item
+-- Go to the next item
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").next(opts)
 
---- Go to the previous item
+-- Go to the previous item
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").prev(opts)
 
---- Open the preview
+-- Open the preview
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").preview(opts)
 
---- Refresh the trouble source
+-- Refresh the trouble source
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").refresh(opts)
 
---- Toggle the preview
+-- Toggle the preview
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").toggle_preview(opts)
 
---- Toggle the auto refresh
+-- Toggle the auto refresh
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").toggle_refresh(opts)
