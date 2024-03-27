@@ -12,12 +12,13 @@ local Util = require("trouble.util")
 ---@class trouble.Text.opts
 ---@field padding? number
 ---@field multiline? boolean
+---@field indent? boolean
 
 ---@class trouble.Text
 ---@field _lines TextSegment[][]
 ---@field _col number
 ---@field _indents string[]
----@field opts trouble.Text.opts
+---@field _opts trouble.Text.opts
 local M = {}
 M.__index = M
 
@@ -34,8 +35,8 @@ function M.new(opts)
   local self = setmetatable({}, M)
   self._lines = {}
   self._col = 0
-  self.opts = opts or {}
-  self.opts.padding = self.opts.padding or 0
+  self._opts = opts or {}
+  self._opts.padding = self._opts.padding or 0
   self._indents = {}
   for i = 0, 100, 1 do
     self._indents[i] = (" "):rep(i)
@@ -56,7 +57,7 @@ function M:width()
     end
     width = math.max(width, w)
   end
-  return width + ((self.opts.padding or 0) * 2)
+  return width + ((self._opts.padding or 0) * 2)
 end
 
 ---@param text string|TextSegment[]
@@ -103,10 +104,28 @@ function M:nl()
   return self
 end
 
+---@param opts? {sep?:string}
+function M:statusline(opts)
+  local sep = opts and opts.sep or " "
+  local lines = {} ---@type string[]
+  for _, line in ipairs(self._lines) do
+    local parts = {}
+    for _, segment in ipairs(line) do
+      local str = segment.str:gsub("%%", "%%")
+      if segment.hl then
+        str = ("%%#%s#%s%%*"):format(segment.hl, str)
+      end
+      parts[#parts + 1] = str
+    end
+    table.insert(lines, table.concat(parts, ""))
+  end
+  return table.concat(lines, sep)
+end
+
 function M:render(buf)
   local lines = {}
 
-  local padding = (" "):rep(self.opts.padding)
+  local padding = (" "):rep(self._opts.padding)
   for _, line in ipairs(self._lines) do
     local parts = { padding }
     for _, segment in ipairs(line) do
@@ -122,7 +141,7 @@ function M:render(buf)
   local regions = {} ---@type table<string, number[][][]>
 
   for l, line in ipairs(self._lines) do
-    local col = self.opts.padding or 0
+    local col = self._opts.padding or 0
     local row = l - 1
 
     for _, segment in ipairs(line) do
