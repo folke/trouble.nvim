@@ -14,20 +14,22 @@ local M = {}
 local defaults = {
   debug = false,
   throttle = 100,
-  pinned = false,
+  pinned = false, -- When pinned, the opened trouble window will be bound to the current buffer
+  focus = true, -- Focus the window when opened. Defaults to true.
   results = {
     ---@type trouble.Window.opts
     win = {},
     indent_guides = true, -- show indent guides
     multiline = true, -- render multi-line messages
     max_items = 200, -- limit number of items that can be displayed per section
-    auto_open = false,
-    auto_close = false,
-    auto_refresh = true,
+    auto_open = false, -- auto open when there are items
+    auto_close = false, -- auto close when there are no items
+    auto_refresh = true, -- auto refresh when open
   },
   preview = {
-    -- preview window, or "main", to show the preview in
-    -- the main editor window
+    -- preview window, to show the preview in
+    -- the main editor window.
+    -- Set type to `main` to show the preview in the main editor window.
     ---@type trouble.Window.opts
     win = { type = "main" },
     auto_open = true, -- automatically open preview when on an item
@@ -81,24 +83,32 @@ local defaults = {
     symbols = {
       desc = "document symbols",
       mode = "lsp_document_symbols",
+      focus = false,
       results = {
         win = { position = "right" },
       },
       filter = {
-        kind = {
-          "Class",
-          "Constructor",
-          "Enum",
-          "Field",
-          "Function",
-          "Interface",
-          "Method",
-          "Module",
-          "Namespace",
-          "Package", -- remove package since luals uses it for control flow structures
-          "Property",
-          "Struct",
-          "Trait",
+        -- remove Package since luals uses it for control flow structures
+        ["not"] = { ft = "lua", kind = "Package" },
+        any = {
+          -- all symbol kinds for help / markdown files
+          ft = { "help", "markdown" },
+          -- default set of symbol kinds
+          kind = {
+            "Class",
+            "Constructor",
+            "Enum",
+            "Field",
+            "Function",
+            "Interface",
+            "Method",
+            "Module",
+            "Namespace",
+            "Package",
+            "Property",
+            "Struct",
+            "Trait",
+          },
         },
       },
     },

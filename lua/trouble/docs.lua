@@ -43,14 +43,30 @@ function M.api()
   local f = {}
 
   for _, line in ipairs(lines) do
-    if line:match("alias trouble%.Open") then
-      funcs[#funcs + 1] = line
-    end
     if line:match("^%-%-") then
       f[#f + 1] = line
-    elseif line:match("^function") then
+    elseif line:match("^function") and not line:match("^function M%._") then
       f[#f + 1] = line:gsub("^function M", [[require("trouble")]])
       funcs[#funcs + 1] = table.concat(f, "\n")
+      f = {}
+    else
+      f = {}
+    end
+  end
+
+  lines = vim.split(LazyUtil.read_file("lua/trouble/config/actions.lua"), "\n")
+  f = {}
+  ---@type table<string, string>
+  local comments = {}
+
+  for _, line in ipairs(lines) do
+    if line:match("^%s*%-%-") then
+      f[#f + 1] = line:gsub("^%s*[%-]*%s*", "")
+    elseif line:match("^%s*[%w_]+ = function") then
+      local name = line:match("^%s*([%w_]+)")
+      if not name:match("^_") and #f > 0 then
+        comments[name] = table.concat(f, "\n")
+      end
       f = {}
     else
       f = {}
@@ -60,17 +76,21 @@ function M.api()
   local names = vim.tbl_keys(Actions)
   table.sort(names)
 
+  local exclude = { "close" }
+
   for _, k in ipairs(names) do
-    local desc = k:gsub("_", " ")
+    local desc = comments[k] or k:gsub("_", " ")
     local action = Actions[k]
     if type(Actions[k]) == "table" then
       desc = action.desc or desc
       action = action.action
     end
-    if type(action) == "function" then
+    if type(action) == "function" and not vim.tbl_contains(exclude, k) then
       funcs[#funcs + 1] = ([[
 -- %s
-require("trouble").%s()]]):format(desc, k)
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").%s(opts)]]):format(desc, k)
     end
   end
   return { content = table.concat(funcs, "\n\n"), lang = "lua" }

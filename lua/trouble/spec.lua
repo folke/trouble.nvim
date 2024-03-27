@@ -10,7 +10,7 @@ local Config = require("trouble.config")
 
 ---@class trouble.Section.spec
 ---@field source string
----@field title? string
+---@field title? string|boolean
 ---@field events? (string|trouble.Event)[]
 ---@field groups? trouble.Group.spec[]|trouble.Group.spec
 ---@field sort? trouble.Sort.spec
