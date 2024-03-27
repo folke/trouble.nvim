@@ -158,11 +158,6 @@ local defaults = {
   },
   ---@type table<string, trouble.Mode>
   modes = {
-    diagnostics_buffer = {
-      desc = "buffer diagnostics",
-      mode = "diagnostics",
-      filter = { buf = 0 },
-    },
     symbols = {
       desc = "document symbols",
       mode = "lsp_document_symbols",
@@ -263,6 +258,8 @@ local defaults = {
 
 </details>
 
+Make sure to check the [Examples](/docs/examples.md)!
+
 ## 🚀 Usage
 
 ### Commands
@@ -286,7 +283,6 @@ Modes:
 <!-- modes:start -->
 
 - **diagnostics**: diagnostics
-- **diagnostics_buffer**: buffer diagnostics
 - **loclist**: Location List
 - **lsp**: LSP definitions, references, implementations, type definitions, and declarations
 - **lsp_declarations**: declarations
