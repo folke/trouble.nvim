@@ -37,7 +37,7 @@ local Config = require("trouble.config")
 ---@field format? string
 ---@field directory? boolean
 
----@class trouble.Section
+---@class trouble.Section.opts
 ---@field source string
 ---@field groups trouble.Group[]
 ---@field format string
@@ -50,7 +50,7 @@ local Config = require("trouble.config")
 local M = {}
 
 ---@param spec trouble.Section.spec|string
----@return trouble.Section
+---@return trouble.Section.opts
 function M.section(spec)
   local groups = type(spec.groups) == "string" and { spec.groups } or spec.groups
   ---@cast groups trouble.Group.spec[]
@@ -84,9 +84,9 @@ function M.section(spec)
 end
 
 ---@param mode trouble.Mode
----@return trouble.Section[]
+---@return trouble.Section.opts[]
 function M.sections(mode)
-  local ret = {} ---@type trouble.Section[]
+  local ret = {} ---@type trouble.Section.opts[]
 
   if mode.sections then
     for _, s in ipairs(mode.sections) do

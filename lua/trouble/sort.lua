@@ -2,6 +2,8 @@ local Filter = require("trouble.filter")
 
 local M = {}
 
+---@alias trouble.Sort.ctx {opts:trouble.Config, main?:trouble.Main}
+
 ---@type table<string, trouble.SorterFn>
 M.sorters = {
   pos = function(obj)
@@ -14,9 +16,9 @@ M.sorters = {
 }
 
 ---@param items trouble.Item[]
----@param view trouble.View
 ---@param opts? trouble.Sort[]
-function M.sort(items, opts, view)
+---@param ctx trouble.Sort.ctx
+function M.sort(items, opts, ctx)
   if not opts or #opts == 0 then
     return items
   end
@@ -29,7 +31,7 @@ function M.sort(items, opts, view)
   for f, field in ipairs(opts) do
     if field.field then
       ---@diagnostic disable-next-line: no-unknown
-      local sorter = view.opts.sorters and view.opts.sorters[field.field] or M.sorters[field.field]
+      local sorter = ctx.opts.sorters and ctx.opts.sorters[field.field] or M.sorters[field.field]
       if sorter then
         fields[f] = { sorter = sorter }
       else
@@ -52,7 +54,7 @@ function M.sort(items, opts, view)
         ---@diagnostic disable-next-line: no-unknown
         key = item[field.field]
       elseif field.filter then
-        key = Filter.is(item, field.filter, view)
+        key = Filter.is(item, field.filter, ctx)
       end
       if type(key) == "boolean" then
         key = key and 0 or 1
