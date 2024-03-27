@@ -346,163 +346,163 @@ require("trouble").get_items(opts)
 ---@return {get: (fun():string), has: (fun():boolean)}
 require("trouble").statusline(opts)
 
--- Closes the preview and goes to the main window.
+--- Closes the preview and goes to the main window.
 The Trouble window is not closed.
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").cancel(opts)
 
--- Go to the first item
+--- Go to the first item
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").first(opts)
 
--- Focus the trouble window
+--- Focus the trouble window
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").focus(opts)
 
--- Fold close
+--- Fold close 
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_close(opts)
 
--- fold close all
+--- fold close all
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_close_all(opts)
 
--- Fold close recursive
+--- Fold close recursive
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_close_recursive(opts)
 
--- fold disable
+--- fold disable
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_disable(opts)
 
--- fold enable
+--- fold enable
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_enable(opts)
 
--- fold more
+--- fold more
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_more(opts)
 
--- Fold open
+--- Fold open 
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_open(opts)
 
--- fold open all
+--- fold open all
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_open_all(opts)
 
--- Fold open recursive
+--- Fold open recursive
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_open_recursive(opts)
 
--- fold reduce
+--- fold reduce
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_reduce(opts)
 
--- Fold toggle
+--- Fold toggle 
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_toggle(opts)
 
--- fold toggle enable
+--- fold toggle enable
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_toggle_enable(opts)
 
--- Fold toggle recursive
+--- Fold toggle recursive
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_toggle_recursive(opts)
 
--- fold update
+--- fold update
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_update(opts)
 
--- fold update all
+--- fold update all
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").fold_update_all(opts)
 
--- Show the help
+--- Show the help
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").help(opts)
 
--- Dump the item to the console
+--- Dump the item to the console
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").inspect(opts)
 
--- Jump to the item if on an item, otherwise fold the node
+--- Jump to the item if on an item, otherwise fold the node
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").jump(opts)
 
--- Jump to the item and close the trouble window
+--- Jump to the item and close the trouble window
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").jump_close(opts)
 
--- Jump to the item if on an item, otherwise do nothing
+--- Jump to the item if on an item, otherwise do nothing
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").jump_only(opts)
 
--- Open the item in a split
+--- Open the item in a split
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").jump_split(opts)
 
--- Open the item in a vsplit
+--- Open the item in a vsplit
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").jump_vsplit(opts)
 
--- Go to the last item
+--- Go to the last item
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").last(opts)
 
--- Go to the next item
+--- Go to the next item
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").next(opts)
 
--- Go to the previous item
+--- Go to the previous item
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").prev(opts)
 
--- Open the preview
+--- Open the preview
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").preview(opts)
 
--- Refresh the trouble source
+--- Refresh the trouble source
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").refresh(opts)
 
--- Toggle the preview
+--- Toggle the preview
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").toggle_preview(opts)
 
--- Toggle the auto refresh
+--- Toggle the auto refresh
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").toggle_refresh(opts)
@@ -566,50 +566,50 @@ The table below shows all the highlight groups defined for Trouble.
 
 <!-- colors:start -->
 
-| Highlight Group              | Default Group                 | Description |
-| ---------------------------- | ----------------------------- | ----------- |
-| **TroubleCount**             | **_TabLineSel_**              |             |
-| **TroubleDirectory**         | **_Directory_**               |             |
-| **TroubleFileName**          | **_Directory_**               |             |
-| **TroubleIconArray**         | **_@punctuation.bracket_**    |             |
-| **TroubleIconBoolean**       | **_@boolean_**                |             |
-| **TroubleIconClass**         | **_@type_**                   |             |
-| **TroubleIconConstant**      | **_@constant_**               |             |
-| **TroubleIconConstructor**   | **_@constructor_**            |             |
-| **TroubleIconDirectory**     | **_Special_**                 |             |
-| **TroubleIconEnum**          | **_@lsp.type.enum_**          |             |
-| **TroubleIconEnumMember**    | **_@lsp.type.enumMember_**    |             |
-| **TroubleIconEvent**         | **_Special_**                 |             |
-| **TroubleIconField**         | **_@variable.member_**        |             |
-| **TroubleIconFile**          | **_Normal_**                  |             |
-| **TroubleIconFunction**      | **_@function_**               |             |
-| **TroubleIconInterface**     | **_@lsp.type.interface_**     |             |
-| **TroubleIconKey**           | **_@lsp.type.keyword_**       |             |
-| **TroubleIconMethod**        | **_@function.method_**        |             |
-| **TroubleIconModule**        | **_@module_**                 |             |
-| **TroubleIconNamespace**     | **_@module_**                 |             |
-| **TroubleIconNull**          | **_@constant.builtin_**       |             |
-| **TroubleIconNumber**        | **_@number_**                 |             |
-| **TroubleIconObject**        | **_@constant_**               |             |
-| **TroubleIconOperator**      | **_@operator_**               |             |
-| **TroubleIconPackage**       | **_@module_**                 |             |
-| **TroubleIconProperty**      | **_@property_**               |             |
-| **TroubleIconString**        | **_@string_**                 |             |
-| **TroubleIconStruct**        | **_@lsp.type.struct_**        |             |
-| **TroubleIconTypeParameter** | **_@lsp.type.typeParameter_** |             |
-| **TroubleIconVariable**      | **_@variable_**               |             |
-| **TroubleIndent**            | **_LineNr_**                  |             |
-| **TroubleIndentFoldClosed**  | **_CursorLineNr_**            |             |
-| **TroubleIndentFoldOpen**    | **_TroubleIndent_**           |             |
-| **TroubleIndentLast**        | **_TroubleIndent_**           |             |
-| **TroubleIndentMiddle**      | **_TroubleIndent_**           |             |
-| **TroubleIndentTop**         | **_TroubleIndent_**           |             |
-| **TroubleIndentWs**          | **_TroubleIndent_**           |             |
-| **TroubleNormal**            | **_NormalFloat_**             |             |
-| **TroublePos**               | **_LineNr_**                  |             |
-| **TroublePreview**           | **_Visual_**                  |             |
-| **TroubleSource**            | **_Comment_**                 |             |
-| **TroubleText**              | **_Normal_**                  |             |
+| Highlight Group | Default Group | Description |
+| --- | --- | --- |
+| **TroubleCount** | ***TabLineSel*** |  |
+| **TroubleDirectory** | ***Directory*** |  |
+| **TroubleFileName** | ***Directory*** |  |
+| **TroubleIconArray** | ***@punctuation.bracket*** |  |
+| **TroubleIconBoolean** | ***@boolean*** |  |
+| **TroubleIconClass** | ***@type*** |  |
+| **TroubleIconConstant** | ***@constant*** |  |
+| **TroubleIconConstructor** | ***@constructor*** |  |
+| **TroubleIconDirectory** | ***Special*** |  |
+| **TroubleIconEnum** | ***@lsp.type.enum*** |  |
+| **TroubleIconEnumMember** | ***@lsp.type.enumMember*** |  |
+| **TroubleIconEvent** | ***Special*** |  |
+| **TroubleIconField** | ***@variable.member*** |  |
+| **TroubleIconFile** | ***Normal*** |  |
+| **TroubleIconFunction** | ***@function*** |  |
+| **TroubleIconInterface** | ***@lsp.type.interface*** |  |
+| **TroubleIconKey** | ***@lsp.type.keyword*** |  |
+| **TroubleIconMethod** | ***@function.method*** |  |
+| **TroubleIconModule** | ***@module*** |  |
+| **TroubleIconNamespace** | ***@module*** |  |
+| **TroubleIconNull** | ***@constant.builtin*** |  |
+| **TroubleIconNumber** | ***@number*** |  |
+| **TroubleIconObject** | ***@constant*** |  |
+| **TroubleIconOperator** | ***@operator*** |  |
+| **TroubleIconPackage** | ***@module*** |  |
+| **TroubleIconProperty** | ***@property*** |  |
+| **TroubleIconString** | ***@string*** |  |
+| **TroubleIconStruct** | ***@lsp.type.struct*** |  |
+| **TroubleIconTypeParameter** | ***@lsp.type.typeParameter*** |  |
+| **TroubleIconVariable** | ***@variable*** |  |
+| **TroubleIndent** | ***LineNr*** |  |
+| **TroubleIndentFoldClosed** | ***CursorLineNr*** |  |
+| **TroubleIndentFoldOpen** | ***TroubleIndent*** |  |
+| **TroubleIndentLast** | ***TroubleIndent*** |  |
+| **TroubleIndentMiddle** | ***TroubleIndent*** |  |
+| **TroubleIndentTop** | ***TroubleIndent*** |  |
+| **TroubleIndentWs** | ***TroubleIndent*** |  |
+| **TroubleNormal** | ***NormalFloat*** |  |
+| **TroublePos** | ***LineNr*** |  |
+| **TroublePreview** | ***Visual*** |  |
+| **TroubleSource** | ***Comment*** |  |
+| **TroubleText** | ***Normal*** |  |
 
 <!-- colors:end -->
 
