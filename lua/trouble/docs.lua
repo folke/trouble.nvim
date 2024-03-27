@@ -5,7 +5,7 @@ local LazyUtil = require("lazy.util")
 local M = {}
 
 function M.update()
-  local config = Docs.extract("lua/trouble/config/init.lua", "\n(--@class trouble%.Config.-\n})")
+  local config = Docs.extract("lua/trouble/config/init.lua", "\n(--@class trouble%.Mode.-\n})")
   config = config:gsub("%s*debug = false.\n", "\n")
   Docs.save({
     config = config,
@@ -43,6 +43,9 @@ function M.api()
   local f = {}
 
   for _, line in ipairs(lines) do
+    if line:match("alias trouble%.Open") then
+      funcs[#funcs + 1] = line
+    end
     if line:match("^%-%-") then
       f[#f + 1] = line
     elseif line:match("^function") then

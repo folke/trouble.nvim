@@ -89,6 +89,10 @@ Trouble comes with the following defaults:
 <!-- config:start -->
 
 ```lua
+---@class trouble.Mode: trouble.Config,trouble.Section.spec
+---@field desc? string
+---@field sections? string[]
+
 ---@class trouble.Config
 ---@field mode? string
 ---@field config? fun(opts:trouble.Config)
@@ -268,7 +272,7 @@ Modes:
 
 - **diagnostics**: diagnostics
 - **diagnostics_buffer**: buffer diagnostics
-- **fs**:
+- **fs**: 
 - **loclist**: Location List
 - **lsp**: LSP definitions, references, implementations, type definitions, and declarations
 - **lsp_declarations**: declarations
@@ -293,6 +297,8 @@ You can use the following functions in your keybindings:
 <!-- api:start -->
 
 ```lua
+---@alias trouble.Open trouble.Mode|{focus?:boolean, new?:boolean}
+
 --- Finds all open views matching the filter.
 ---@param opts? trouble.Config|string
 ---@param filter? trouble.View.filter
@@ -351,7 +357,7 @@ require("trouble").first()
 -- focus
 require("trouble").focus()
 
--- Fold close
+-- Fold close 
 require("trouble").fold_close()
 
 -- fold close all
@@ -369,7 +375,7 @@ require("trouble").fold_enable()
 -- fold more
 require("trouble").fold_more()
 
--- Fold open
+-- Fold open 
 require("trouble").fold_open()
 
 -- fold open all
@@ -381,7 +387,7 @@ require("trouble").fold_open_recursive()
 -- fold reduce
 require("trouble").fold_reduce()
 
--- Fold toggle
+-- Fold toggle 
 require("trouble").fold_toggle()
 
 -- fold toggle enable
@@ -472,49 +478,49 @@ The table below shows all the highlight groups defined for Trouble.
 
 <!-- colors:start -->
 
-| Highlight Group              | Default Group                 | Description |
-| ---------------------------- | ----------------------------- | ----------- |
-| **TroubleCount**             | **_TabLineSel_**              |             |
-| **TroubleDirectory**         | **_Directory_**               |             |
-| **TroubleFileName**          | **_Directory_**               |             |
-| **TroubleIconArray**         | **_@punctuation.bracket_**    |             |
-| **TroubleIconBoolean**       | **_@boolean_**                |             |
-| **TroubleIconClass**         | **_@type_**                   |             |
-| **TroubleIconConstant**      | **_@constant_**               |             |
-| **TroubleIconConstructor**   | **_@constructor_**            |             |
-| **TroubleIconDirectory**     | **_Special_**                 |             |
-| **TroubleIconEnum**          | **_@lsp.type.enum_**          |             |
-| **TroubleIconEnumMember**    | **_@lsp.type.enumMember_**    |             |
-| **TroubleIconEvent**         | **_Special_**                 |             |
-| **TroubleIconField**         | **_@field_**                  |             |
-| **TroubleIconFile**          | **_Normal_**                  |             |
-| **TroubleIconFunction**      | **_@function_**               |             |
-| **TroubleIconInterface**     | **_@lsp.type.interface_**     |             |
-| **TroubleIconKey**           | **_@lsp.type.keyword_**       |             |
-| **TroubleIconMethod**        | **_@method_**                 |             |
-| **TroubleIconModule**        | **_@namespace_**              |             |
-| **TroubleIconNamespace**     | **_@namespace_**              |             |
-| **TroubleIconNull**          | **_@constant.builtin_**       |             |
-| **TroubleIconNumber**        | **_@number_**                 |             |
-| **TroubleIconObject**        | **_@constant_**               |             |
-| **TroubleIconOperator**      | **_@operator_**               |             |
-| **TroubleIconPackage**       | **_@namespace_**              |             |
-| **TroubleIconProperty**      | **_@property_**               |             |
-| **TroubleIconString**        | **_@string_**                 |             |
-| **TroubleIconStruct**        | **_@lsp.type.struct_**        |             |
-| **TroubleIconTypeParameter** | **_@lsp.type.typeParameter_** |             |
-| **TroubleIconVariable**      | **_@variable_**               |             |
-| **TroubleIndent**            | **_LineNr_**                  |             |
-| **TroubleIndentFoldClosed**  | **_CursorLineNr_**            |             |
-| **TroubleIndentFoldOpen**    | **_TroubleIndent_**           |             |
-| **TroubleIndentLast**        | **_TroubleIndent_**           |             |
-| **TroubleIndentMiddle**      | **_TroubleIndent_**           |             |
-| **TroubleIndentTop**         | **_TroubleIndent_**           |             |
-| **TroubleIndentWs**          | **_TroubleIndent_**           |             |
-| **TroubleNormal**            | **_NormalFloat_**             |             |
-| **TroublePos**               | **_LineNr_**                  |             |
-| **TroublePreview**           | **_Visual_**                  |             |
-| **TroubleSource**            | **_Comment_**                 |             |
-| **TroubleText**              | **_Normal_**                  |             |
+| Highlight Group | Default Group | Description |
+| --- | --- | --- |
+| **TroubleCount** | ***TabLineSel*** |  |
+| **TroubleDirectory** | ***Directory*** |  |
+| **TroubleFileName** | ***Directory*** |  |
+| **TroubleIconArray** | ***@punctuation.bracket*** |  |
+| **TroubleIconBoolean** | ***@boolean*** |  |
+| **TroubleIconClass** | ***@type*** |  |
+| **TroubleIconConstant** | ***@constant*** |  |
+| **TroubleIconConstructor** | ***@constructor*** |  |
+| **TroubleIconDirectory** | ***Special*** |  |
+| **TroubleIconEnum** | ***@lsp.type.enum*** |  |
+| **TroubleIconEnumMember** | ***@lsp.type.enumMember*** |  |
+| **TroubleIconEvent** | ***Special*** |  |
+| **TroubleIconField** | ***@field*** |  |
+| **TroubleIconFile** | ***Normal*** |  |
+| **TroubleIconFunction** | ***@function*** |  |
+| **TroubleIconInterface** | ***@lsp.type.interface*** |  |
+| **TroubleIconKey** | ***@lsp.type.keyword*** |  |
+| **TroubleIconMethod** | ***@method*** |  |
+| **TroubleIconModule** | ***@namespace*** |  |
+| **TroubleIconNamespace** | ***@namespace*** |  |
+| **TroubleIconNull** | ***@constant.builtin*** |  |
+| **TroubleIconNumber** | ***@number*** |  |
+| **TroubleIconObject** | ***@constant*** |  |
+| **TroubleIconOperator** | ***@operator*** |  |
+| **TroubleIconPackage** | ***@namespace*** |  |
+| **TroubleIconProperty** | ***@property*** |  |
+| **TroubleIconString** | ***@string*** |  |
+| **TroubleIconStruct** | ***@lsp.type.struct*** |  |
+| **TroubleIconTypeParameter** | ***@lsp.type.typeParameter*** |  |
+| **TroubleIconVariable** | ***@variable*** |  |
+| **TroubleIndent** | ***LineNr*** |  |
+| **TroubleIndentFoldClosed** | ***CursorLineNr*** |  |
+| **TroubleIndentFoldOpen** | ***TroubleIndent*** |  |
+| **TroubleIndentLast** | ***TroubleIndent*** |  |
+| **TroubleIndentMiddle** | ***TroubleIndent*** |  |
+| **TroubleIndentTop** | ***TroubleIndent*** |  |
+| **TroubleIndentWs** | ***TroubleIndent*** |  |
+| **TroubleNormal** | ***NormalFloat*** |  |
+| **TroublePos** | ***LineNr*** |  |
+| **TroublePreview** | ***Visual*** |  |
+| **TroubleSource** | ***Comment*** |  |
+| **TroubleText** | ***Normal*** |  |
 
 <!-- colors:end -->
