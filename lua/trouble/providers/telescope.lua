@@ -1,4 +1,4 @@
-local util = require("trouble.util")
+local Util = require("trouble.util")
 
 local M = {}
 
@@ -28,7 +28,7 @@ local function item_to_result(item)
     },
   }
 
-  return util.process_item(pitem, item.bufnr)
+  return Util.process_item(pitem, item.bufnr)
 end
 
 --- Shows all Telescope results in Trouble.
@@ -76,7 +76,7 @@ end
 
 function M.telescope(_win, _buf, cb, _options)
   if #M.results == 0 then
-    util.warn(
+    Util.warn(
       "No Telescope results found. Open Telescope and send results to Trouble first. Refer to the documentation for more info."
     )
   end
