@@ -18,6 +18,7 @@ M.items = {}
 M.config = {
   modes = {
     telescope = {
+      desc = "Telescope results previously opened with `require('trouble.sources.telescope').open()`.",
       -- events = { "BufEnter", "QuickFixCmdPost" },
       source = "telescope",
       groups = {

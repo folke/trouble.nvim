@@ -48,13 +48,35 @@ Install the plugin with your preferred package manager:
 
 ```lua
 return {
- "folke/trouble.nvim",
- dependencies = { "nvim-tree/nvim-web-devicons" },
- opts = {
-  -- your configuration comes here
-  -- or leave it empty to use the default settings
-  -- refer to the configuration section below
- },
+  "folke/trouble.nvim",
+  branch = "dev",
+  keys = {
+    {
+      "<leader>xx",
+      "<cmd>Trouble diagnostics toggle<cr>",
+      desc = "Diagnostics (Trouble)",
+    },
+    {
+      "<leader>xX",
+      "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
+      desc = "Buffer Diagnostics (Trouble)",
+    },
+    {
+      "<leader>cs",
+      "<cmd>Trouble symbols toggle focus=false<cr>",
+      desc = "Symbols (Trouble)",
+    },
+    {
+      "<leader>xL",
+      "<cmd>Trouble loclist toggle<cr>",
+      desc = "Location List (Trouble)",
+    },
+    {
+      "<leader>xQ",
+      "<cmd>Trouble qflist toggle<cr>",
+      desc = "Quickfix List (Trouble)",
+    },
+  },
 }
 ```
 
@@ -64,83 +86,170 @@ return {
 
 Trouble comes with the following defaults:
 
+<!-- config:start -->
+
 ```lua
-{
-    position = "bottom", -- position of the list can be: bottom, top, left, right
-    height = 10, -- height of the trouble list when position is top or bottom
-    width = 50, -- width of the list when position is left or right
-    icons = true, -- use devicons for filenames
-    mode = "workspace_diagnostics", -- "workspace_diagnostics", "document_diagnostics", "quickfix", "lsp_references", "loclist"
-    severity = nil, -- nil (ALL) or vim.diagnostic.severity.ERROR | WARN | INFO | HINT
-    fold_open = "", -- icon used for open folds
-    fold_closed = "", -- icon used for closed folds
-    group = true, -- group results by file
-    padding = true, -- add an extra new line on top of the list
-    cycle_results = true, -- cycle item list when reaching beginning or end of list
-    action_keys = { -- key mappings for actions in the trouble list
-        -- map to {} to remove a mapping, for example:
-        -- close = {},
-        close = "q", -- close the list
-        cancel = "<esc>", -- cancel the preview and get back to your last window / buffer / cursor
-        refresh = "r", -- manually refresh
-        jump = { "<cr>", "<tab>", "<2-leftmouse>" }, -- jump to the diagnostic or open / close folds
-        open_split = { "<c-x>" }, -- open buffer in new split
-        open_vsplit = { "<c-v>" }, -- open buffer in new vsplit
-        open_tab = { "<c-t>" }, -- open buffer in new tab
-        jump_close = {"o"}, -- jump to the diagnostic and close the list
-        toggle_mode = "m", -- toggle between "workspace" and "document" diagnostics mode
-        switch_severity = "s", -- switch "diagnostics" severity filter level to HINT / INFO / WARN / ERROR
-        toggle_preview = "P", -- toggle auto_preview
-        hover = "K", -- opens a small popup with the full multiline message
-        preview = "p", -- preview the diagnostic location
-        open_code_href = "c", -- if present, open a URI with more information about the diagnostic error
-        close_folds = {"zM", "zm"}, -- close all folds
-        open_folds = {"zR", "zr"}, -- open all folds
-        toggle_fold = {"zA", "za"}, -- toggle fold of current file
-        previous = "k", -- previous item
-        next = "j" -- next item
-        help = "?" -- help menu
-    },
+---@class trouble.Config
+---@field mode? string
+---@field config? fun(opts:trouble.Config)
+---@field formatters? table<string,trouble.Formatter> custom formatters
+---@field filters? table<string, trouble.FilterFn> custom filters
+---@field sorters? table<string, trouble.SorterFn> custom sorters
+local defaults = {
+  throttle = 100,
+  pinned = false,
+  results = {
+    ---@type trouble.Window.opts
+    win = {},
+    indent_guides = true, -- show indent guides
     multiline = true, -- render multi-line messages
-    indent_lines = true, -- add an indent guide below the fold icons
-    win_config = { border = "single" }, -- window configuration for floating windows. See |nvim_open_win()|.
-    auto_open = false, -- automatically open the list when you have diagnostics
-    auto_close = false, -- automatically close the list when you have no diagnostics
-    auto_preview = true, -- automatically preview the location of the diagnostic. <esc> to close preview and go back to last window
-    auto_fold = false, -- automatically fold a file trouble list at creation
-    auto_jump = {"lsp_definitions"}, -- for the given modes, automatically jump if there is only a single result
-    include_declaration = { "lsp_references", "lsp_implementations", "lsp_definitions"  }, -- for the given modes, include the declaration of the current symbol in the results
-    signs = {
-      -- icons / text used for a diagnostic
-      error = "",
-      warning = "",
-      hint = "",
-      information = "",
-      other = "",
+    max_items = 200, -- limit number of items that can be displayed per section
+    auto_open = false,
+    auto_close = false,
+    auto_refresh = true,
+  },
+  preview = {
+    -- preview window, or "main", to show the preview in
+    -- the main editor window
+    ---@type trouble.Window.opts
+    win = { type = "main" },
+    auto_open = true, -- automatically open preview when on an item
+  },
+  ---@type table<string, string|trouble.Action>
+  keys = {
+    ["?"] = "help",
+    r = "refresh",
+    R = "toggle_refresh",
+    q = "close",
+    o = "jump_close",
+    ["<esc>"] = "cancel",
+    ["<cr>"] = "jump",
+    ["<2-leftmouse>"] = "jump",
+    ["<c-s>"] = "jump_split",
+    ["<c-v>"] = "jump_vsplit",
+    -- go down to next item (accepts count)
+    -- j = "next",
+    ["}"] = "next",
+    ["]]"] = "next",
+    -- go up to prev item (accepts count)
+    -- k = "prev",
+    ["{"] = "prev",
+    ["[["] = "prev",
+    i = "inspect",
+    p = "preview",
+    P = "toggle_preview",
+    zo = "fold_open",
+    zO = "fold_open_recursive",
+    zc = "fold_close",
+    zC = "fold_close_recursive",
+    za = "fold_toggle",
+    zA = "fold_toggle_recursive",
+    zm = "fold_more",
+    zM = "fold_close_all",
+    zr = "fold_reduce",
+    zR = "fold_open_all",
+    zx = "fold_update",
+    zX = "fold_update_all",
+    zn = "fold_disable",
+    zN = "fold_enable",
+    zi = "fold_toggle_enable",
+  },
+  ---@type table<string, trouble.Mode>
+  modes = {
+    diagnostics_buffer = {
+      desc = "buffer diagnostics",
+      mode = "diagnostics",
+      filter = { buf = 0 },
     },
-    use_diagnostic_signs = false -- enabling this will use the signs defined in your lsp client
+    symbols = {
+      desc = "document symbols",
+      mode = "lsp_document_symbols",
+      results = {
+        win = { position = "right" },
+      },
+      filter = {
+        kind = {
+          "Class",
+          "Constructor",
+          "Enum",
+          "Field",
+          "Function",
+          "Interface",
+          "Method",
+          "Module",
+          "Namespace",
+          "Package", -- remove package since luals uses it for control flow structures
+          "Property",
+          "Struct",
+          "Trait",
+        },
+      },
+    },
+    preview_float = {
+      mode = "diagnostics",
+      preview = {
+        win = {
+          type = "float",
+          -- position = "right",
+          relative = "editor",
+          border = "rounded",
+          title = "Preview",
+          title_pos = "center",
+          position = { 0, -2 },
+          size = { width = 0.3, height = 0.3 },
+          zindex = 200,
+        },
+      },
+    },
+  },
+  -- stylua: ignore
+  icons = {
+    ---@type trouble.Indent.symbols
+    indent = {
+      top           = "│ ",
+      middle        = "├╴",
+      last          = "└╴",
+      -- last          = "-╴",
+      -- last       = "╰╴", -- rounded
+      fold_open     = " ",
+      fold_closed   = " ",
+      ws            = "  ",
+    },
+    folder_closed   = " ",
+    folder_open     = " ",
+    kinds = {
+      Array         = " ",
+      Boolean       = "󰨙 ",
+      Class         = " ",
+      Constant      = "󰏿 ",
+      Constructor   = " ",
+      Enum          = " ",
+      EnumMember    = " ",
+      Event         = " ",
+      Field         = " ",
+      File          = " ",
+      Function      = "󰊕 ",
+      Interface     = " ",
+      Key           = " ",
+      Method        = "󰊕 ",
+      Module        = " ",
+      Namespace     = "󰦮 ",
+      Null          = " ",
+      Number        = "󰎠 ",
+      Object        = " ",
+      Operator      = " ",
+      Package       = " ",
+      Property      = " ",
+      String        = " ",
+      Struct        = "󰆼 ",
+      TypeParameter = " ",
+      Variable      = "󰀫 ",
+    },
+  },
 }
 ```
 
-> 💡 if you don't want to use icons or a patched font, you can use the settings below
-
-```lua
--- settings without a patched font or icons
-{
-    icons = false,
-    fold_open = "v", -- icon used for open folds
-    fold_closed = ">", -- icon used for closed folds
-    indent_lines = false, -- add an indent guide below the fold icons
-    signs = {
-        -- icons / text used for a diagnostic
-        error = "error",
-        warning = "warn",
-        hint = "hint",
-        information = "info"
-    },
-    use_diagnostic_signs = false -- enabling this will use the signs defined in your lsp client
-}
-```
+<!-- config:end -->
 
 ## 🚀 Usage
 
@@ -155,37 +264,27 @@ Trouble comes with the following commands:
 
 Modes:
 
-- **document_diagnostics:** document diagnostics from the builtin LSP client
-- **workspace_diagnostics:** workspace diagnostics from the builtin LSP client
-- **lsp_references:** references of the word under the cursor from the builtin LSP client
-- **lsp_definitions:** definitions of the word under the cursor from the builtin LSP client
+<!-- modes:start -->
 
-* **lsp_type_definitions:** type definitions of the word under the cursor from the builtin LSP client
+- **diagnostics**: diagnostics
+- **diagnostics_buffer**: buffer diagnostics
+- **fs**: 
+- **loclist**: Location List
+- **lsp**: LSP definitions, references, implementations, type definitions, and declarations
+- **lsp_declarations**: declarations
+- **lsp_definitions**: definitions
+- **lsp_document_symbols**: document symbols
+- **lsp_implementations**: implementations
+- **lsp_references**: references
+- **lsp_type_definitions**: type definitions
+- **preview_float**: diagnostics
+- **qflist**: Quickfix List
+- **quickfix**: Quickfix List
+- **symbols**: document symbols
+- **telescope**: Telescope results previously opened with `require('trouble.sources.telescope').open()`.
+- **todo**:
 
-- **quickfix:** [quickfix](https://neovim.io/doc/user/quickfix.html) items
-- **loclist:** items from the window's [location list](https://neovim.io/doc/user/quickfix.html)
-
-Example keybindings:
-
-```vim
-" Vim Script
-nnoremap <leader>xx <cmd>TroubleToggle<cr>
-nnoremap <leader>xw <cmd>TroubleToggle workspace_diagnostics<cr>
-nnoremap <leader>xd <cmd>TroubleToggle document_diagnostics<cr>
-nnoremap <leader>xq <cmd>TroubleToggle quickfix<cr>
-nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
-nnoremap gR <cmd>TroubleToggle lsp_references<cr>
-```
-
-```lua
--- Lua
-vim.keymap.set("n", "<leader>xx", function() require("trouble").toggle() end)
-vim.keymap.set("n", "<leader>xw", function() require("trouble").toggle("workspace_diagnostics") end)
-vim.keymap.set("n", "<leader>xd", function() require("trouble").toggle("document_diagnostics") end)
-vim.keymap.set("n", "<leader>xq", function() require("trouble").toggle("quickfix") end)
-vim.keymap.set("n", "<leader>xl", function() require("trouble").toggle("loclist") end)
-vim.keymap.set("n", "gR", function() require("trouble").toggle("lsp_references") end)
-```
+<!-- modes:end -->
 
 ### API
 
@@ -220,18 +319,18 @@ You can easily open any search results in **Trouble**, by defining a custom acti
 
 ```lua
 local actions = require("telescope.actions")
-local trouble = require("trouble.providers.telescope")
+local trouble = require("trouble.source.telescope")
 
 local telescope = require("telescope")
 
-telescope.setup {
+telescope.setup({
   defaults = {
     mappings = {
-      i = { ["<c-t>"] = trouble.open_with_trouble },
-      n = { ["<c-t>"] = trouble.open_with_trouble },
+      i = { ["<c-t>"] = trouble.open },
+      n = { ["<c-t>"] = trouble.open },
     },
   },
-}
+})
 ```
 
 When you open telescope, you can now hit `<c-t>` to open the results in **Trouble**
@@ -240,28 +339,51 @@ When you open telescope, you can now hit `<c-t>` to open the results in **Troubl
 
 The table below shows all the highlight groups defined for Trouble.
 
-| Highlight Group          |
-| ------------------------ |
-| _TroubleCount_           |
-| _TroubleError_           |
-| _TroubleNormal_          |
-| _TroubleTextInformation_ |
-| _TroubleSignWarning_     |
-| _TroubleLocation_        |
-| _TroubleWarning_         |
-| _TroublePreview_         |
-| _TroubleTextError_       |
-| _TroubleSignInformation_ |
-| _TroubleIndent_          |
-| _TroubleSource_          |
-| _TroubleSignHint_        |
-| _TroubleSignOther_       |
-| _TroubleFoldIcon_        |
-| _TroubleTextWarning_     |
-| _TroubleCode_            |
-| _TroubleInformation_     |
-| _TroubleSignError_       |
-| _TroubleFile_            |
-| _TroubleHint_            |
-| _TroubleTextHint_        |
-| _TroubleText_            |
+<!-- colors:start -->
+
+| Highlight Group | Default Group | Description |
+| --- | --- | --- |
+| **TroubleCount** | ***TabLineSel*** |  |
+| **TroubleDirectory** | ***Directory*** |  |
+| **TroubleFileName** | ***Directory*** |  |
+| **TroubleIconArray** | ***@punctuation.bracket*** |  |
+| **TroubleIconBoolean** | ***@boolean*** |  |
+| **TroubleIconClass** | ***@type*** |  |
+| **TroubleIconConstant** | ***@constant*** |  |
+| **TroubleIconConstructor** | ***@constructor*** |  |
+| **TroubleIconDirectory** | ***Special*** |  |
+| **TroubleIconEnum** | ***@lsp.type.enum*** |  |
+| **TroubleIconEnumMember** | ***@lsp.type.enumMember*** |  |
+| **TroubleIconEvent** | ***Special*** |  |
+| **TroubleIconField** | ***@field*** |  |
+| **TroubleIconFile** | ***Normal*** |  |
+| **TroubleIconFunction** | ***@function*** |  |
+| **TroubleIconInterface** | ***@lsp.type.interface*** |  |
+| **TroubleIconKey** | ***@lsp.type.keyword*** |  |
+| **TroubleIconMethod** | ***@method*** |  |
+| **TroubleIconModule** | ***@namespace*** |  |
+| **TroubleIconNamespace** | ***@namespace*** |  |
+| **TroubleIconNull** | ***@constant.builtin*** |  |
+| **TroubleIconNumber** | ***@number*** |  |
+| **TroubleIconObject** | ***@constant*** |  |
+| **TroubleIconOperator** | ***@operator*** |  |
+| **TroubleIconPackage** | ***@namespace*** |  |
+| **TroubleIconProperty** | ***@property*** |  |
+| **TroubleIconString** | ***@string*** |  |
+| **TroubleIconStruct** | ***@lsp.type.struct*** |  |
+| **TroubleIconTypeParameter** | ***@lsp.type.typeParameter*** |  |
+| **TroubleIconVariable** | ***@variable*** |  |
+| **TroubleIndent** | ***LineNr*** |  |
+| **TroubleIndentFoldClosed** | ***CursorLineNr*** |  |
+| **TroubleIndentFoldOpen** | ***TroubleIndent*** |  |
+| **TroubleIndentLast** | ***TroubleIndent*** |  |
+| **TroubleIndentMiddle** | ***TroubleIndent*** |  |
+| **TroubleIndentTop** | ***TroubleIndent*** |  |
+| **TroubleIndentWs** | ***TroubleIndent*** |  |
+| **TroubleNormal** | ***NormalFloat*** |  |
+| **TroublePos** | ***LineNr*** |  |
+| **TroublePreview** | ***Visual*** |  |
+| **TroubleSource** | ***Comment*** |  |
+| **TroubleText** | ***Normal*** |  |
+
+<!-- colors:end -->
