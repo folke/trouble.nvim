@@ -75,11 +75,6 @@ local defaults = {
   },
   ---@type table<string, trouble.Mode>
   modes = {
-    diagnostics_buffer = {
-      desc = "buffer diagnostics",
-      mode = "diagnostics",
-      filter = { buf = 0 },
-    },
     symbols = {
       desc = "document symbols",
       mode = "lsp_document_symbols",
