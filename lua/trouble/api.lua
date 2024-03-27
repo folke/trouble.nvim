@@ -3,7 +3,6 @@ local Config = require("trouble.config")
 local View = require("trouble.view")
 
 ---@alias trouble.ApiFn fun(opts?: trouble.Config|string): trouble.View
----@alias trouble.Open trouble.Mode|{focus?:boolean, new?:boolean}
 
 ---@class trouble.api: trouble.actions
 local M = {}
@@ -13,89 +12,95 @@ M.last_mode = nil ---@type string?
 ---@param opts? trouble.Config|string
 ---@param filter? trouble.View.filter
 ---@return trouble.View[], trouble.Config
-function M.find(opts, filter)
+function M._find(opts, filter)
   opts = Config.get(opts)
   if opts.mode == "last" then
     opts.mode = M.last_mode
     opts = Config.get(opts)
   end
   M.last_mode = opts.mode or M.last_mode
-  filter = filter or { is_open = true, mode = opts.mode }
+  filter = filter or { open = true, mode = opts.mode }
   return vim.tbl_map(function(v)
     return v.view
   end, View.get(filter)), opts
 end
 
 --- Finds the last open view matching the filter.
----@param opts? trouble.Open|string
+---@param opts? trouble.Mode|string
 ---@param filter? trouble.View.filter
----@return trouble.View?, trouble.Open
-function M.find_last(opts, filter)
-  local views, _opts = M.find(opts, filter)
+---@return trouble.View?, trouble.Mode
+function M._find_last(opts, filter)
+  local views, _opts = M._find(opts, filter)
+  ---@cast _opts trouble.Mode
   return views[#views], _opts
 end
 
---- Gets the last open view matching the filter or creates a new one.
----@param opts? trouble.Config|string
----@param filter? trouble.View.filter
----@return trouble.View, trouble.Open
-function M.get(opts, filter)
-  local view, _opts = M.find_last(opts, filter)
-  if not view or _opts.new then
+--- Opens trouble with the given mode.
+--- If a view is already open with the same mode,
+--- it will be focused unless `opts.focus = false`.
+--- When a view is already open and `opts.new = true`,
+--- a new view will be created.
+---@param opts? trouble.Mode | { new?: boolean } | string
+---@return trouble.View
+function M.open(opts)
+  opts = opts or {}
+  local view, _opts = M._find_last(opts)
+  if not view or opts.new then
     if not _opts.mode then
       error("No mode specified")
     end
     view = View.new(_opts)
   end
-  return view, _opts
-end
-
----@param opts? trouble.Open|string
-function M.open(opts)
-  local view, _opts = M.get(opts)
   if view then
     view:open()
     if _opts.focus ~= false then
       view.win:focus()
     end
-    return view, _opts
   end
+  return view
 end
 
---- Returns true if there is an open view matching the filter.
----@param opts? trouble.Config|string
-function M.is_open(opts)
-  return M.find_last(opts) ~= nil
-end
-
----@param opts? trouble.Config|string
+--- Closes the last open view matching the filter.
+---@param opts? trouble.Mode|string
+---@return trouble.View?
 function M.close(opts)
-  local view = M.find_last(opts)
+  local view = M._find_last(opts)
   if view then
     view:close()
+    return view
   end
 end
 
----@param opts? trouble.Open|string
+--- Toggle the view with the given mode.
+---@param opts? trouble.Mode|string
+---@return trouble.View
 function M.toggle(opts)
   if M.is_open(opts) then
-    M.close(opts)
+    ---@diagnostic disable-next-line: return-type-mismatch
+    return M.close(opts)
   else
-    M.open(opts)
+    return M.open(opts)
   end
 end
 
---- Special case for refresh. Refresh all open views.
----@param opts? trouble.Config|string
+--- Returns true if there is an open view matching the mode.
+---@param opts? trouble.Mode|string
+function M.is_open(opts)
+  return M._find_last(opts) ~= nil
+end
+
+--- Refresh all open views. Normally this is done automatically,
+--- unless you disabled auto refresh.
+---@param opts? trouble.Mode|string
 function M.refresh(opts)
-  for _, view in ipairs(M.find(opts)) do
+  for _, view in ipairs(M._find(opts)) do
     view:refresh()
   end
 end
 
 --- Proxy to last view's action.
 ---@param action trouble.Action|string
-function M.action(action)
+function M._action(action)
   action = type(action) == "string" and Actions[action] or action
   ---@cast action trouble.Action
   return function(opts)
@@ -105,9 +110,10 @@ function M.action(action)
   end
 end
 
----@param opts? trouble.Config|string
+--- Get all items from the active view for a given mode.
+---@param opts? trouble.Mode|string
 function M.get_items(opts)
-  local view = M.find_last(opts)
+  local view = M._find_last(opts)
   local ret = {} ---@type trouble.Item[]
   if view then
     for _, source in pairs(view.sections) do
@@ -117,8 +123,10 @@ function M.get_items(opts)
   return ret
 end
 
----@param opts? trouble.Config|string
----@return {get: fun():string, cond: fun():boolean}
+--- Renders a trouble list as a statusline component.
+--- Check the docs for examples.
+---@param opts? trouble.Mode|string
+---@return {get: (fun():string), has: (fun():boolean)}
 function M.statusline(opts)
   local Spec = require("trouble.spec")
   local Section = require("trouble.view.section")
@@ -146,10 +154,10 @@ function M.statusline(opts)
   section:listen()
   section:refresh()
   return {
-    cond = function()
+    has = function()
       return section.node and section.node:count() > 0
     end,
-    function()
+    get = function()
       if status then
         return status
       end
@@ -163,6 +171,9 @@ end
 
 return setmetatable(M, {
   __index = function(_, k)
-    return M.action(k)
+    if k == "last_mode" then
+      return nil
+    end
+    return M._action(k)
   end,
 })

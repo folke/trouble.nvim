@@ -102,20 +102,22 @@ Install the plugin with your preferred package manager:
 ---@field sorters? table<string, trouble.SorterFn> custom sorters
 local defaults = {
   throttle = 100,
-  pinned = false,
+  pinned = false, -- When pinned, the opened trouble window will be bound to the current buffer
+  focus = true, -- Focus the window when opened. Defaults to true.
   results = {
     ---@type trouble.Window.opts
     win = {},
     indent_guides = true, -- show indent guides
     multiline = true, -- render multi-line messages
     max_items = 200, -- limit number of items that can be displayed per section
-    auto_open = false,
-    auto_close = false,
-    auto_refresh = true,
+    auto_open = false, -- auto open when there are items
+    auto_close = false, -- auto close when there are no items
+    auto_refresh = true, -- auto refresh when open
   },
   preview = {
-    -- preview window, or "main", to show the preview in
-    -- the main editor window
+    -- preview window, to show the preview in
+    -- the main editor window.
+    -- Set type to `main` to show the preview in the main editor window.
     ---@type trouble.Window.opts
     win = { type = "main" },
     auto_open = true, -- automatically open preview when on an item
@@ -169,24 +171,32 @@ local defaults = {
     symbols = {
       desc = "document symbols",
       mode = "lsp_document_symbols",
+      focus = false,
       results = {
         win = { position = "right" },
       },
       filter = {
-        kind = {
-          "Class",
-          "Constructor",
-          "Enum",
-          "Field",
-          "Function",
-          "Interface",
-          "Method",
-          "Module",
-          "Namespace",
-          "Package", -- remove package since luals uses it for control flow structures
-          "Property",
-          "Struct",
-          "Trait",
+        -- remove Package since luals uses it for control flow structures
+        ["not"] = { ft = "lua", kind = "Package" },
+        any = {
+          -- all symbol kinds for help / markdown files
+          ft = { "help", "markdown" },
+          -- default set of symbol kinds
+          kind = {
+            "Class",
+            "Constructor",
+            "Enum",
+            "Field",
+            "Function",
+            "Interface",
+            "Method",
+            "Module",
+            "Namespace",
+            "Package",
+            "Property",
+            "Struct",
+            "Trait",
+          },
         },
       },
     },
@@ -309,155 +319,204 @@ You can use the following functions in your keybindings:
 <!-- api:start -->
 
 ```lua
----@alias trouble.Open trouble.Mode|{focus?:boolean, new?:boolean}
-
---- Finds all open views matching the filter.
----@param opts? trouble.Config|string
----@param filter? trouble.View.filter
----@return trouble.View[], trouble.Config
-require("trouble").find(opts, filter)
-
---- Finds the last open view matching the filter.
----@param opts? trouble.Open|string
----@param filter? trouble.View.filter
----@return trouble.View?, trouble.Open
-require("trouble").find_last(opts, filter)
-
---- Gets the last open view matching the filter or creates a new one.
----@param opts? trouble.Config|string
----@param filter? trouble.View.filter
----@return trouble.View, trouble.Open
-require("trouble").get(opts, filter)
-
----@param opts? trouble.Open|string
+--- Opens trouble with the given mode.
+--- If a view is already open with the same mode,
+--- it will be focused unless `opts.focus = false`.
+--- When a view is already open and `opts.new = true`,
+--- a new view will be created.
+---@param opts? trouble.Mode | { new?: boolean } | string
+---@return trouble.View
 require("trouble").open(opts)
 
---- Returns true if there is an open view matching the filter.
----@param opts? trouble.Config|string
-require("trouble").is_open(opts)
-
----@param opts? trouble.Config|string
+--- Closes the last open view matching the filter.
+---@param opts? trouble.Mode|string
+---@return trouble.View?
 require("trouble").close(opts)
 
----@param opts? trouble.Open|string
+--- Toggle the view with the given mode.
+---@param opts? trouble.Mode|string
+---@return trouble.View
 require("trouble").toggle(opts)
 
---- Special case for refresh. Refresh all open views.
----@param opts? trouble.Config|string
+--- Returns true if there is an open view matching the mode.
+---@param opts? trouble.Mode|string
+require("trouble").is_open(opts)
+
+--- Refresh all open views. Normally this is done automatically,
+--- unless you disabled auto refresh.
+---@param opts? trouble.Mode|string
 require("trouble").refresh(opts)
 
---- Proxy to last view's action.
----@param action trouble.Action|string
-require("trouble").action(action)
-
----@param opts? trouble.Config|string
+--- Get all items from the active view for a given mode.
+---@param opts? trouble.Mode|string
 require("trouble").get_items(opts)
 
----@param opts? trouble.Config|string
----@return {get: fun():string, cond: fun():boolean}
+--- Renders a trouble list as a statusline component.
+--- Check the docs for examples.
+---@param opts? trouble.Mode|string
+---@return {get: (fun():string), has: (fun():boolean)}
 require("trouble").statusline(opts)
 
--- cancel
-require("trouble").cancel()
+-- Closes the preview and goes to the main window.
+The Trouble window is not closed.
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").cancel(opts)
 
--- close
-require("trouble").close()
+-- Go to the first item
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").first(opts)
 
--- first
-require("trouble").first()
-
--- focus
-require("trouble").focus()
+-- Focus the trouble window
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").focus(opts)
 
 -- Fold close
-require("trouble").fold_close()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_close(opts)
 
 -- fold close all
-require("trouble").fold_close_all()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_close_all(opts)
 
 -- Fold close recursive
-require("trouble").fold_close_recursive()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_close_recursive(opts)
 
 -- fold disable
-require("trouble").fold_disable()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_disable(opts)
 
 -- fold enable
-require("trouble").fold_enable()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_enable(opts)
 
 -- fold more
-require("trouble").fold_more()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_more(opts)
 
 -- Fold open
-require("trouble").fold_open()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_open(opts)
 
 -- fold open all
-require("trouble").fold_open_all()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_open_all(opts)
 
 -- Fold open recursive
-require("trouble").fold_open_recursive()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_open_recursive(opts)
 
 -- fold reduce
-require("trouble").fold_reduce()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_reduce(opts)
 
 -- Fold toggle
-require("trouble").fold_toggle()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_toggle(opts)
 
 -- fold toggle enable
-require("trouble").fold_toggle_enable()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_toggle_enable(opts)
 
 -- Fold toggle recursive
-require("trouble").fold_toggle_recursive()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_toggle_recursive(opts)
 
 -- fold update
-require("trouble").fold_update()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_update(opts)
 
 -- fold update all
-require("trouble").fold_update_all()
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").fold_update_all(opts)
 
--- help
-require("trouble").help()
+-- Show the help
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").help(opts)
 
--- inspect
-require("trouble").inspect()
+-- Dump the item to the console
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").inspect(opts)
 
--- jump
-require("trouble").jump()
+-- Jump to the item if on an item, otherwise fold the node
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").jump(opts)
 
--- jump close
-require("trouble").jump_close()
+-- Jump to the item and close the trouble window
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").jump_close(opts)
 
--- jump only
-require("trouble").jump_only()
+-- Jump to the item if on an item, otherwise do nothing
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").jump_only(opts)
 
--- jump split
-require("trouble").jump_split()
+-- Open the item in a split
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").jump_split(opts)
 
--- jump vsplit
-require("trouble").jump_vsplit()
+-- Open the item in a vsplit
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").jump_vsplit(opts)
 
--- last
-require("trouble").last()
+-- Go to the last item
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").last(opts)
 
--- next
-require("trouble").next()
+-- Go to the next item
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").next(opts)
 
--- prev
-require("trouble").prev()
+-- Go to the previous item
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").prev(opts)
 
--- preview
-require("trouble").preview()
+-- Open the preview
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").preview(opts)
 
--- previous
-require("trouble").previous()
+-- Refresh the trouble source
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").refresh(opts)
 
--- refresh
-require("trouble").refresh()
+-- Toggle the preview
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").toggle_preview(opts)
 
--- toggle preview
-require("trouble").toggle_preview()
-
--- toggle refresh
-require("trouble").toggle_refresh()
+-- Toggle the auto refresh
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").toggle_refresh(opts)
 ```
 
 <!-- api:end -->
