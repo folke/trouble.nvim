@@ -1,23 +1,31 @@
 local M = {}
 
----@alias trouble.FilterFn fun(item:trouble.Item, value: any, view:trouble.View): boolean
+---@alias trouble.Filter.ctx {opts:trouble.Config, main?:trouble.Main}
+---@alias trouble.FilterFn fun(item:trouble.Item, value: any, ctx:trouble.Filter.ctx): boolean
 ---@class trouble.Filters: {[string]: trouble.FilterFn}
 M.filters = {
-  buf = function(item, buf, view)
-    local main = view:main()
+  buf = function(item, buf, ctx)
     if buf == 0 then
-      return main and main.filename == item.filename or false
+      return ctx.main and ctx.main.filename == item.filename or false
     end
     return item.buf == buf
   end,
-  ["not"] = function(item, filter, view)
-    ---@cast filter trouble.Filter
-    return not M.is(item, filter, view)
+  range = function(item, buf, ctx)
+    local main = ctx.main
+    local range = item.range --[[@as trouble.Item]]
+    if range and main then
+      return main.cursor[1] >= range.pos[1] and main.cursor[1] <= range.end_pos[1]
+    end
+    return false
   end,
-  any = function(item, any, view)
+  ["not"] = function(item, filter, ctx)
+    ---@cast filter trouble.Filter
+    return not M.is(item, filter, ctx)
+  end,
+  any = function(item, any, ctx)
     ---@cast any trouble.Filter[]
     for _, f in ipairs(any) do
-      if M.is(item, f, view) then
+      if M.is(item, f, ctx) then
         return true
       end
     end
@@ -27,14 +35,14 @@ M.filters = {
 
 ---@param item trouble.Item
 ---@param filter trouble.Filter
----@param view trouble.View
-function M.is(item, filter, view)
+---@param ctx trouble.Filter.ctx
+function M.is(item, filter, ctx)
   filter = type(filter) == "table" and filter or { filter }
   for k, v in pairs(filter) do
     ---@type trouble.FilterFn?
-    local filter_fn = view.opts.filters and view.opts.filters[k] or M.filters[k]
+    local filter_fn = ctx.opts.filters and ctx.opts.filters[k] or M.filters[k]
     if filter_fn then
-      if not filter_fn(item, v, view) then
+      if not filter_fn(item, v, ctx) then
         return false
       end
     elseif type(k) == "number" then
@@ -58,8 +66,8 @@ end
 
 ---@param items trouble.Item[]
 ---@param filter? trouble.Filter
----@param view trouble.View
-function M.filter(items, filter, view)
+---@param ctx trouble.Filter.ctx
+function M.filter(items, filter, ctx)
   -- fast path for empty filter
   if not filter or (type(filter) == "table" and vim.tbl_isempty(filter)) then
     return items, {}
@@ -69,7 +77,7 @@ function M.filter(items, filter, view)
   end
   local ret = {} ---@type trouble.Item[]
   for _, item in ipairs(items) do
-    if M.is(item, filter, view) then
+    if M.is(item, filter, ctx) then
       ret[#ret + 1] = item
     end
   end
