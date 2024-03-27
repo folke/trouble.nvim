@@ -86,7 +86,7 @@ function M.throttle(fn, opts)
     vim.schedule(function()
       xpcall(function()
         local _args = vim.F.unpack_len(args)
-        if not trailing then
+        -- FIXME:
         if not trailing and not timer:is_active() then
           args = {} -- clear args so they can be gc'd
         end
