@@ -4,7 +4,8 @@
       "plugins": [
         "plenary.nvim",
         "nvim-web-devicons",
-        "telescope.nvim"
+        "telescope.nvim",
+        "lazy.nvim"
       ]
     }
   },

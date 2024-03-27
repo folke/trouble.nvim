@@ -13,6 +13,7 @@ M.highlights = {
 M.config = {
   modes = {
     diagnostics = {
+      desc = "diagnostics",
       events = { "DiagnosticChanged", "BufEnter" },
       -- Trouble classic for other buffers,
       -- but only if they are in the current directory

@@ -2,6 +2,7 @@
 local M = {}
 
 ---@class trouble.Mode: trouble.Config,trouble.Section.spec
+---@field desc? string
 ---@field sections? string[]
 
 ---@class trouble.Config
@@ -73,10 +74,12 @@ local defaults = {
   ---@type table<string, trouble.Mode>
   modes = {
     diagnostics_buffer = {
+      desc = "buffer diagnostics",
       mode = "diagnostics",
       filter = { buf = 0 },
     },
     symbols = {
+      desc = "document symbols",
       mode = "lsp_document_symbols",
       results = {
         win = { position = "right" },

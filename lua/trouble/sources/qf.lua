@@ -24,6 +24,7 @@ local M = {}
 M.config = {
   modes = {
     qflist = {
+      desc = "Quickfix List",
       events = { "BufEnter", "QuickFixCmdPost" },
       source = "qf.qflist",
       groups = {
@@ -33,6 +34,7 @@ M.config = {
       format = "{severity_icon|item.type:DiagnosticSignWarn} {text} {pos}",
     },
     loclist = {
+      desc = "Location List",
       events = { "BufEnter" },
       source = "qf.loclist",
       groups = {

@@ -19,6 +19,7 @@ M.config = {
   modes = {
     lsp_document_symbols = {
       title = "{hl:Title}Document Symbols{hl} {count}",
+      desc = "document symbols",
       events = {
         "BufEnter",
         -- symbols are cached on changedtick,
@@ -43,6 +44,7 @@ M.config = {
       format = "{text:ts} ({item.client}) {pos}",
     },
     lsp = {
+      desc = "LSP definitions, references, implementations, type definitions, and declarations",
       sections = {
         "lsp_definitions",
         "lsp_references",
@@ -59,6 +61,7 @@ for _, mode in ipairs({ "definitions", "references", "implementations", "type_de
     mode = "lsp_base",
     title = "{hl:Title}" .. Util.camel(mode, " ") .. "{hl} {count}",
     source = "lsp." .. mode,
+    desc = Util.camel(mode, " "):lower(),
   }
 end
 
