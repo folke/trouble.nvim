@@ -1,21 +1,29 @@
+local Util = require("trouble.util")
+
 ---@alias trouble.Action.ctx {item?: trouble.Item, node?: trouble.Node, opts?: table}
 ---@alias trouble.ActionFn fun(view:trouble.View, ctx:trouble.Action.ctx)
 ---@alias trouble.Action trouble.ActionFn|{action:trouble.ActionFn, desc?:string}
 
 ---@class trouble.actions: {[string]: trouble.Action}
 local M = {
+  -- Refresh the trouble source
   refresh = function(self)
     self:refresh()
   end,
+  -- Close the trouble window
   close = function(self)
     self:close()
   end,
+  -- Closes the preview and goes to the main window.
+  -- The Trouble window is not closed.
   cancel = function(self)
     self:goto_main()
   end,
+  -- Focus the trouble window
   focus = function(self)
     self.win:focus()
   end,
+  -- Open the preview
   preview = function(self, ctx)
     local Preview = require("trouble.view.preview")
     if Preview.is_open() then
@@ -24,6 +32,7 @@ local M = {
       self:preview(ctx.item)
     end
   end,
+  -- Toggle the preview
   toggle_preview = function(self)
     self.opts.preview.auto_open = not self.opts.preview.auto_open
     local Preview = require("trouble.view.preview")
@@ -33,29 +42,37 @@ local M = {
       Preview.close()
     end
   end,
+  -- Toggle the auto refresh
   toggle_refresh = function(self)
     self.opts.results.auto_refresh = not self.opts.results.auto_refresh
   end,
+  -- Show the help
   help = function(self)
     self:help()
   end,
+  -- Go to the next item
   next = function(self, ctx)
     self:move({ down = vim.v.count1, jump = ctx.opts.jump })
   end,
+  -- Go to the previous item
   prev = function(self, ctx)
     self:move({ up = vim.v.count1, jump = ctx.opts.jump })
   end,
+  -- Go to the first item
   first = function(self, ctx)
     self:move({ idx = vim.v.count1, jump = ctx.opts.jump })
   end,
+  -- Go to the last item
   last = function(self, ctx)
     self:move({ idx = -vim.v.count1, jump = ctx.opts.jump })
   end,
+  -- Jump to the item if on an item, otherwise do nothing
   jump_only = function(self, ctx)
     if ctx.item then
       self:jump(ctx.item)
     end
   end,
+  -- Jump to the item if on an item, otherwise fold the node
   jump = function(self, ctx)
     if ctx.item then
       self:jump(ctx.item)
@@ -63,22 +80,26 @@ local M = {
       self:fold(ctx.node)
     end
   end,
+  -- Jump to the item and close the trouble window
   jump_close = function(self, ctx)
     if ctx.item then
       self:jump(ctx.item)
       self:close()
     end
   end,
+  -- Open the item in a split
   jump_split = function(self, ctx)
     if ctx.item then
       self:jump(ctx.item, { split = true })
     end
   end,
+  -- Open the item in a vsplit
   jump_vsplit = function(self, ctx)
     if ctx.item then
       self:jump(ctx.item, { vsplit = true })
     end
   end,
+  -- Dump the item to the console
   inspect = function(_, ctx)
     vim.print(ctx.item or (ctx.node and ctx.node.item))
   end,
@@ -115,10 +136,6 @@ local M = {
   end,
 }
 
--- FIXME: make deprecation warnings instead
--- backward compatibility with Trouble v2
-M.previous = M.prev
-
 for _, fold_action in ipairs({ "toggle", "open", "close" }) do
   for _, recursive in ipairs({ true, false }) do
     local desc = "Fold " .. fold_action .. " " .. (recursive and "recursive" or "")
@@ -132,4 +149,12 @@ for _, fold_action in ipairs({ "toggle", "open", "close" }) do
   end
 end
 
-return M
+return setmetatable(M, {
+  __index = function(_, k)
+    if k == "previous" then
+      Util.warn("`previous` is deprecated, use `prev` instead")
+    else
+      Util.error("Action not found: " .. k)
+    end
+  end,
+})
