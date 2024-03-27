@@ -1,10 +1,9 @@
 local Actions = require("trouble.config.actions")
 local Config = require("trouble.config")
-local Util = require("trouble.util")
 local View = require("trouble.view")
 
 ---@alias trouble.ApiFn fun(opts?: trouble.Config|string): trouble.View
----@alias trouble.Open trouble.Config|{focus?:boolean, new?:boolean}
+---@alias trouble.Open trouble.Mode|{focus?:boolean, new?:boolean}
 
 ---@class trouble.api: trouble.actions
 local M = {}
@@ -111,11 +110,55 @@ function M.get_items(opts)
   local view = M.find_last(opts)
   local ret = {} ---@type trouble.Item[]
   if view then
-    for _, items in pairs(view.items) do
-      vim.list_extend(ret, items)
+    for _, source in pairs(view.sections) do
+      vim.list_extend(ret, source.items or {})
     end
   end
   return ret
+end
+
+---@param opts? trouble.Config|string
+---@return {get: fun():string, cond: fun():boolean}
+function M.statusline(opts)
+  local Spec = require("trouble.spec")
+  local Section = require("trouble.view.section")
+  local Render = require("trouble.view.render")
+  opts = Config.get(opts)
+  opts.results.indent_guides = false
+  opts.icons.indent.ws = ""
+  local renderer = Render.new(opts, {
+    multiline = false,
+    indent = false,
+  })
+  local status = nil ---@type string?
+  ---@cast opts trouble.Mode
+
+  local s = Spec.section(opts)
+  local section = Section.new(s, opts)
+  section.on_update = function()
+    status = nil
+    if package.loaded["lualine"] then
+      require("lualine").refresh()
+    else
+      vim.cmd.redrawstatus()
+    end
+  end
+  section:listen()
+  section:refresh()
+  return {
+    cond = function()
+      return section.node and section.node:count() > 0
+    end,
+    function()
+      if status then
+        return status
+      end
+      renderer:clear()
+      renderer:sections({ section })
+      status = "%#StatusLine#" .. renderer:statusline()
+      return status
+    end,
+  }
 end
 
 return setmetatable(M, {
