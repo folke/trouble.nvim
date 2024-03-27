@@ -35,6 +35,7 @@ function M.setup()
   }
   vim.opt.packpath = { M.root(".tests/site") }
   M.load("nvim-lua/plenary.nvim")
+  M.load("folke/lazy.nvim")
 end
 
 M.setup()
