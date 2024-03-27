@@ -27,8 +27,8 @@ local defaults = {
   preview = {
     -- preview window, or "main", to show the preview in
     -- the main editor window
-    ---@type trouble.Window.opts|"main"
-    win = "main",
+    ---@type trouble.Window.opts
+    win = { type = "main" },
     auto_open = true, -- automatically open preview when on an item
   },
   ---@type table<string, string|trouble.Action>
@@ -181,6 +181,7 @@ function M.setup(opts)
     end,
     desc = "Trouble",
   })
+  require("trouble.view.main").setup()
   return options
 end
 
@@ -192,7 +193,7 @@ function M.defaults(config)
 end
 
 function M.modes()
-  require("trouble.source").load()
+  require("trouble.sources").load()
   local ret = {} ---@type string[]
   for k, v in pairs(options.modes) do
     if v.source or v.mode or v.sections then

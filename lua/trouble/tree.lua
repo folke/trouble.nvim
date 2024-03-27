@@ -97,7 +97,7 @@ end
 
 --- Build a tree from a list of items and a section.
 ---@param items trouble.Item[]
----@param section trouble.Section
+---@param section trouble.Section.opts
 function M.build(items, section)
   local root = M.new({ id = "$root" })
   local node_items = {} ---@type table<trouble.Node, trouble.Item[]>
