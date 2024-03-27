@@ -75,14 +75,14 @@ function M.setup()
   })
   for _, diag in ipairs(vim.diagnostic.get()) do
     local buf = diag.bufnr
-    if buf then
+    if buf and vim.api.nvim_buf_is_valid(buf) then
       cache[buf] = cache[buf] or {}
       table.insert(cache[buf], M.item(diag))
     end
   end
 end
 
----@param diag Diagnostic
+---@param diag vim.Diagnostic
 function M.item(diag)
   return Item.new({
     source = "diagnostics",
@@ -97,10 +97,10 @@ end
 ---@param ctx trouble.Source.ctx)
 function M.get(cb, ctx)
   -- PERF: pre-filter when possible
-  local buf = type(ctx.filter) == "table" and ctx.filter.buf or nil
+  local buf = type(ctx.opts.filter) == "table" and ctx.opts.filter.buf or nil
 
   if buf == 0 then
-    buf = vim.api.nvim_get_current_buf()
+    buf = ctx.main.buf
   end
 
   if buf then
