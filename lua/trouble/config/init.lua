@@ -170,6 +170,12 @@ local options
 
 ---@param opts? trouble.Config
 function M.setup(opts)
+  if vim.fn.has("nvim-0.9.2") == 0 then
+    local msg = "trouble.nvim requires Neovim >= 0.9.2"
+    vim.notify_once(msg, vim.log.levels.ERROR, { title = "trouble.nvim" })
+    error(msg)
+    return
+  end
   opts = opts or {}
   opts.mode = nil
   options = {}
