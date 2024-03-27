@@ -287,7 +287,6 @@ Modes:
 
 - **diagnostics**: diagnostics
 - **diagnostics_buffer**: buffer diagnostics
-- **fs**: 
 - **loclist**: Location List
 - **lsp**: LSP definitions, references, implementations, type definitions, and declarations
 - **lsp_declarations**: declarations
@@ -301,7 +300,6 @@ Modes:
 - **quickfix**: Quickfix List
 - **symbols**: document symbols
 - **telescope**: Telescope results previously opened with `require('trouble.sources.telescope').open()`.
-- **todo**:
 
 <!-- modes:end -->
 
