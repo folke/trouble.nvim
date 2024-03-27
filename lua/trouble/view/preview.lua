@@ -86,12 +86,7 @@ function M.open(view, item)
 
   local buf = M.create(item)
 
-  if view.opts.preview.win == "main" then
-    M.preview = M.preview_main(buf, view)
-  else
-    assert(type(view.opts.preview.win) == "table", "Invalid preview window")
-    M.preview = M.preview_win(buf, view)
-  end
+  M.preview = M.preview_win(buf, view)
 
   M.preview.buf = buf
   M.preview.item = item
@@ -107,7 +102,17 @@ end
 ---@param buf number
 ---@param view trouble.View
 function M.preview_win(buf, view)
-  view.preview_win.opts.win = view.win.win
+  if view.opts.preview.win.type == "main" then
+    local main = view:main()
+    if not main then
+      Util.debug("No main window")
+      return
+    end
+    view.preview_win.opts.win = main.win
+  else
+    view.preview_win.opts.win = view.win.win
+  end
+
   view.preview_win:open()
   Util.noautocmd(function()
     view.preview_win:set_buf(buf)
@@ -118,35 +123,6 @@ function M.preview_win(buf, view)
     win = view.preview_win.win,
     close = function()
       view.preview_win:close()
-    end,
-  }
-end
-
----@param buf number
----@param view trouble.View
-function M.preview_main(buf, view)
-  local main = view:main()
-  if not main then
-    Util.debug("No main window")
-    return
-  end
-
-  local main_view = vim.api.nvim_win_call(main.win, vim.fn.winsaveview)
-  Util.noautocmd(function()
-    vim.api.nvim_win_set_buf(main.win, buf)
-  end)
-
-  return {
-    win = main.win,
-    close = function()
-      if vim.api.nvim_win_is_valid(main.win) then
-        Util.noautocmd(function()
-          vim.api.nvim_win_set_buf(main.win, main.buf)
-          vim.api.nvim_win_call(main.win, function()
-            vim.fn.winrestview(main_view)
-          end)
-        end)
-      end
     end,
   }
 end
