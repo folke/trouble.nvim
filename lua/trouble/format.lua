@@ -7,7 +7,7 @@ local M = {}
 ---@alias trouble.Format {text:string, hl?:string}
 
 ---@alias trouble.Formatter fun(ctx: trouble.Formatter.ctx): trouble.spec.format?
----@alias trouble.Formatter.ctx {item: trouble.Item, node:trouble.Node, field:string, value:string, view:trouble.View}
+---@alias trouble.Formatter.ctx {item: trouble.Item, node:trouble.Node, field:string, value:string, opts:trouble.Config}
 
 ---@param source string
 ---@param field string
@@ -93,7 +93,7 @@ M.formatters = {
     if not ctx.item.kind then
       return
     end
-    local icon = ctx.view.opts.icons.kinds[ctx.item.kind]
+    local icon = ctx.opts.icons.kinds[ctx.item.kind]
     if icon then
       return {
         text = icon,
@@ -114,7 +114,7 @@ M.formatters = {
   end,
   directory_icon = function(ctx)
     if ctx.node:source() == "fs" then
-      local text = ctx.node.folded and ctx.view.opts.icons.folder_closed or ctx.view.opts.icons.folder_open
+      local text = ctx.node.folded and ctx.opts.icons.folder_closed or ctx.opts.icons.folder_open
       return { text = text, hl = "TroubleIconDirectory" }
     end
   end,
@@ -127,7 +127,7 @@ function M.field(ctx)
   ---@type trouble.Format[]
   local format = { { fi = ctx.field, text = vim.trim(tostring(ctx.item[ctx.field] or "")) } }
 
-  local opts = ctx.view.opts
+  local opts = ctx.opts
 
   local formatter = opts.formatters and opts.formatters[ctx.field] or M.formatters[ctx.field]
 
@@ -151,7 +151,7 @@ function M.field(ctx)
 end
 
 ---@param format string
----@param ctx {item: trouble.Item, node:trouble.Node, view:trouble.View}
+---@param ctx {item: trouble.Item, node:trouble.Node, opts:trouble.Config}
 function M.format(format, ctx)
   ---@type trouble.Format[]
   local ret = {}
