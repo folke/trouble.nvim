@@ -26,6 +26,7 @@ M.config = {
         -- so it's ok to refresh often
         { event = "TextChanged", main = true },
         { event = "CursorMoved", main = true },
+        { event = "LspAttach", main = true },
       },
       source = "lsp.document_symbols",
       groups = {
