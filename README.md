@@ -268,7 +268,7 @@ Modes:
 
 - **diagnostics**: diagnostics
 - **diagnostics_buffer**: buffer diagnostics
-- **fs**: 
+- **fs**:
 - **loclist**: Location List
 - **lsp**: LSP definitions, references, implementations, type definitions, and declarations
 - **lsp_declarations**: declarations
@@ -290,28 +290,159 @@ Modes:
 
 You can use the following functions in your keybindings:
 
+<!-- api:start -->
+
 ```lua
--- toggle trouble with optional mode
-require("trouble").toggle(mode?)
+--- Finds all open views matching the filter.
+---@param opts? trouble.Config|string
+---@param filter? trouble.View.filter
+---@return trouble.View[], trouble.Config
+require("trouble").find(opts, filter)
 
--- open trouble with optional mode
-require("trouble").open(mode?)
+--- Finds the last open view matching the filter.
+---@param opts? trouble.Open|string
+---@param filter? trouble.View.filter
+---@return trouble.View?, trouble.Open
+require("trouble").find_last(opts, filter)
 
--- close trouble
+--- Gets the last open view matching the filter or creates a new one.
+---@param opts? trouble.Config|string
+---@param filter? trouble.View.filter
+---@return trouble.View, trouble.Open
+require("trouble").get(opts, filter)
+
+---@param opts? trouble.Open|string
+require("trouble").open(opts)
+
+--- Returns true if there is an open view matching the filter.
+---@param opts? trouble.Config|string
+require("trouble").is_open(opts)
+
+---@param opts? trouble.Config|string
+require("trouble").close(opts)
+
+---@param opts? trouble.Open|string
+require("trouble").toggle(opts)
+
+--- Special case for refresh. Refresh all open views.
+---@param opts? trouble.Config|string
+require("trouble").refresh(opts)
+
+--- Proxy to last view's action.
+---@param action trouble.Action|string
+require("trouble").action(action)
+
+---@param opts? trouble.Config|string
+require("trouble").get_items(opts)
+
+---@param opts? trouble.Config|string
+---@return {get: fun():string, cond: fun():boolean}
+require("trouble").statusline(opts)
+
+-- cancel
+require("trouble").cancel()
+
+-- close
 require("trouble").close()
 
--- jump to the next item, skipping the groups
-require("trouble").next({skip_groups = true, jump = true});
+-- first
+require("trouble").first()
 
--- jump to the previous item, skipping the groups
-require("trouble").previous({skip_groups = true, jump = true});
+-- focus
+require("trouble").focus()
 
--- jump to the first item, skipping the groups
-require("trouble").first({skip_groups = true, jump = true});
+-- Fold close
+require("trouble").fold_close()
 
--- jump to the last item, skipping the groups
-require("trouble").last({skip_groups = true, jump = true});
+-- fold close all
+require("trouble").fold_close_all()
+
+-- Fold close recursive
+require("trouble").fold_close_recursive()
+
+-- fold disable
+require("trouble").fold_disable()
+
+-- fold enable
+require("trouble").fold_enable()
+
+-- fold more
+require("trouble").fold_more()
+
+-- Fold open
+require("trouble").fold_open()
+
+-- fold open all
+require("trouble").fold_open_all()
+
+-- Fold open recursive
+require("trouble").fold_open_recursive()
+
+-- fold reduce
+require("trouble").fold_reduce()
+
+-- Fold toggle
+require("trouble").fold_toggle()
+
+-- fold toggle enable
+require("trouble").fold_toggle_enable()
+
+-- Fold toggle recursive
+require("trouble").fold_toggle_recursive()
+
+-- fold update
+require("trouble").fold_update()
+
+-- fold update all
+require("trouble").fold_update_all()
+
+-- help
+require("trouble").help()
+
+-- inspect
+require("trouble").inspect()
+
+-- jump
+require("trouble").jump()
+
+-- jump close
+require("trouble").jump_close()
+
+-- jump only
+require("trouble").jump_only()
+
+-- jump split
+require("trouble").jump_split()
+
+-- jump vsplit
+require("trouble").jump_vsplit()
+
+-- last
+require("trouble").last()
+
+-- next
+require("trouble").next()
+
+-- prev
+require("trouble").prev()
+
+-- preview
+require("trouble").preview()
+
+-- previous
+require("trouble").previous()
+
+-- refresh
+require("trouble").refresh()
+
+-- toggle preview
+require("trouble").toggle_preview()
+
+-- toggle refresh
+require("trouble").toggle_refresh()
 ```
+
+<!-- api:end -->
 
 ### Telescope
 
@@ -341,49 +472,49 @@ The table below shows all the highlight groups defined for Trouble.
 
 <!-- colors:start -->
 
-| Highlight Group | Default Group | Description |
-| --- | --- | --- |
-| **TroubleCount** | ***TabLineSel*** |  |
-| **TroubleDirectory** | ***Directory*** |  |
-| **TroubleFileName** | ***Directory*** |  |
-| **TroubleIconArray** | ***@punctuation.bracket*** |  |
-| **TroubleIconBoolean** | ***@boolean*** |  |
-| **TroubleIconClass** | ***@type*** |  |
-| **TroubleIconConstant** | ***@constant*** |  |
-| **TroubleIconConstructor** | ***@constructor*** |  |
-| **TroubleIconDirectory** | ***Special*** |  |
-| **TroubleIconEnum** | ***@lsp.type.enum*** |  |
-| **TroubleIconEnumMember** | ***@lsp.type.enumMember*** |  |
-| **TroubleIconEvent** | ***Special*** |  |
-| **TroubleIconField** | ***@field*** |  |
-| **TroubleIconFile** | ***Normal*** |  |
-| **TroubleIconFunction** | ***@function*** |  |
-| **TroubleIconInterface** | ***@lsp.type.interface*** |  |
-| **TroubleIconKey** | ***@lsp.type.keyword*** |  |
-| **TroubleIconMethod** | ***@method*** |  |
-| **TroubleIconModule** | ***@namespace*** |  |
-| **TroubleIconNamespace** | ***@namespace*** |  |
-| **TroubleIconNull** | ***@constant.builtin*** |  |
-| **TroubleIconNumber** | ***@number*** |  |
-| **TroubleIconObject** | ***@constant*** |  |
-| **TroubleIconOperator** | ***@operator*** |  |
-| **TroubleIconPackage** | ***@namespace*** |  |
-| **TroubleIconProperty** | ***@property*** |  |
-| **TroubleIconString** | ***@string*** |  |
-| **TroubleIconStruct** | ***@lsp.type.struct*** |  |
-| **TroubleIconTypeParameter** | ***@lsp.type.typeParameter*** |  |
-| **TroubleIconVariable** | ***@variable*** |  |
-| **TroubleIndent** | ***LineNr*** |  |
-| **TroubleIndentFoldClosed** | ***CursorLineNr*** |  |
-| **TroubleIndentFoldOpen** | ***TroubleIndent*** |  |
-| **TroubleIndentLast** | ***TroubleIndent*** |  |
-| **TroubleIndentMiddle** | ***TroubleIndent*** |  |
-| **TroubleIndentTop** | ***TroubleIndent*** |  |
-| **TroubleIndentWs** | ***TroubleIndent*** |  |
-| **TroubleNormal** | ***NormalFloat*** |  |
-| **TroublePos** | ***LineNr*** |  |
-| **TroublePreview** | ***Visual*** |  |
-| **TroubleSource** | ***Comment*** |  |
-| **TroubleText** | ***Normal*** |  |
+| Highlight Group              | Default Group                 | Description |
+| ---------------------------- | ----------------------------- | ----------- |
+| **TroubleCount**             | **_TabLineSel_**              |             |
+| **TroubleDirectory**         | **_Directory_**               |             |
+| **TroubleFileName**          | **_Directory_**               |             |
+| **TroubleIconArray**         | **_@punctuation.bracket_**    |             |
+| **TroubleIconBoolean**       | **_@boolean_**                |             |
+| **TroubleIconClass**         | **_@type_**                   |             |
+| **TroubleIconConstant**      | **_@constant_**               |             |
+| **TroubleIconConstructor**   | **_@constructor_**            |             |
+| **TroubleIconDirectory**     | **_Special_**                 |             |
+| **TroubleIconEnum**          | **_@lsp.type.enum_**          |             |
+| **TroubleIconEnumMember**    | **_@lsp.type.enumMember_**    |             |
+| **TroubleIconEvent**         | **_Special_**                 |             |
+| **TroubleIconField**         | **_@field_**                  |             |
+| **TroubleIconFile**          | **_Normal_**                  |             |
+| **TroubleIconFunction**      | **_@function_**               |             |
+| **TroubleIconInterface**     | **_@lsp.type.interface_**     |             |
+| **TroubleIconKey**           | **_@lsp.type.keyword_**       |             |
+| **TroubleIconMethod**        | **_@method_**                 |             |
+| **TroubleIconModule**        | **_@namespace_**              |             |
+| **TroubleIconNamespace**     | **_@namespace_**              |             |
+| **TroubleIconNull**          | **_@constant.builtin_**       |             |
+| **TroubleIconNumber**        | **_@number_**                 |             |
+| **TroubleIconObject**        | **_@constant_**               |             |
+| **TroubleIconOperator**      | **_@operator_**               |             |
+| **TroubleIconPackage**       | **_@namespace_**              |             |
+| **TroubleIconProperty**      | **_@property_**               |             |
+| **TroubleIconString**        | **_@string_**                 |             |
+| **TroubleIconStruct**        | **_@lsp.type.struct_**        |             |
+| **TroubleIconTypeParameter** | **_@lsp.type.typeParameter_** |             |
+| **TroubleIconVariable**      | **_@variable_**               |             |
+| **TroubleIndent**            | **_LineNr_**                  |             |
+| **TroubleIndentFoldClosed**  | **_CursorLineNr_**            |             |
+| **TroubleIndentFoldOpen**    | **_TroubleIndent_**           |             |
+| **TroubleIndentLast**        | **_TroubleIndent_**           |             |
+| **TroubleIndentMiddle**      | **_TroubleIndent_**           |             |
+| **TroubleIndentTop**         | **_TroubleIndent_**           |             |
+| **TroubleIndentWs**          | **_TroubleIndent_**           |             |
+| **TroubleNormal**            | **_NormalFloat_**             |             |
+| **TroublePos**               | **_LineNr_**                  |             |
+| **TroublePreview**           | **_Visual_**                  |             |
+| **TroubleSource**            | **_Comment_**                 |             |
+| **TroubleText**              | **_Normal_**                  |             |
 
 <!-- colors:end -->
