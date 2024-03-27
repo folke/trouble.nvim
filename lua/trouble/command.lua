@@ -95,17 +95,19 @@ function M.execute(input)
     ---@type {name: string, desc: string}[]
     local modes = vim.tbl_map(function(x)
       local m = Config.get(x)
-      return { name = x, desc = m.desc }
+      local desc = m.desc or x:gsub("^%l", string.upper)
+      desc = Util.camel(desc, " ")
+      return { name = x, desc = desc }
     end, Config.modes())
 
     vim.ui.select(modes, {
       prompt = "Select Trouble Mode:",
       format_item = function(x)
-        return x.desc and (x.name .. " (" .. x.desc .. ")") or x.name
+        return x.desc and (x.desc .. " (" .. x.name .. ")") or x.name
       end,
     }, function(mode)
       if mode then
-        require("trouble").open({ mode = mode.mode })
+        require("trouble").open({ mode = mode.name })
       end
     end)
   else
