@@ -88,9 +88,15 @@ function M.api()
       desc = action.desc or desc
       action = action.action
     end
+    desc = table.concat(
+      vim.tbl_map(function(line)
+        return ("-- %s"):format(line)
+      end, vim.split(desc, "\n")),
+      "\n"
+    )
     if type(action) == "function" and not vim.tbl_contains(exclude, k) then
       funcs[#funcs + 1] = ([[
---- %s
+%s
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").%s(opts)]]):format(desc, k)

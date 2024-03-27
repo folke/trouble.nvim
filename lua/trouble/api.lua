@@ -35,11 +35,11 @@ function M._find_last(opts, filter)
   return views[#views], _opts
 end
 
---- Opens trouble with the given mode.
---- If a view is already open with the same mode,
---- it will be focused unless `opts.focus = false`.
---- When a view is already open and `opts.new = true`,
---- a new view will be created.
+-- Opens trouble with the given mode.
+-- If a view is already open with the same mode,
+-- it will be focused unless `opts.focus = false`.
+-- When a view is already open and `opts.new = true`,
+-- a new view will be created.
 ---@param opts? trouble.Mode | { new?: boolean } | string
 ---@return trouble.View
 function M.open(opts)
@@ -60,7 +60,7 @@ function M.open(opts)
   return view
 end
 
---- Closes the last open view matching the filter.
+-- Closes the last open view matching the filter.
 ---@param opts? trouble.Mode|string
 ---@return trouble.View?
 function M.close(opts)
@@ -71,7 +71,7 @@ function M.close(opts)
   end
 end
 
---- Toggle the view with the given mode.
+-- Toggle the view with the given mode.
 ---@param opts? trouble.Mode|string
 ---@return trouble.View
 function M.toggle(opts)
@@ -83,14 +83,14 @@ function M.toggle(opts)
   end
 end
 
---- Returns true if there is an open view matching the mode.
+-- Returns true if there is an open view matching the mode.
 ---@param opts? trouble.Mode|string
 function M.is_open(opts)
   return M._find_last(opts) ~= nil
 end
 
---- Refresh all open views. Normally this is done automatically,
---- unless you disabled auto refresh.
+-- Refresh all open views. Normally this is done automatically,
+-- unless you disabled auto refresh.
 ---@param opts? trouble.Mode|string
 function M.refresh(opts)
   for _, view in ipairs(M._find(opts)) do
@@ -98,7 +98,7 @@ function M.refresh(opts)
   end
 end
 
---- Proxy to last view's action.
+-- Proxy to last view's action.
 ---@param action trouble.Action|string
 function M._action(action)
   action = type(action) == "string" and Actions[action] or action
@@ -110,7 +110,7 @@ function M._action(action)
   end
 end
 
---- Get all items from the active view for a given mode.
+-- Get all items from the active view for a given mode.
 ---@param opts? trouble.Mode|string
 function M.get_items(opts)
   local view = M._find_last(opts)
@@ -123,8 +123,8 @@ function M.get_items(opts)
   return ret
 end
 
---- Renders a trouble list as a statusline component.
---- Check the docs for examples.
+-- Renders a trouble list as a statusline component.
+-- Check the docs for examples.
 ---@param opts? trouble.Mode|string
 ---@return {get: (fun():string), has: (fun():boolean)}
 function M.statusline(opts)
