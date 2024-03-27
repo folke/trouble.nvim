@@ -1,3 +1,4 @@
+local Main = require("trouble.view.main")
 local Util = require("trouble.util")
 
 ---@class trouble.Window.split
@@ -180,10 +181,13 @@ function M:mount()
   self.buf = vim.api.nvim_create_buf(false, true)
   self:set_options("buf")
   if self.opts.type == "split" then
+    ---@diagnostic disable-next-line: param-type-mismatch
     self:mount_split(self.opts)
   else
+    ---@diagnostic disable-next-line: param-type-mismatch
     self:mount_float(self.opts)
   end
+  vim.w[self.win].trouble = true
   self:set_options("win")
 
   self:on({ "BufWinLeave" }, vim.schedule_wrap(self.check_alien))
@@ -204,42 +208,18 @@ function M:set_buf(buf)
   end
 end
 
-function M:find_main()
-  local wins = vim.api.nvim_list_wins()
-  table.insert(wins, 1, vim.api.nvim_get_current_win())
-  for _, win in ipairs(wins) do
-    if win ~= self.win then
-      local b = vim.api.nvim_win_get_buf(win)
-      if vim.bo[b].buftype == "" then
-        return M.win_info(win)
-      end
-    end
-  end
-end
-
----@return trouble.Window.info
-function M.win_info(win)
-  local b = vim.api.nvim_win_get_buf(win)
-  return {
-    win = win,
-    buf = b,
-    filename = vim.fs.normalize(vim.api.nvim_buf_get_name(b)),
-    cursor = vim.api.nvim_win_get_cursor(win),
-  }
-end
-
 function M:check_alien()
   if self.win and vim.api.nvim_win_is_valid(self.win) then
     local buf = vim.api.nvim_win_get_buf(self.win)
     if buf ~= self.buf then
       -- move the alien buffer to another window
-      local main = self:find_main()
+      local main = Main:get()
       if main then
         vim.api.nvim_win_set_buf(main.win, buf)
+        -- restore the trouble window
+        self:close()
+        self:open()
       end
-      -- restore the trouble window
-      self:close()
-      self:open()
     end
   end
 end
@@ -267,7 +247,7 @@ function M:valid()
     and vim.api.nvim_win_get_buf(self.win) == self.buf
 end
 
----@param opts trouble.Split
+---@param opts trouble.Window.split|trouble.Window.base
 function M:mount_split(opts)
   if self.opts.win and not vim.api.nvim_win_is_valid(self.opts.win) then
     self.opts.win = 0
@@ -288,10 +268,10 @@ function M:mount_split(opts)
   end)
 end
 
----@param opts trouble.Float
+---@param opts trouble.Window.float|trouble.Window.base
 function M:mount_float(opts)
   local parent_size = self:parent_size()
-  ---@type vim.api.keyset.float_config
+  ---@type vim.api.keyset.win_config
   local config = {}
   for _, v in ipairs(float_options) do
     ---@diagnostic disable-next-line: no-unknown
