@@ -1,11 +1,9 @@
-local Filter = require("trouble.filter")
+local Main = require("trouble.view.main")
 local Preview = require("trouble.view.preview")
 local Render = require("trouble.view.render")
-local Sort = require("trouble.sort")
-local Source = require("trouble.source")
+local Section = require("trouble.view.section")
 local Spec = require("trouble.spec")
 local Text = require("trouble.view.text")
-local Tree = require("trouble.tree")
 local Util = require("trouble.util")
 local Window = require("trouble.view.window")
 
@@ -14,11 +12,8 @@ local Window = require("trouble.view.window")
 ---@field preview_win? trouble.Window
 ---@field opts trouble.Mode
 ---@field sections trouble.Section[]
----@field items trouble.Item[][]
----@field nodes trouble.Node[]
 ---@field renderer trouble.Render
----@field private _main? trouble.Window.info
----@field fetching number
+---@field private _main? trouble.Main
 local M = {}
 M.__index = M
 local _idx = 0
@@ -35,27 +30,24 @@ function M.new(opts)
   self.opts.results.win.on_mount = function()
     self:on_mount()
   end
-  self.items = {}
-  self.fetching = 0
-  self.nodes = {}
-  self.sections = Spec.sections(self.opts)
+
+  self.sections = {}
+  for _, s in ipairs(Spec.sections(self.opts)) do
+    local section = Section.new(s, self.opts)
+    section.on_update = function()
+      self:update()
+    end
+    table.insert(self.sections, section)
+  end
+
   self.win = Window.new(self.opts.results.win)
   self.opts.results.win = self.win.opts
 
-  ---@diagnostic disable-next-line: param-type-mismatch
-  self.preview_win = self.opts.preview.win ~= "main" and Window.new(self.opts.preview.win) or nil
+  self.preview_win = Window.new(self.opts.preview.win) or nil
 
-  self.renderer = Render.new(self, {
+  self.renderer = Render.new(self.opts, {
     padding = vim.tbl_get(self.opts.results.win, "padding", "left") or 0,
     multiline = self.opts.results.multiline,
-  })
-  local _self = Util.weak(self)
-  self.refresh = Util.throttle(M.refresh, {
-    ms = 200,
-    is_running = function()
-      local this = _self()
-      return this and this.fetching > 0
-    end,
   })
   self.update = Util.throttle(M.update, { ms = 10 })
   self.render = Util.throttle(M.render, { ms = 10 })
@@ -204,18 +196,7 @@ function M:preview(item)
 end
 
 function M:main()
-  local valid = self._main
-    and self._main.win
-    and vim.api.nvim_win_is_valid(self._main.win)
-    and self._main.buf
-    and vim.api.nvim_buf_is_valid(self._main.buf)
-  if not valid then
-    self._main = self.win:find_main()
-  end
-  -- update the cursor, unless the preview is showing in the main window
-  if self._main and not Preview.is_win(self._main.win) then
-    self._main.cursor = vim.api.nvim_win_get_cursor(self._main.win)
-  end
+  self._main = Main.get(self.opts.pinned and self._main or nil)
   return self._main
 end
 
@@ -230,63 +211,8 @@ function M:listen()
   local _self = Util.weak(self)
   self:main()
 
-  -- track main window
-  self.win:on("BufEnter", function()
-    local this = _self()
-    if not this then
-      return true
-    end
-    -- don't update the main window when
-    -- preview is open or when the window is pinned
-    if this.opts.pinned then
-      return
-    end
-    local buf = vim.api.nvim_get_current_buf()
-    local win = vim.api.nvim_get_current_win()
-    if vim.bo[buf].buftype == "" then
-      ---@diagnostic disable-next-line: invisible
-      this._main = Window.win_info(win)
-    end
-  end, { buffer = false })
-
-  self.win:on("WinEnter", function()
-    local this = _self()
-    if not this then
-      return true
-    end
-    ---@diagnostic disable-next-line: invisible
-    if this._main and vim.api.nvim_win_is_valid(this._main.win) then
-      ---@diagnostic disable-next-line: invisible
-      this._main = Window.win_info(this._main.win)
-    end
-  end, { win = true })
-
   for _, section in ipairs(self.sections) do
-    for _, event in ipairs(section.events or {}) do
-      vim.api.nvim_create_autocmd(event.event, {
-        group = self.win:augroup(),
-        pattern = event.pattern,
-        callback = function(e)
-          local this = _self()
-          if not this then
-            return true
-          end
-          if not this.opts.results.auto_refresh then
-            return
-          end
-          if event.main then
-            local main = this:main()
-            if main and main.buf ~= e.buf then
-              return
-            end
-          end
-          if e.event == "BufEnter" and vim.bo[e.buf].buftype ~= "" then
-            return
-          end
-          this:refresh()
-        end,
-      })
-    end
+    section:listen()
   end
 end
 
@@ -370,28 +296,8 @@ function M:refresh()
   if not is_open and not self.opts.results.auto_open then
     return
   end
-  for s, section in ipairs(self.sections) do
-    self.fetching = self.fetching + 1
-    local done = false
-    local complete = function()
-      if done then
-        return
-      end
-      done = true
-      self.fetching = self.fetching - 1
-    end
-    -- mark as completed after 2 seconds to avoid
-    -- errors staling the fetching count
-    vim.defer_fn(complete, 1000)
-    Source.get(section.source, function(items)
-      items = Filter.filter(items, self.opts.filter, self)
-      items = Filter.filter(items, section.filter, self)
-      items = Sort.sort(items, section.sort, self)
-      self.items[s] = items
-      self.nodes[s] = Tree.build(items, section)
-      complete()
-      self:update()
-    end, { filter = section.filter or self.opts.filter or nil, view = self })
+  for _, section in ipairs(self.sections) do
+    section:refresh()
   end
 end
 
@@ -401,6 +307,7 @@ function M:help()
   text:nl():append("# Help ", "Title"):nl()
   text:append("Press ", "Comment"):append("<q>", "Special"):append(" to close", "Comment"):nl():nl()
   text:append("# Keymaps ", "Title"):nl():nl()
+  ---@type string[]
   local keys = vim.tbl_keys(self.win.keys)
   table.sort(keys)
   for _, key in ipairs(keys) do
@@ -431,6 +338,7 @@ function M:open()
 end
 
 function M:close()
+  self:goto_main()
   Preview.close()
   self.win:close()
   return self
@@ -438,8 +346,10 @@ end
 
 function M:count()
   local count = 0
-  for _, node in pairs(self.nodes) do
-    count = count + node:count()
+  for _, section in ipairs(self.sections) do
+    if section.node then
+      count = count + section.node:count()
+    end
   end
   return count
 end
@@ -469,12 +379,7 @@ function M:render()
   for _ = 1, vim.tbl_get(self.opts.results.win, "padding", "top") or 0 do
     self.renderer:nl()
   end
-  for s, section in ipairs(self.sections) do
-    local nodes = self.nodes[s] and self.nodes[s].children
-    if nodes and #nodes > 0 then
-      self.renderer:section(section, nodes)
-    end
-  end
+  self.renderer:sections(self.sections)
   self.renderer:trim()
 
   -- calculate initial folds
