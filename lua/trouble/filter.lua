@@ -10,6 +10,12 @@ M.filters = {
     end
     return item.buf == buf
   end,
+  ---@param fts string|string[]
+  ft = function(item, fts, _)
+    fts = type(fts) == "table" and fts or { fts }
+    local ft = item.buf and vim.bo[item.buf].filetype
+    return ft and vim.tbl_contains(fts, ft) or false
+  end,
   range = function(item, buf, ctx)
     local main = ctx.main
     local range = item.range --[[@as trouble.Item]]
@@ -24,7 +30,10 @@ M.filters = {
   end,
   any = function(item, any, ctx)
     ---@cast any trouble.Filter[]
-    for _, f in ipairs(any) do
+    for k, f in pairs(any) do
+      if type(k) == "string" then
+        f = { [k] = f }
+      end
       if M.is(item, f, ctx) then
         return true
       end
