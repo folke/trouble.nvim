@@ -95,7 +95,7 @@ function M:main_call(fn)
       fn(main)
     end)
   else
-    dd("nope")
+    Util.debug("Main window switched buffers")
   end
 end
 
