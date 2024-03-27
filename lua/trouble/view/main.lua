@@ -31,7 +31,7 @@ function M.set(main)
 end
 
 function M._valid(win, buf)
-  if Preview.is_win(win) then
+  if Preview.is_win(win) or vim.w[win].trouble then
     return false
   end
   if vim.api.nvim_win_get_config(win).relative ~= "" then
