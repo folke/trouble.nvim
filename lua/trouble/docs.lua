@@ -24,10 +24,13 @@ function M.modes()
   ---@type string[]
   local lines = {}
 
+  local exclude = { "fs", "todo" }
   local modes = Config.modes()
   for _, mode in ipairs(modes) do
-    local m = Config.get(mode)
-    lines[#lines + 1] = ("- **%s**: %s"):format(mode, m.desc or "")
+    if not vim.tbl_contains(exclude, mode) then
+      local m = Config.get(mode)
+      lines[#lines + 1] = ("- **%s**: %s"):format(mode, m.desc or "")
+    end
   end
 
   return { content = table.concat(lines, "\n") }
