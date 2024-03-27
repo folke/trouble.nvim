@@ -3,7 +3,7 @@ local Util = require("trouble.util")
 local M = {}
 
 -- stylua: ignore
-local defaults = {
+M.colors = {
   -- General
   Normal            = "NormalFloat",
   Text              = "Normal",
@@ -56,7 +56,7 @@ local defaults = {
 }
 
 function M.setup()
-  M.link(defaults)
+  M.link(M.colors)
   M.source("fs")
 end
 

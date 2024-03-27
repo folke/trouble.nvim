@@ -92,9 +92,20 @@ end
 
 function M.execute(input)
   if input.args:match("^%s*$") then
-    vim.ui.select(Config.modes(), { prompt = "Select Trouble Mode:" }, function(mode)
+    ---@type {name: string, desc: string}[]
+    local modes = vim.tbl_map(function(x)
+      local m = Config.get(x)
+      return { name = x, desc = m.desc }
+    end, Config.modes())
+
+    vim.ui.select(modes, {
+      prompt = "Select Trouble Mode:",
+      format_item = function(x)
+        return x.desc and (x.name .. " (" .. x.desc .. ")") or x.name
+      end,
+    }, function(mode)
       if mode then
-        require("trouble").open({ mode = mode })
+        require("trouble").open({ mode = mode.mode })
       end
     end)
   else
