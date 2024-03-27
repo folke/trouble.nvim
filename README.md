@@ -37,7 +37,7 @@ Install the plugin with your preferred package manager:
 ### [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
-return {
+{
   "folke/trouble.nvim",
   branch = "dev",
   keys = {
@@ -74,7 +74,9 @@ return {
 
 ### Setup
 
-Trouble comes with the following defaults:
+**Trouble** is highly configurable. Please refer to the default settings below.
+
+<details><summary>Default Settings</summary>
 
 <!-- config:start -->
 
@@ -245,16 +247,25 @@ local defaults = {
 
 <!-- config:end -->
 
+</details>
+
 ## 🚀 Usage
 
 ### Commands
 
-Trouble comes with the following commands:
+The **Trouble** command is a wrapper around the **Trouble** API.
 
-- `Trouble [mode]`: open the list
-- `TroubleClose [mode]`: close the list
-- `TroubleToggle [mode]`: toggle the list
-- `TroubleRefresh`: manually refresh the active list
+- `Trouble [mode] [action] [options]`
+
+Some examples:
+
+- Toggle diagnostics for the current buffer and stay in the current window:
+  - `Trouble diagnostics toggle focus=false filter.buf=0`
+- Show document symbols on the right of the current window.
+  Keep the document symbols in sync with the buffer you started the command in.
+  - `Trouble symbols toggle pinned=true results.win.relative=win position=right`
+
+Please refer to the API section for more information on the available actions and options.
 
 Modes:
 
@@ -262,7 +273,7 @@ Modes:
 
 - **diagnostics**: diagnostics
 - **diagnostics_buffer**: buffer diagnostics
-- **fs**: 
+- **fs**:
 - **loclist**: Location List
 - **lsp**: LSP definitions, references, implementations, type definitions, and declarations
 - **lsp_declarations**: declarations
@@ -283,6 +294,8 @@ Modes:
 ### API
 
 You can use the following functions in your keybindings:
+
+<details><summary>API</summary>
 
 <!-- api:start -->
 
@@ -347,7 +360,7 @@ require("trouble").first()
 -- focus
 require("trouble").focus()
 
--- Fold close 
+-- Fold close
 require("trouble").fold_close()
 
 -- fold close all
@@ -365,7 +378,7 @@ require("trouble").fold_enable()
 -- fold more
 require("trouble").fold_more()
 
--- Fold open 
+-- Fold open
 require("trouble").fold_open()
 
 -- fold open all
@@ -377,7 +390,7 @@ require("trouble").fold_open_recursive()
 -- fold reduce
 require("trouble").fold_reduce()
 
--- Fold toggle 
+-- Fold toggle
 require("trouble").fold_toggle()
 
 -- fold toggle enable
@@ -440,6 +453,8 @@ require("trouble").toggle_refresh()
 
 <!-- api:end -->
 
+</details>
+
 ### Telescope
 
 You can easily open any search results in **Trouble**, by defining a custom action:
@@ -468,49 +483,49 @@ The table below shows all the highlight groups defined for Trouble.
 
 <!-- colors:start -->
 
-| Highlight Group | Default Group | Description |
-| --- | --- | --- |
-| **TroubleCount** | ***TabLineSel*** |  |
-| **TroubleDirectory** | ***Directory*** |  |
-| **TroubleFileName** | ***Directory*** |  |
-| **TroubleIconArray** | ***@punctuation.bracket*** |  |
-| **TroubleIconBoolean** | ***@boolean*** |  |
-| **TroubleIconClass** | ***@type*** |  |
-| **TroubleIconConstant** | ***@constant*** |  |
-| **TroubleIconConstructor** | ***@constructor*** |  |
-| **TroubleIconDirectory** | ***Special*** |  |
-| **TroubleIconEnum** | ***@lsp.type.enum*** |  |
-| **TroubleIconEnumMember** | ***@lsp.type.enumMember*** |  |
-| **TroubleIconEvent** | ***Special*** |  |
-| **TroubleIconField** | ***@field*** |  |
-| **TroubleIconFile** | ***Normal*** |  |
-| **TroubleIconFunction** | ***@function*** |  |
-| **TroubleIconInterface** | ***@lsp.type.interface*** |  |
-| **TroubleIconKey** | ***@lsp.type.keyword*** |  |
-| **TroubleIconMethod** | ***@method*** |  |
-| **TroubleIconModule** | ***@namespace*** |  |
-| **TroubleIconNamespace** | ***@namespace*** |  |
-| **TroubleIconNull** | ***@constant.builtin*** |  |
-| **TroubleIconNumber** | ***@number*** |  |
-| **TroubleIconObject** | ***@constant*** |  |
-| **TroubleIconOperator** | ***@operator*** |  |
-| **TroubleIconPackage** | ***@namespace*** |  |
-| **TroubleIconProperty** | ***@property*** |  |
-| **TroubleIconString** | ***@string*** |  |
-| **TroubleIconStruct** | ***@lsp.type.struct*** |  |
-| **TroubleIconTypeParameter** | ***@lsp.type.typeParameter*** |  |
-| **TroubleIconVariable** | ***@variable*** |  |
-| **TroubleIndent** | ***LineNr*** |  |
-| **TroubleIndentFoldClosed** | ***CursorLineNr*** |  |
-| **TroubleIndentFoldOpen** | ***TroubleIndent*** |  |
-| **TroubleIndentLast** | ***TroubleIndent*** |  |
-| **TroubleIndentMiddle** | ***TroubleIndent*** |  |
-| **TroubleIndentTop** | ***TroubleIndent*** |  |
-| **TroubleIndentWs** | ***TroubleIndent*** |  |
-| **TroubleNormal** | ***NormalFloat*** |  |
-| **TroublePos** | ***LineNr*** |  |
-| **TroublePreview** | ***Visual*** |  |
-| **TroubleSource** | ***Comment*** |  |
-| **TroubleText** | ***Normal*** |  |
+| Highlight Group              | Default Group                 | Description |
+| ---------------------------- | ----------------------------- | ----------- |
+| **TroubleCount**             | **_TabLineSel_**              |             |
+| **TroubleDirectory**         | **_Directory_**               |             |
+| **TroubleFileName**          | **_Directory_**               |             |
+| **TroubleIconArray**         | **_@punctuation.bracket_**    |             |
+| **TroubleIconBoolean**       | **_@boolean_**                |             |
+| **TroubleIconClass**         | **_@type_**                   |             |
+| **TroubleIconConstant**      | **_@constant_**               |             |
+| **TroubleIconConstructor**   | **_@constructor_**            |             |
+| **TroubleIconDirectory**     | **_Special_**                 |             |
+| **TroubleIconEnum**          | **_@lsp.type.enum_**          |             |
+| **TroubleIconEnumMember**    | **_@lsp.type.enumMember_**    |             |
+| **TroubleIconEvent**         | **_Special_**                 |             |
+| **TroubleIconField**         | **_@field_**                  |             |
+| **TroubleIconFile**          | **_Normal_**                  |             |
+| **TroubleIconFunction**      | **_@function_**               |             |
+| **TroubleIconInterface**     | **_@lsp.type.interface_**     |             |
+| **TroubleIconKey**           | **_@lsp.type.keyword_**       |             |
+| **TroubleIconMethod**        | **_@method_**                 |             |
+| **TroubleIconModule**        | **_@namespace_**              |             |
+| **TroubleIconNamespace**     | **_@namespace_**              |             |
+| **TroubleIconNull**          | **_@constant.builtin_**       |             |
+| **TroubleIconNumber**        | **_@number_**                 |             |
+| **TroubleIconObject**        | **_@constant_**               |             |
+| **TroubleIconOperator**      | **_@operator_**               |             |
+| **TroubleIconPackage**       | **_@namespace_**              |             |
+| **TroubleIconProperty**      | **_@property_**               |             |
+| **TroubleIconString**        | **_@string_**                 |             |
+| **TroubleIconStruct**        | **_@lsp.type.struct_**        |             |
+| **TroubleIconTypeParameter** | **_@lsp.type.typeParameter_** |             |
+| **TroubleIconVariable**      | **_@variable_**               |             |
+| **TroubleIndent**            | **_LineNr_**                  |             |
+| **TroubleIndentFoldClosed**  | **_CursorLineNr_**            |             |
+| **TroubleIndentFoldOpen**    | **_TroubleIndent_**           |             |
+| **TroubleIndentLast**        | **_TroubleIndent_**           |             |
+| **TroubleIndentMiddle**      | **_TroubleIndent_**           |             |
+| **TroubleIndentTop**         | **_TroubleIndent_**           |             |
+| **TroubleIndentWs**          | **_TroubleIndent_**           |             |
+| **TroubleNormal**            | **_NormalFloat_**             |             |
+| **TroublePos**               | **_LineNr_**                  |             |
+| **TroublePreview**           | **_Visual_**                  |             |
+| **TroubleSource**            | **_Comment_**                 |             |
+| **TroubleText**              | **_Normal_**                  |             |
 
 <!-- colors:end -->
