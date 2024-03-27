@@ -90,7 +90,7 @@ function M.api()
     end
     if type(action) == "function" and not vim.tbl_contains(exclude, k) then
       funcs[#funcs + 1] = ([[
--- %s
+--- %s
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").%s(opts)]]):format(desc, k)
