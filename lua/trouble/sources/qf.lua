@@ -18,7 +18,7 @@ local Item = require("trouble.item")
 ---@field user_data? any Any user data associated with the item.
 ---@field vcol? number Visual column number. Indicates if the column number is a visual column number (when set to 1) or a byte index (when set to 0).
 
----@type trouble.Source
+---@class trouble.Source.qf: trouble.Source
 local M = {}
 
 M.config = {
