@@ -9,7 +9,7 @@ local Item = require("trouble.item")
 ---@field filename? string The filename of the item.
 ---@field cwd? string The current working directory of the item.
 
----@type trouble.Source
+---@class trouble.Source.telescope: trouble.Source
 local M = {}
 
 ---@type trouble.Item[]

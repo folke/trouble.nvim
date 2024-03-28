@@ -3,7 +3,7 @@ local Util = require("trouble.util")
 local get_col = vim.lsp.util._get_line_byte_from_position
 local Cache = require("trouble.cache")
 
----@type trouble.Source
+---@class trouble.Source.lsp: trouble.Source
 ---@diagnostic disable-next-line: missing-fields
 local M = {}
 

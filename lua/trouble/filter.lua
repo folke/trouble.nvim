@@ -18,9 +18,14 @@ M.filters = {
   end,
   range = function(item, buf, ctx)
     local main = ctx.main
+    if not main then
+      return false
+    end
     local range = item.range --[[@as trouble.Item]]
-    if range and main then
+    if range then
       return main.cursor[1] >= range.pos[1] and main.cursor[1] <= range.end_pos[1]
+    else
+      return main.cursor[1] >= item.pos[1] and main.cursor[1] <= item.end_pos[1]
     end
     return false
   end,
