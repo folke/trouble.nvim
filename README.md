@@ -24,6 +24,7 @@ The new version is much more flexible and powerful,
 with a lot of new features and improvements:
 
 - multiple trouble windows at the same time
+- LSP document symbols
 - lots of options to configure trouble windows (floats or splits)
 - `focus` option to focus the trouble window when opened (or not)
 - `follow` option to follow the item under the cursor
