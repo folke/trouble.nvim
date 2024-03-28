@@ -26,11 +26,12 @@ A pretty list for showing diagnostics, references, telescope results, quickfix a
 - full tree views of anything
 - highly configurable views with custom formatters, filters, and sorters
 - show multiple sections in the same view
-- multiline messages
+- multi-line messages
 - prettier and configurable indent guides
 - tree view that follows the natural hierarchy of the items (like document symbols, or file structure)
 - expansive API and `Trouble` command
 - trouble `modes` to define custom views
+- statusline component (useful with document symbols)
 
 ## ⚡️ Requirements
 
