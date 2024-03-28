@@ -12,7 +12,7 @@ please refer to the [beta docs](https://github.com/folke/trouble.nvim/tree/dev)
 
 A pretty list for showing diagnostics, references, telescope results, quickfix and location lists to help you solve all the trouble your code is causing.
 
-![LSP Trouble Screenshot](./media/shot.png)
+![image](https://github.com/folke/trouble.nvim/assets/292349/dd04ebdb-e964-4cfe-a9b1-f694084ca54a)
 
 ## ✨ Features
 
