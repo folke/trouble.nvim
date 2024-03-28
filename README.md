@@ -96,12 +96,11 @@ Install the plugin with your preferred package manager:
 ---@field filters? table<string, trouble.FilterFn> custom filters
 ---@field sorters? table<string, trouble.SorterFn> custom sorters
 local defaults = {
-  throttle = 100,
   pinned = false, -- When pinned, the opened trouble window will be bound to the current buffer
   focus = true, -- Focus the window when opened. Defaults to true.
   results = {
     ---@type trouble.Window.opts
-    win = {},
+    win = {}, -- window options for the results window. Can be a split or a floating window.
     indent_guides = true, -- show indent guides
     multiline = true, -- render multi-line messages
     max_items = 200, -- limit number of items that can be displayed per section
@@ -110,13 +109,22 @@ local defaults = {
     auto_refresh = true, -- auto refresh when open
   },
   preview = {
-    -- preview window, to show the preview in
-    -- the main editor window.
-    -- Set type to `main` to show the preview in the main editor window.
+    -- Window options for the preview window. Can be a split, floating window,
+    -- or `main` to show the preview in the main editor window.
     ---@type trouble.Window.opts
     win = { type = "main" },
     auto_open = true, -- automatically open preview when on an item
   },
+  -- Throttle/Debounce settings. Should usually not be changed.
+  ---@type table<string, number|{ms:number, debounce?:boolean}>
+  throttle = {
+    refresh = 20, -- fetches new data when needed
+    update = 10, -- updates the window
+    render = 10, -- renders the window
+    preview = { ms = 100, debounce = true }, -- shows the preview for the current item
+  },
+  -- Key mappings can be set to the name of a builtin action,
+  -- or you can define your own custom action.
   ---@type table<string, string|trouble.Action>
   keys = {
     ["?"] = "help",
