@@ -1,5 +1,55 @@
 # Examples
 
+## Window Options
+
+### Preview in small float top right
+
+![image](https://github.com/folke/trouble.nvim/assets/292349/f422b8fd-579e-427b-87d3-62daab85d2e0)
+
+```lua
+{
+  modes = {
+    preview_float = {
+      mode = "diagnostics",
+      preview = {
+        win = {
+          type = "float",
+          relative = "editor",
+          border = "rounded",
+          title = "Preview",
+          title_pos = "center",
+          position = { 0, -2 },
+          size = { width = 0.3, height = 0.3 },
+          zindex = 200,
+        },
+      },
+    },
+  },
+}
+```
+
+### Preview in a split to the right of the trouble list
+
+![image](https://github.com/folke/trouble.nvim/assets/292349/adfa02df-b3dd-4c90-af3c-41683c0b5356)
+
+```lua
+{
+  modes = {
+    test = {
+      mode = "diagnostics",
+      preview = {
+        win = {
+          type = "split",
+          relative = "win",
+          position = "right",
+          size = 0.3,
+        },
+      },
+    },
+  },
+}
+```
+
 ## Filtering
 
 ### Diagnostics for the current buffer only
