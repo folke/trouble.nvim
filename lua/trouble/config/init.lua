@@ -14,7 +14,7 @@ local M = {}
 local defaults = {
   debug = false,
   pinned = false, -- When pinned, the opened trouble window will be bound to the current buffer
-  focus = true, -- Focus the window when opened
+  focus = false, -- Focus the window when opened
   follow = true, -- Follow the current item
   results = {
     ---@type trouble.Window.opts
