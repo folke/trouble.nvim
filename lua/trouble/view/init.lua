@@ -51,6 +51,7 @@ function M.new(opts)
   })
   self.update = Util.throttle(M.update, Util.throttle_opts(self.opts.throttle.update, { ms = 10 }))
   self.render = Util.throttle(M.render, Util.throttle_opts(self.opts.throttle.render, { ms = 10 }))
+  self.follow = Util.throttle(M.follow, Util.throttle_opts(self.opts.throttle.follow, { ms = 10 }))
 
   if self.opts.results.auto_open then
     self:listen()
@@ -108,6 +109,19 @@ function M:on_mount()
       end
     end
   end)
+
+  if self.opts.follow then
+    -- tracking of the current item
+    self.win:on("CursorMoved", function()
+      local this = _self()
+      if not this then
+        return true
+      end
+      if this.win:valid() then
+        this:follow()
+      end
+    end, { buffer = false })
+  end
 
   self.win:on("OptionSet", function()
     local this = _self()
@@ -400,6 +414,10 @@ function M:render()
     vim.fn.winrestview(view)
   end)
 
+  if self.opts.follow and self:follow() then
+    return
+  end
+
   -- when window is at top, dont move cursor
   if view.topline == 1 then
     return
@@ -428,6 +446,31 @@ function M:render()
     vim.api.nvim_win_set_cursor(self.win.win, { item_row, cursor[2] })
     return
   end
+end
+
+-- When not in the trouble window, try to show the range
+function M:follow()
+  local current_win = vim.api.nvim_get_current_win()
+  ---@type number[]|nil
+  local cursor = nil
+  if current_win ~= self.win.win then
+    local Filter = require("trouble.filter")
+    local ctx = { opts = self.opts, main = self:main() }
+    for row, l in pairs(self.renderer._locations) do
+      local is_current = l.item and Filter.is(l.item, { range = true }, ctx)
+      if is_current then
+        cursor = { row, 1 }
+        -- return
+      end
+    end
+  end
+  if cursor then
+    -- make sure the cursorline is visible
+    vim.wo[self.win.win].cursorline = true
+    vim.api.nvim_win_set_cursor(self.win.win, cursor)
+    return true
+  end
+  return false
 end
 
 return M

@@ -1,7 +1,7 @@
 ---@diagnostic disable: inject-field
 local Item = require("trouble.item")
 
----@type trouble.Source
+---@class trouble.Source.diagnostics: trouble.Source
 local M = {}
 
 M.highlights = {
