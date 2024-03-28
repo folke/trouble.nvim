@@ -1,7 +1,7 @@
 # 🚦 Trouble v3 Beta!
 
 ❗**Trouble** has been rewritten from scratch. If you'd like to try the new version,
-please refer to the [beta docs](/folke/trouble.nvim/tree/dev)
+please refer to the [beta docs](https://github.com/folke/trouble.nvim/tree/dev)
 
 ![image](https://github.com/folke/trouble.nvim/assets/292349/dd04ebdb-e964-4cfe-a9b1-f694084ca54a)
 
