@@ -12,6 +12,15 @@ local Util = require("trouble.util")
 ---@field relative "editor" | "win" | "cursor" cursor is only valid for float
 ---@field size {width: number, height: number}
 ---@field position {[1]: number, [2]: number}
+---@field anchor? string
+---@field focusable? boolean
+---@field zindex? integer
+---@field border? any
+---@field title? string|{[1]: string, [2]: string}
+---@field title_pos? string
+---@field footer? string|{[1]: string, [2]: string}
+---@field footer_pos? string
+---@field fixed? boolean
 
 ---@class trouble.Window.main
 ---@field type "main"
