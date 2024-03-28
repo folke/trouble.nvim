@@ -190,22 +190,6 @@ local defaults = {
         },
       },
     },
-    preview_float = {
-      mode = "diagnostics",
-      preview = {
-        win = {
-          type = "float",
-          -- position = "right",
-          relative = "editor",
-          border = "rounded",
-          title = "Preview",
-          title_pos = "center",
-          position = { 0, -2 },
-          size = { width = 0.3, height = 0.3 },
-          zindex = 200,
-        },
-      },
-    },
   },
   -- stylua: ignore
   icons = {
@@ -301,7 +285,6 @@ Modes:
 - **lsp_implementations**: implementations
 - **lsp_references**: references
 - **lsp_type_definitions**: type definitions
-- **preview_float**: diagnostics
 - **qflist**: Quickfix List
 - **quickfix**: Quickfix List
 - **symbols**: document symbols
