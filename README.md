@@ -97,7 +97,7 @@ Install the plugin with your preferred package manager:
 ---@field sorters? table<string, trouble.SorterFn> custom sorters
 local defaults = {
   pinned = false, -- When pinned, the opened trouble window will be bound to the current buffer
-  focus = true, -- Focus the window when opened
+  focus = false, -- Focus the window when opened
   follow = true, -- Follow the current item
   results = {
     ---@type trouble.Window.opts
