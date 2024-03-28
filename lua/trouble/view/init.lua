@@ -324,7 +324,15 @@ function M:help()
   text:append("# Keymaps ", "Title"):nl():nl()
   ---@type string[]
   local keys = vim.tbl_keys(self.win.keys)
-  table.sort(keys)
+  table.sort(keys, function(a, b)
+    local lowa = string.lower(a)
+    local lowb = string.lower(b)
+    if lowa == lowb then
+      return a > b -- Preserve original order for equal strings
+    else
+      return lowa < lowb
+    end
+  end)
   for _, key in ipairs(keys) do
     local desc = self.win.keys[key]
     text:append("  - ", "@punctuation.special.markdown")
