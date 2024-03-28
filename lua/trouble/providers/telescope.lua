@@ -1,7 +1,19 @@
 local T = require("trouble.sources.telescope")
 
-return {
-  open_with_trouble = T.open,
-  open_selected_with_trouble = T.open,
-  smart_open_with_trouble = T.open,
-}
+return setmetatable({}, {
+  __index = function(_, k)
+    require("trouble.util").warn(
+      ([[
+`%s()` is deprecated
+```lua
+-- Use this:
+require("trouble.sources.telescope").open()
+
+-- Instead of:
+require("trouble.providers.telescope").%s()
+]]):format(k, k),
+      { once = true }
+    )
+    return T.open
+  end,
+})
