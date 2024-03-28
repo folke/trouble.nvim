@@ -117,6 +117,7 @@ function M.preview_win(buf, view)
   Util.noautocmd(function()
     view.preview_win:set_buf(buf)
     view.preview_win:set_options("win")
+    vim.w[view.preview_win.win].trouble_preview = true
   end)
 
   return {
