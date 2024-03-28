@@ -49,8 +49,8 @@ function M.new(opts)
     padding = vim.tbl_get(self.opts.results.win, "padding", "left") or 0,
     multiline = self.opts.results.multiline,
   })
-  self.update = Util.throttle(M.update, { ms = 10 })
-  self.render = Util.throttle(M.render, { ms = 10 })
+  self.update = Util.throttle(M.update, Util.throttle_opts(self.opts.throttle.update, { ms = 10 }))
+  self.render = Util.throttle(M.render, Util.throttle_opts(self.opts.throttle.render, { ms = 10 }))
 
   if self.opts.results.auto_open then
     self:listen()
@@ -94,7 +94,8 @@ function M:on_mount()
 
   local _self = Util.weak(self)
 
-  local preview = Util.throttle(M.preview, { ms = 100, debounce = true })
+  local preview =
+    Util.throttle(M.preview, Util.throttle_opts(self.opts.throttle.preview, { ms = 100, debounce = true }))
   self.win:on("CursorMoved", function()
     local this = _self()
     if not this then
