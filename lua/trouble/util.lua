@@ -52,10 +52,23 @@ function M.camel(str, sep)
   )
 end
 
+---@alias ThrottleOpts {ms:number, debounce?:boolean, is_running?:fun():boolean}
+
+---@param opts? {ms?: number, debounce?: boolean}|number
+---@param default ThrottleOpts
+---@return ThrottleOpts
+function M.throttle_opts(opts, default)
+  opts = opts or {}
+  if type(opts) == "number" then
+    opts = { ms = opts }
+  end
+  return vim.tbl_deep_extend("force", default, opts)
+end
+
 -- throttle with trailing execution
 ---@generic T: fun()
 ---@param fn T
----@param opts? {ms:number, debounce?:boolean, is_running?:fun():boolean}
+---@param opts? ThrottleOpts
 ---@return T
 function M.throttle(fn, opts)
   opts = opts or {}
