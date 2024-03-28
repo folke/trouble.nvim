@@ -77,11 +77,9 @@ function M.camel(str, sep)
   )
 end
 
----@alias ThrottleOpts {ms:number, debounce?:boolean, is_running?:fun():boolean}
-
 ---@param opts? {ms?: number, debounce?: boolean}|number
----@param default ThrottleOpts
----@return ThrottleOpts
+---@param default Throttle.opts
+---@return Throttle.opts
 function M.throttle_opts(opts, default)
   opts = opts or {}
   if type(opts) == "number" then
@@ -90,72 +88,73 @@ function M.throttle_opts(opts, default)
   return vim.tbl_deep_extend("force", default, opts)
 end
 
+---@alias Throttle.opts {ms:number, debounce?:boolean, is_running?:fun():boolean}
+
 -- throttle with trailing execution
 ---@generic T: fun()
 ---@param fn T
----@param opts? ThrottleOpts
+---@param opts? Throttle.opts
 ---@return T
 function M.throttle(fn, opts)
   opts = opts or {}
   opts.ms = opts.ms or 20
-  local timer = assert(vim.loop.new_timer())
-  local check = assert(vim.loop.new_check())
   local last = 0
-  local args = {} ---@type any[]
-  local executing = false
-  local trailing = false
+  local args = nil ---@type {n?:number}?
+  local timer = assert(vim.loop.new_timer())
+  local pending = false -- from run() till end of fn
+  local running = false -- from run() till end of fn with is_running()
 
-  local throttle = {}
+  local t = {}
 
-  check:start(function()
-    if not throttle.is_running() and not timer:is_active() and trailing then
-      trailing = false
-      throttle.schedule()
-    end
-  end)
-
-  function throttle.is_running()
-    return executing or (opts.is_running and opts.is_running())
-  end
-
-  function throttle.run()
-    executing = true
-    last = vim.loop.now()
+  function t.run()
+    pending = true
+    running = true
+    timer:stop()
+    last = vim.uv.now()
     vim.schedule(function()
       xpcall(function()
-        local _args = vim.F.unpack_len(args)
-        -- FIXME:
-        if not trailing and not timer:is_active() then
-          args = {} -- clear args so they can be gc'd
+        if not args then
+          return M.debug("Empty args. This should not happen.")
         end
-        fn(_args)
+        fn(vim.F.unpack_len(args))
+        args = nil
       end, function(err)
         vim.schedule(function()
           M.error(err)
         end)
       end)
-      executing = false
+      pending = false
+      t.check()
     end)
   end
 
-  function throttle.schedule()
-    local now = vim.loop.now()
-    local delay = opts.ms - (now - last)
-    if opts.debounce then
-      delay = opts.ms
-    end
-    timer:start(math.max(0, delay), 0, throttle.run)
+  function t.schedule()
+    local now = vim.uv.now()
+    local delay = opts.debounce and opts.ms or (opts.ms - (now - last))
+    timer:stop()
+    timer:start(math.max(0, delay), 0, t.run)
   end
+
+  function t.check()
+    if running and not pending and not (opts.is_running and opts.is_running()) then
+      running = false
+      if args then -- schedule if there are pending args
+        t.schedule()
+      end
+    end
+  end
+
+  local check = assert(vim.uv.new_check())
+  check:start(t.check)
 
   return function(...)
     args = vim.F.pack_len(...)
+
     if timer:is_active() and not opts.debounce then
       return
-    elseif throttle.is_running() then
-      trailing = true
-      return
+    elseif not running then
+      t.schedule()
     end
-    throttle.schedule()
   end
 end
 
