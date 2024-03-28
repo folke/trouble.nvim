@@ -233,6 +233,9 @@ end
 
 ---@param cursor? number[]
 function M:at(cursor)
+  if not vim.api.nvim_buf_is_valid(self.win.buf) then
+    return {}
+  end
   cursor = cursor or vim.api.nvim_win_get_cursor(self.win.win)
   return self.renderer:at(cursor[1])
 end
