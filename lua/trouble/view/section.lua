@@ -29,13 +29,17 @@ function M.new(section, opts)
   self:main()
 
   local _self = Util.weak(self)
-  self.refresh = Util.throttle(M.refresh, {
-    ms = 20,
-    is_running = function()
-      local this = _self()
-      return this and this.fetching
-    end,
-  })
+
+  self.refresh = Util.throttle(
+    M.refresh,
+    Util.throttle_opts(opts.throttle.refresh, {
+      ms = 20,
+      is_running = function()
+        local this = _self()
+        return this and this.fetching
+      end,
+    })
+  )
 
   return self
 end
