@@ -45,10 +45,10 @@ function M.new(section, opts)
 end
 
 function M:refresh()
+  self.fetching = true
   if self.on_refresh then
     self:on_refresh()
   end
-  self.fetching = true
   local done = false
   local complete = function()
     if done then

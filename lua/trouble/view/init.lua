@@ -95,8 +95,14 @@ function M:on_mount()
 
   local _self = Util.weak(self)
 
-  local preview =
-    Util.throttle(M.preview, Util.throttle_opts(self.opts.throttle.preview, { ms = 100, debounce = true }))
+  local preview = Util.throttle(
+    M.preview,
+    Util.throttle_opts(self.opts.throttle.preview, {
+      ms = 100,
+      debounce = true,
+    })
+  )
+
   self.win:on("CursorMoved", function()
     local this = _self()
     if not this then
@@ -461,6 +467,9 @@ end
 
 -- When not in the trouble window, try to show the range
 function M:follow()
+  if not self.win:valid() then
+    return
+  end
   local current_win = vim.api.nvim_get_current_win()
   ---@type number[]|nil
   local cursor = nil
