@@ -430,40 +430,4 @@ function M:render()
   end
 end
 
--- Tree.build = Util.track(Tree.build, "Tree.build")
--- Filter.filter = Util.track(Filter.filter, "Filter.filter")
--- Sort.sort = Util.track(Sort.sort, "Sort.sort")
--- Render.render = Util.track(Render.render, "Render.render")
--- Render.node = Util.track(Render.node, "Render.node")
--- Text.render = Util.track(Text.render, "Text.render")
--- Util.track(M, "View")
--- Util.report()
-
--- local view2 = M.new({
---   events = { "DiagnosticChanged", "BufEnter" },
---   win = {
---     type = "float",
---     position = { 3, -50 },
---     size = { width = 40, height = 5 },
---     border = "rounded",
---     focusable = false,
---   },
---   auto_open = true,
---   auto_close = true,
---   sections = {
---     {
---       -- Trouble classic for current buffer
---       source = "diagnostics",
---       groups = {
---         { "filename", format = "{file_icon} {filename} {count}" },
---       },
---       sort = { "severity", "filename", "pos" },
---       format = "{severity_icon} {message} {item.source} ({code}) {pos}",
---       filter = {
---         severity = vim.diagnostic.severity.ERROR,
---       },
---     },
---   },
--- })
-
 return M
