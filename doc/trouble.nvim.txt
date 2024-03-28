@@ -5,6 +5,7 @@ Table of Contents                             *trouble.nvim-table-of-contents*
 
 1. Trouble                                              |trouble.nvim-trouble|
   - Features                                   |trouble.nvim-trouble-features|
+  - What’s new?                         |trouble.nvim-trouble-what’s-new?|
   - Requirements                           |trouble.nvim-trouble-requirements|
   - Installation                           |trouble.nvim-trouble-installation|
   - Configuration                         |trouble.nvim-trouble-configuration|
@@ -41,7 +42,24 @@ FEATURES                                    *trouble.nvim-trouble-v2-features*
 - Telescope <https://github.com/nvim-telescope/telescope.nvim> search results
 
 
-REQUIREMENTS                            *trouble.nvim-trouble-v2-requirements*
+WHAT’S NEW?                             *trouble.nvim-trouble-what’s-new?*
+
+- multiple trouble windows at the same time
+- lots of options to configure trouble windows (floats or splits)
+- `focus` option to focus the trouble window when opened (or not)
+- `follow` option to follow the item under the cursor
+- `pinned` option to pin the buffer as the source for the opened trouble window
+- full tree views of anything
+- highly configurable views with custom formatters, filters, and sorters
+- show multiple sections in the same view
+- multiline messages
+- prettier and configurable indent guides
+- tree view that follows the natural hierarchy of the items (like document symbols, or file structure)
+- expansive API and `Trouble` command
+- trouble `modes` to define custom views
+
+
+REQUIREMENTS                               *trouble.nvim-trouble-requirements*
 
 - Neovim >= 0.9.2
 - Properly configured Neovim LSP client
@@ -60,7 +78,7 @@ LAZY.NVIM ~
 >lua
     {
       "folke/trouble.nvim",
-      branch = "dev",
+      branch = "dev", -- IMPORTANT!
       keys = {
         {
           "<leader>xx",
