@@ -27,7 +27,6 @@ M.filters = {
     else
       return main.cursor[1] >= item.pos[1] and main.cursor[1] <= item.end_pos[1]
     end
-    return false
   end,
   ["not"] = function(item, filter, ctx)
     ---@cast filter trouble.Filter
