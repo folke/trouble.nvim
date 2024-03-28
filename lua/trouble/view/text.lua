@@ -187,11 +187,9 @@ end
 function M.set_extmark(buf, row, col, opts, debug_info)
   local ok, err = pcall(vim.api.nvim_buf_set_extmark, buf, M.ns, row, col, opts)
   if not ok then
-    vim.notify(
+    Util.error(
       "Failed to set extmark. Please report a bug with this info:\n"
-        .. vim.inspect({ info = debug_info, row = row, col = col, opts = opts, error = err }),
-      vim.log.levels.ERROR,
-      { title = "trouble.nvim" }
+        .. vim.inspect({ info = debug_info, row = row, col = col, opts = opts, error = err })
     )
   end
 end

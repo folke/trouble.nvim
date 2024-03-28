@@ -162,7 +162,7 @@ function M:jump(item, opts)
   item = item or self:at().item
   Preview.close()
   if not item then
-    return vim.notify("No item to jump to", vim.log.levels.WARN, { title = "Trouble" })
+    return Util.warn("No item to jump to")
   end
 
   if not (item.buf or item.filename) then
@@ -204,7 +204,7 @@ end
 function M:preview(item)
   item = item or self:at().item
   if not item then
-    return vim.notify("No item to preview", vim.log.levels.WARN, { title = "Trouble" })
+    return Util.warn("No item to preview")
   end
 
   return Preview.open(self, item)
