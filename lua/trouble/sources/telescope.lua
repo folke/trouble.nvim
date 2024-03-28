@@ -70,6 +70,7 @@ function M.open(prompt_bufnr)
   Item.add_text(M.items, { mode = "after" })
 
   vim.schedule(function()
+    require("telescope.actions").close(prompt_bufnr)
     require("trouble").open("telescope")
   end)
 end
