@@ -17,7 +17,8 @@ Table of Contents                             *trouble.nvim-table-of-contents*
 1. Trouble v3 Beta!                            *trouble.nvim-trouble-v3-beta!*
 
 **Trouble**has been rewritten from scratch. If you’d like to try the new
-version, please refer to the beta docs </folke/trouble.nvim/tree/dev>
+version, please refer to the beta docs
+<https://github.com/folke/trouble.nvim/tree/dev>
 
 ------------------------------------------------------------------------------
 
