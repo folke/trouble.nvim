@@ -168,11 +168,7 @@ function M:set_options(type)
       win = self.win,
     } or { buf = self.buf })
     if not ok then
-      vim.notify(
-        "Error setting option `" .. k .. "=" .. v .. "`\n\n" .. err,
-        vim.log.levels.ERROR,
-        { title = "Trouble" }
-      )
+      Util.error("Error setting option `" .. k .. "=" .. v .. "`\n\n" .. err)
     end
   end
 end
