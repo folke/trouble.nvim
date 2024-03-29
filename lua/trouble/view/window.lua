@@ -104,6 +104,7 @@ local minimal = {
   wo = {
     cursorcolumn = false,
     cursorline = true,
+    cursorlineopt = "both",
     fillchars = "eob: ",
     foldcolumn = "0",
     foldenable = false,
