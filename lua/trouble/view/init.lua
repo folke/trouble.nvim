@@ -26,8 +26,8 @@ function M.new(opts)
   _idx = _idx + 1
   M._views[self] = _idx
   self.opts = opts or {}
-  self.opts.results.win = self.opts.results.win or {}
-  self.opts.results.win.on_mount = function()
+  self.opts.win = self.opts.win or {}
+  self.opts.win.on_mount = function()
     self:on_mount()
   end
 
@@ -40,20 +40,20 @@ function M.new(opts)
     table.insert(self.sections, section)
   end
 
-  self.win = Window.new(self.opts.results.win)
-  self.opts.results.win = self.win.opts
+  self.win = Window.new(self.opts.win)
+  self.opts.win = self.win.opts
 
-  self.preview_win = Window.new(self.opts.preview.win) or nil
+  self.preview_win = Window.new(self.opts.preview) or nil
 
   self.renderer = Render.new(self.opts, {
-    padding = vim.tbl_get(self.opts.results.win, "padding", "left") or 0,
-    multiline = self.opts.results.multiline,
+    padding = vim.tbl_get(self.opts.win, "padding", "left") or 0,
+    multiline = self.opts.multiline,
   })
   self.update = Util.throttle(M.update, Util.throttle_opts(self.opts.throttle.update, { ms = 10 }))
   self.render = Util.throttle(M.render, Util.throttle_opts(self.opts.throttle.render, { ms = 10 }))
   self.follow = Util.throttle(M.follow, Util.throttle_opts(self.opts.throttle.follow, { ms = 10 }))
 
-  if self.opts.results.auto_open then
+  if self.opts.auto_open then
     self:listen()
     self:refresh()
   end
@@ -69,7 +69,7 @@ function M.get(filter)
   local ret = {}
   for view, idx in pairs(M._views) do
     local is_open = view.win:valid()
-    local ok = is_open or view.opts.results.auto_open
+    local ok = is_open or view.opts.auto_open
     ok = ok and (not filter.mode or filter.mode == view.opts.mode)
     ok = ok and (not filter.open or is_open)
     if ok then
@@ -108,7 +108,7 @@ function M:on_mount()
     if not this then
       return true
     end
-    if this.opts.preview.auto_open then
+    if this.opts.auto_preview then
       local loc = this:at()
       if loc and loc.item then
         preview(this, loc.item)
@@ -317,7 +317,7 @@ end
 
 function M:refresh()
   local is_open = self.win:valid()
-  if not is_open and not self.opts.results.auto_open then
+  if not is_open and not self.opts.auto_open then
     return
   end
   for _, section in ipairs(self.sections) do
@@ -387,10 +387,10 @@ function M:count()
 end
 
 function M:update()
-  if self.opts.results.auto_close and self:count() == 0 then
+  if self.opts.auto_close and self:count() == 0 then
     return self:close()
   end
-  if self.opts.results.auto_open and not self.win:valid() then
+  if self.opts.auto_open and not self.win:valid() then
     if self:count() == 0 then
       return
     end
@@ -408,7 +408,7 @@ function M:render()
   -- render sections
   self.renderer:clear()
   self.renderer:nl()
-  for _ = 1, vim.tbl_get(self.opts.results.win, "padding", "top") or 0 do
+  for _ = 1, vim.tbl_get(self.opts.win, "padding", "top") or 0 do
     self.renderer:nl()
   end
   self.renderer:sections(self.sections)

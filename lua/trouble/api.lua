@@ -132,7 +132,7 @@ function M.statusline(opts)
   local Section = require("trouble.view.section")
   local Render = require("trouble.view.render")
   opts = Config.get(opts)
-  opts.results.indent_guides = false
+  opts.indent_guides = false
   opts.icons.indent.ws = ""
   local renderer = Render.new(opts, {
     multiline = false,

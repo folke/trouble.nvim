@@ -102,7 +102,7 @@ end
 ---@param buf number
 ---@param view trouble.View
 function M.preview_win(buf, view)
-  if view.opts.preview.win.type == "main" then
+  if view.opts.preview.type == "main" then
     local main = view:main()
     if not main then
       Util.debug("No main window")
