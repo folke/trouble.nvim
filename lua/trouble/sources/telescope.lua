@@ -51,12 +51,11 @@ function M.get(cb, _ctx)
   cb(M.items)
 end
 
-function M.open(prompt_bufnr)
+-- Append the current telescope buffer to the trouble list.
+function M.add(prompt_bufnr)
   local action_state = require("telescope.actions.state")
   ---@type Picker
   local picker = action_state.get_current_picker(prompt_bufnr)
-
-  M.items = {}
 
   if #picker:get_multi_selection() > 0 then
     for _, item in ipairs(picker:get_multi_selection()) do
@@ -73,6 +72,13 @@ function M.open(prompt_bufnr)
     require("telescope.actions").close(prompt_bufnr)
     require("trouble").open("telescope")
   end)
+end
+
+-- Opens the current telescope buffer in the trouble list.
+-- This will clear the existing items.
+function M.open(prompt_bufnr)
+  M.items = {}
+  M.add(prompt_bufnr)
 end
 
 return M
