@@ -59,9 +59,24 @@ M.formatters = {
     if not vim.diagnostic.severity[severity] then
       return
     end
+    if type(severity) == "string" then
+      severity = vim.diagnostic.severity[severity:upper()] or vim.diagnostic.severity.ERROR
+    end
     local name = Util.camel(vim.diagnostic.severity[severity]:lower())
-    local sign = vim.fn.sign_getdefined("DiagnosticSign" .. name)[1]
-    return sign and { text = sign.text, hl = sign.texthl } or { text = name or ctx.value }
+    if vim.fn.has("nvim-0.10.0") == 1 then
+      local config = vim.diagnostic.config() or {}
+      if config.signs == nil or type(config.signs) == "boolean" then
+        return { text = name:sub(1, 1), hl = "DiagnosticSign" .. name }
+      end
+      local signs = config.signs or {}
+      if type(signs) == "function" then
+        signs = signs(0, 0) --[[@as vim.diagnostic.Opts.Signs]]
+      end
+      return { text = signs.text and signs.text[severity] or name:sub(1, 1), hl = "DiagnosticSign" .. name }
+    else
+      local sign = vim.fn.sign_getdefined("DiagnosticSign" .. name)[1]
+      return sign and { text = sign.text, hl = sign.texthl } or { text = name } or nil
+    end
   end,
   file_icon = function(ctx)
     local item = ctx.item --[[@as Diagnostic|trouble.Item]]
