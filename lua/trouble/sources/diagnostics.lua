@@ -79,6 +79,7 @@ function M.setup()
     if buf and vim.api.nvim_buf_is_valid(buf) then
       cache[buf] = cache[buf] or {}
       table.insert(cache[buf], M.item(diag))
+      Item.add_id(cache[buf], { "item.source", "severity", "code" })
     end
   end
 end
