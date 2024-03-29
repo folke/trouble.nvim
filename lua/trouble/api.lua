@@ -45,7 +45,7 @@ end
 function M.open(opts)
   opts = opts or {}
   local view, _opts = M._find_last(opts)
-  if not view or opts.new then
+  if not view or _opts.new then
     if not _opts.mode then
       error("No mode specified")
     end
