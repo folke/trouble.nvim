@@ -4,7 +4,7 @@ local Util = require("trouble.util")
 ---@class trouble.Window.split
 ---@field type "split"
 ---@field relative "editor" | "win" cursor is only valid for float
----@field size number
+---@field size number | {width:number, height:number} when a table is provided, either the width or height is used based on the position
 ---@field position "top" | "bottom" | "left" | "right"
 
 ---@class trouble.Window.float
@@ -266,6 +266,9 @@ function M:mount_split(opts)
   end
   local parent_size = self:parent_size()
   local size = opts.size
+  if type(size) == "table" then
+    size = opts.position == "left" or opts.position == "right" and size.width or size.height
+  end
   if size <= 1 then
     local vertical = opts.position == "left" or opts.position == "right"
     size = math.floor(parent_size[vertical and "width" or "height"] * size)
