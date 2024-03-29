@@ -34,9 +34,9 @@ local M = {
   end,
   -- Toggle the preview
   toggle_preview = function(self)
-    self.opts.preview.auto_open = not self.opts.preview.auto_open
+    self.opts.auto_preview = not self.opts.auto_preview
     local Preview = require("trouble.view.preview")
-    if self.opts.preview.auto_open then
+    if self.opts.auto_preview then
       self:preview()
     else
       Preview.close()
@@ -44,7 +44,7 @@ local M = {
   end,
   -- Toggle the auto refresh
   toggle_refresh = function(self)
-    self.opts.results.auto_refresh = not self.opts.results.auto_refresh
+    self.opts.auto_refresh = not self.opts.auto_refresh
   end,
   -- Show the help
   help = function(self)

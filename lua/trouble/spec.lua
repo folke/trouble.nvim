@@ -94,7 +94,7 @@ function M.sections(mode)
     end
   else
     local section = M.section(mode)
-    section.max_items = section.max_items or mode.results.max_items
+    section.max_items = section.max_items or mode.max_items
     ret[#ret + 1] = section
   end
   return ret

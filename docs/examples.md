@@ -12,16 +12,14 @@
     preview_float = {
       mode = "diagnostics",
       preview = {
-        win = {
-          type = "float",
-          relative = "editor",
-          border = "rounded",
-          title = "Preview",
-          title_pos = "center",
-          position = { 0, -2 },
-          size = { width = 0.3, height = 0.3 },
-          zindex = 200,
-        },
+        type = "float",
+        relative = "editor",
+        border = "rounded",
+        title = "Preview",
+        title_pos = "center",
+        position = { 0, -2 },
+        size = { width = 0.3, height = 0.3 },
+        zindex = 200,
       },
     },
   },
@@ -38,12 +36,10 @@
     test = {
       mode = "diagnostics",
       preview = {
-        win = {
-          type = "split",
-          relative = "win",
-          position = "right",
-          size = 0.3,
-        },
+        type = "split",
+        relative = "win",
+        position = "right",
+        size = 0.3,
       },
     },
   },
