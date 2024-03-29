@@ -98,8 +98,8 @@ Trouble comes with the following defaults:
         open_folds = {"zR", "zr"}, -- open all folds
         toggle_fold = {"zA", "za"}, -- toggle fold of current file
         previous = "k", -- previous item
-        next = "j" -- next item
-        help = "?" -- help menu
+        next = "j", -- next item
+        help = "?", -- help menu
     },
     multiline = true, -- render multi-line messages
     indent_lines = true, -- add an indent guide below the fold icons
@@ -118,7 +118,7 @@ Trouble comes with the following defaults:
       information = "",
       other = "",
     },
-    use_diagnostic_signs = false -- enabling this will use the signs defined in your lsp client
+    use_diagnostic_signs = false, -- enabling this will use the signs defined in your lsp client
 }
 ```
 
