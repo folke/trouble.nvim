@@ -497,24 +497,33 @@ function M:follow()
     return
   end
   local current_win = vim.api.nvim_get_current_win()
-  ---@type number[]|nil
-  local cursor = nil
   if current_win ~= self.win.win then
     local Filter = require("trouble.filter")
     local ctx = { opts = self.opts, main = self:main() }
+    local fname = vim.api.nvim_buf_get_name(ctx.main.buf or 0)
+
+    ---@type number[]|nil
+    local cursor_item = nil
+    local cursor_group = cursor_item
+
     for row, l in pairs(self.renderer._locations) do
+      local is_group = l.node and l.node.group and l.node.item and l.node.item.filename == fname
+      if is_group then
+        cursor_group = { row, 1 }
+      end
       local is_current = l.item and Filter.is(l.item, { range = true }, ctx)
       if is_current then
-        cursor = { row, 1 }
-        -- return
+        cursor_item = { row, 1 }
       end
     end
-  end
-  if cursor then
-    -- make sure the cursorline is visible
-    vim.wo[self.win.win].cursorline = true
-    vim.api.nvim_win_set_cursor(self.win.win, cursor)
-    return true
+
+    local cursor = cursor_item or cursor_group
+    if cursor then
+      -- make sure the cursorline is visible
+      vim.wo[self.win.win].cursorline = true
+      vim.api.nvim_win_set_cursor(self.win.win, cursor)
+      return true
+    end
   end
   return false
 end
