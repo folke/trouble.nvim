@@ -118,7 +118,7 @@ local minimal = {
     statuscolumn = "",
     winfixheight = true,
     winfixwidth = true,
-    winhighlight = "Normal:TroubleNormal,EndOfBuffer:TroubleNormal",
+    winhighlight = "Normal:TroubleNormal,NormalNC:TroubleNormalNC,EndOfBuffer:TroubleNormal",
     wrap = false,
   },
 }
