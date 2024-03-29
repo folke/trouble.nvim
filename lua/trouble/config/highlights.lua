@@ -6,6 +6,7 @@ local M = {}
 M.colors = {
   -- General
   Normal            = "NormalFloat",
+  NormalNC          = "NormalFloat",
   Text              = "Normal",
   Preview           = "Visual",
 
