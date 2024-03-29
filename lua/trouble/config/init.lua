@@ -13,26 +13,22 @@ local M = {}
 ---@field sorters? table<string, trouble.SorterFn> custom sorters
 local defaults = {
   debug = false,
-  pinned = false, -- When pinned, the opened trouble window will be bound to the current buffer
+  auto_close = false, -- auto close when there are no items
+  auto_open = false, -- auto open when there are items
+  auto_preview = true, -- automatically open preview when on an item
+  auto_refresh = true, -- auto refresh when open
   focus = false, -- Focus the window when opened
   follow = true, -- Follow the current item
-  results = {
-    ---@type trouble.Window.opts
-    win = {}, -- window options for the results window. Can be a split or a floating window.
-    indent_guides = true, -- show indent guides
-    multiline = true, -- render multi-line messages
-    max_items = 200, -- limit number of items that can be displayed per section
-    auto_open = false, -- auto open when there are items
-    auto_close = false, -- auto close when there are no items
-    auto_refresh = true, -- auto refresh when open
-  },
-  preview = {
-    -- Window options for the preview window. Can be a split, floating window,
-    -- or `main` to show the preview in the main editor window.
-    ---@type trouble.Window.opts
-    win = { type = "main" },
-    auto_open = true, -- automatically open preview when on an item
-  },
+  indent_guides = true, -- show indent guides
+  max_items = 200, -- limit number of items that can be displayed per section
+  multiline = true, -- render multi-line messages
+  pinned = false, -- When pinned, the opened trouble window will be bound to the current buffer
+  ---@type trouble.Window.opts
+  win = {}, -- window options for the results window. Can be a split or a floating window.
+  -- Window options for the preview window. Can be a split, floating window,
+  -- or `main` to show the preview in the main editor window.
+  ---@type trouble.Window.opts
+  preview = { type = "main" },
   -- Throttle/Debounce settings. Should usually not be changed.
   ---@type table<string, number|{ms:number, debounce?:boolean}>
   throttle = {
@@ -89,9 +85,7 @@ local defaults = {
       desc = "document symbols",
       mode = "lsp_document_symbols",
       focus = false,
-      results = {
-        win = { position = "right" },
-      },
+      win = { position = "right" },
       filter = {
         -- remove Package since luals uses it for control flow structures
         ["not"] = { ft = "lua", kind = "Package" },

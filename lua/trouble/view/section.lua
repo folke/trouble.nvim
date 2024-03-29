@@ -124,7 +124,7 @@ function M:listen()
         if not this then
           return true
         end
-        if not this.opts.results.auto_refresh then
+        if not this.opts.auto_refresh then
           return
         end
         if event.main then

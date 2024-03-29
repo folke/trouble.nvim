@@ -51,16 +51,16 @@ function M.complete_opts()
   vim.list_extend(candidates, {
     "new=true",
   })
-  for _, w in ipairs({ "results", "preview" }) do
+  for _, w in ipairs({ "win", "preview" }) do
     local winopts = {
-      "win.type=float",
-      "win.type=split",
-      "win.position=top",
-      "win.position=bottom",
-      "win.position=left",
-      "win.position=right",
-      "win.relative=editor",
-      "win.relative=win",
+      "type=float",
+      "type=split",
+      "position=top",
+      "position=bottom",
+      "position=left",
+      "position=right",
+      "relative=editor",
+      "relative=win",
     }
     vim.list_extend(
       candidates,
