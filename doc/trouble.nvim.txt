@@ -634,6 +634,7 @@ Highlight Groups ~
   TroubleIndentTop           TroubleIndent             
   TroubleIndentWs            TroubleIndent             
   TroubleNormal              NormalFloat               
+  TroubleNormalNC            NormalFloat               
   TroublePos                 LineNr                    
   TroublePreview             Visual                    
   TroubleSource              Comment                   
