@@ -621,6 +621,7 @@ The table below shows all the highlight groups defined for Trouble.
 | **TroubleIndentTop** | ***TroubleIndent*** |  |
 | **TroubleIndentWs** | ***TroubleIndent*** |  |
 | **TroubleNormal** | ***NormalFloat*** |  |
+| **TroubleNormalNC** | ***NormalFloat*** |  |
 | **TroublePos** | ***LineNr*** |  |
 | **TroublePreview** | ***Visual*** |  |
 | **TroubleSource** | ***Comment*** |  |
