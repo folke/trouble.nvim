@@ -18,7 +18,7 @@ M.filters = {
   end,
   range = function(item, buf, ctx)
     local main = ctx.main
-    if not main then
+    if not main or (main.buf ~= item.buf) then
       return false
     end
     local range = item.range --[[@as trouble.Item]]
