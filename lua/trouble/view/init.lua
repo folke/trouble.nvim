@@ -147,9 +147,11 @@ function M:on_mount()
     if not this then
       return true
     end
-    local foldlevel = vim.wo[this.win.win].foldlevel
-    if foldlevel ~= this.renderer.foldlevel then
-      this:fold_level({ level = foldlevel })
+    if this.win:valid() then
+      local foldlevel = vim.wo[this.win.win].foldlevel
+      if foldlevel ~= this.renderer.foldlevel then
+        this:fold_level({ level = foldlevel })
+      end
     end
   end, { pattern = "foldlevel", buffer = false })
 
