@@ -4,8 +4,9 @@ local Indent = require("trouble.view.indent")
 local Text = require("trouble.view.text")
 local Util = require("trouble.util")
 
+---@alias trouble.Render.Location {item?: trouble.Item, node?: trouble.Node, first_line?:boolean}
 ---@class trouble.Render: trouble.Text
----@field _locations {item?: trouble.Item, node?: trouble.Node, first_line?:boolean}[] Maps line numbers to items.
+---@field _locations trouble.Render.Location[] Maps line numbers to items.
 ---@field _folded table<string, true>
 ---@field root_nodes trouble.Node[]
 ---@field foldlevel? number
