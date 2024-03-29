@@ -119,6 +119,7 @@ local defaults = {
   auto_preview = true, -- automatically open preview when on an item
   auto_refresh = true, -- auto refresh when open
   focus = false, -- Focus the window when opened
+  restore = true, -- restores the last location in the list when opening
   follow = true, -- Follow the current item
   indent_guides = true, -- show indent guides
   max_items = 200, -- limit number of items that can be displayed per section
