@@ -142,6 +142,7 @@ function M.statusline(opts)
   ---@cast opts trouble.Mode
 
   local s = Spec.section(opts)
+  s.max_items = s.max_items or opts.max_items
   local section = Section.new(s, opts)
   section.on_update = function()
     status = nil
