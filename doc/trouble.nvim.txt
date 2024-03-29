@@ -545,15 +545,15 @@ action:
 
 >lua
     local actions = require("telescope.actions")
-    local trouble = require("trouble.sources.telescope")
+    local open_with_trouble = require("trouble.sources.telescope").open
     
     local telescope = require("telescope")
     
     telescope.setup({
       defaults = {
         mappings = {
-          i = { ["<c-t>"] = trouble.open },
-          n = { ["<c-t>"] = trouble.open },
+          i = { ["<c-t>"] = open_with_trouble },
+          n = { ["<c-t>"] = open_with_trouble },
         },
       },
     })
