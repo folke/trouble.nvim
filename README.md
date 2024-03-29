@@ -3,7 +3,8 @@
 ❗**Trouble** has been rewritten from scratch. If you'd like to try the new version,
 please refer to the [beta docs](https://github.com/folke/trouble.nvim/tree/dev)
 
-![image](https://github.com/folke/trouble.nvim/assets/292349/dd04ebdb-e964-4cfe-a9b1-f694084ca54a)
+![image](https://github.com/folke/trouble.nvim/assets/292349/481bc1f7-cb93-432d-8ab6-f54044334b96)
+
 
 ---
 
