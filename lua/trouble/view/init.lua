@@ -187,6 +187,11 @@ function M:jump(item, opts)
   local main = self:main()
   local win = main and main.win or 0
 
+  vim.api.nvim_win_call(win, function()
+    -- save position in jump list
+    vim.cmd("normal! m'")
+  end)
+
   if opts.split then
     vim.api.nvim_win_call(win, function()
       vim.cmd("split")
