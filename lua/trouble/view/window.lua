@@ -32,6 +32,7 @@ local Util = require("trouble.util")
 ---@field minimal? boolean (defaults to true)
 ---@field win? number
 ---@field on_mount? fun(self: trouble.Window)
+---@field on_close? fun(self: trouble.Window)
 
 ---@alias trouble.Window.opts trouble.Window.base|trouble.Window.split|trouble.Window.float|trouble.Window.main
 
@@ -205,6 +206,9 @@ function M:mount()
   self:on({ "BufWinLeave" }, vim.schedule_wrap(self.check_alien))
 
   self:on("WinClosed", function()
+    if self.opts.on_close then
+      self.opts.on_close(self)
+    end
     self:augroup(true)
   end, { win = true })
 
