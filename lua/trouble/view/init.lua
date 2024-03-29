@@ -464,6 +464,7 @@ function M:render()
     return
   end
 
+  -- fast exit when cursor is already on the right item
   local new_loc = self:at()
   if new_loc.node and loc.node and new_loc.node.id == loc.node.id then
     return
@@ -472,17 +473,16 @@ function M:render()
   -- Move cursor to the same item
   local cursor = vim.api.nvim_win_get_cursor(self.win.win)
   local item_row ---@type number?
-  for row, l in pairs(self.renderer._locations) do
-    if loc.node and loc.item then
-      if l.node and l.item and loc.node.id == l.node.id and l.item == loc.item then
+  if loc.node then
+    for row, l in pairs(self.renderer._locations) do
+      if loc.node:is(l.node) then
         item_row = row
         break
       end
-    elseif loc.node and l.node and loc.node.id == l.node.id then
-      item_row = row
-      break
     end
   end
+
+  -- Move cursor to the actual item when found
   if item_row and item_row ~= cursor[1] then
     vim.api.nvim_win_set_cursor(self.win.win, { item_row, cursor[2] })
     return

@@ -83,7 +83,10 @@ end
 
 function M:add(node)
   if node.id then
-    assert(self.index[node.id] == nil, "node already exists")
+    if self.index[node.id] then
+      Util.debug("node already exists:\n" .. node.id)
+      node.id = node.id .. "_"
+    end
     self.index[node.id] = node
   end
   node.parent = self
@@ -93,6 +96,40 @@ end
 
 function M:is_leaf()
   return self.children == nil or #self.children == 0
+end
+
+---@param other? trouble.Node
+function M:is(other)
+  if not other then
+    return false
+  end
+
+  if self == other then
+    return true
+  end
+
+  if self.id ~= other.id then
+    return false
+  end
+
+  if self.group ~= other.group then
+    return false
+  end
+
+  if self.group then
+    return true
+  end
+  assert(self.item, "missing item")
+
+  if not other.item then
+    return false
+  end
+
+  if self.item == other.item then
+    return true
+  end
+
+  return self.item.id and (self.item.id == other.item.id)
 end
 
 --- Build a tree from a list of items and a section.

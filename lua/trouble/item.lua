@@ -36,6 +36,27 @@ function M.new(opts)
   return setmetatable(self, M)
 end
 
+---@param items trouble.Item[]
+---@param fields? string[]
+function M.add_id(items, fields)
+  for _, item in ipairs(items) do
+    if not item.id then
+      local id = {
+        item.source,
+        item.filename,
+        item.pos[1] or "",
+        item.pos[2] or "",
+        item.end_pos[1] or "",
+        item.end_pos[2] or "",
+      }
+      for _, field in ipairs(fields or {}) do
+        table.insert(id, item[field] or "")
+      end
+      item.id = table.concat(id, ":")
+    end
+  end
+end
+
 ---@return string?
 function M:get_ft()
   if self.buf and vim.api.nvim_buf_is_loaded(self.buf) then

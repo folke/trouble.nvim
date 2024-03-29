@@ -92,6 +92,7 @@ function M.get_list(opts)
       ret[#ret].item.text = ret[#ret].item.text .. "\n" .. item.text
     end
   end
+  Item.add_id(ret, { "severity" })
   Item.add_text(ret, { mode = "full" })
   return ret
 end
