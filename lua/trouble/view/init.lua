@@ -20,6 +20,9 @@ local _idx = 0
 ---@type table<trouble.View, number>
 M._views = setmetatable({}, { __mode = "k" })
 
+---@type table<string, trouble.Render.Location>
+M._last = {}
+
 ---@param opts trouble.Mode
 function M.new(opts)
   local self = setmetatable({}, M)
@@ -29,6 +32,9 @@ function M.new(opts)
   self.opts.win = self.opts.win or {}
   self.opts.win.on_mount = function()
     self:on_mount()
+  end
+  self.opts.win.on_close = function()
+    M._last[self.opts.mode or ""] = self:at()
   end
 
   self.sections = {}
@@ -408,7 +414,13 @@ function M:render()
   if not self.win:valid() then
     return
   end
+
   local loc = self:at()
+  local restore_loc = self.opts.restore and M._last[self.opts.mode or ""]
+  if restore_loc then
+    loc = restore_loc
+    M._last[self.opts.mode or ""] = nil
+  end
 
   -- render sections
   self.renderer:clear()
@@ -441,7 +453,7 @@ function M:render()
   end
 
   -- when window is at top, dont move cursor
-  if view.topline == 1 then
+  if not restore_loc and view.topline == 1 then
     return
   end
 
