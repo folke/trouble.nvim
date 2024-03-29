@@ -51,7 +51,7 @@ end
 function M.load()
   local rtp = vim.api.nvim_get_runtime_file("lua/trouble/sources/*.lua", true)
   for _, file in ipairs(rtp) do
-    local name = file:match("lua/trouble/sources/(.*)%.lua")
+    local name = file:match("lua[/\\]trouble[/\\]sources[/\\](.*)%.lua")
     if name and name ~= "init" and not M.sources[name] then
       Util.try(function()
         M.register(name)
