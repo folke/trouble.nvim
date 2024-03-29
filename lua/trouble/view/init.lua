@@ -94,6 +94,13 @@ function M.get(filter)
 end
 
 function M:on_mount()
+  vim.w[self.win.win].trouble = {
+    mode = self.opts.mode,
+    type = self.opts.win.type,
+    relative = self.opts.win.relative,
+    position = self.opts.win.position,
+  }
+
   self:listen()
   self.win:on("WinLeave", function()
     Preview.close()
