@@ -195,11 +195,6 @@ function M:mount()
     ---@diagnostic disable-next-line: param-type-mismatch
     self:mount_float(self.opts)
   end
-  vim.w[self.win].trouble = {
-    type = self.opts.type,
-    relative = self.opts.relative,
-    position = self.opts.position,
-  }
 
   self:set_options("win")
 
