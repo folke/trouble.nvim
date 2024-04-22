@@ -1,5 +1,5 @@
 local Config = require("trouble.config")
-local uv = vim.loop
+local uv = vim.loop or vim.uv
 
 local M = {}
 
@@ -100,7 +100,7 @@ function M.throttle(fn, opts)
   opts.ms = opts.ms or 20
   local last = 0
   local args = nil ---@type {n?:number}?
-  local timer = assert(vim.loop.new_timer())
+  local timer = assert(uv.new_timer())
   local pending = false -- from run() till end of fn
   local running = false -- from run() till end of fn with is_running()
 
@@ -110,7 +110,7 @@ function M.throttle(fn, opts)
     pending = true
     running = true
     timer:stop()
-    last = vim.uv.now()
+    last = uv.now()
     vim.schedule(function()
       xpcall(function()
         if not args then
@@ -129,7 +129,7 @@ function M.throttle(fn, opts)
   end
 
   function t.schedule()
-    local now = vim.uv.now()
+    local now = uv.now()
     local delay = opts.debounce and opts.ms or (opts.ms - (now - last))
     timer:stop()
     timer:start(math.max(0, delay), 0, t.run)
@@ -144,7 +144,7 @@ function M.throttle(fn, opts)
     end
   end
 
-  local check = assert(vim.uv.new_check())
+  local check = assert(uv.new_check())
   check:start(t.check)
 
   return function(...)

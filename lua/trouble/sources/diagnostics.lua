@@ -35,7 +35,7 @@ M.config = {
       --   },
       -- },
       -- function(item)
-      --   return item.filename:find(vim.loop.cwd(), 1, true)
+      --   return item.filename:find((vim.loop or vim.uv).cwd(), 1, true)
       -- end,
       -- },
     },
