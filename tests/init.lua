@@ -1,4 +1,5 @@
 local M = {}
+local uv = vim.loop or vim.uv
 
 function M.root(root)
   local f = debug.getinfo(1, "S").source:sub(2)
@@ -9,7 +10,7 @@ end
 function M.load(plugin)
   local name = plugin:match(".*/(.*)")
   local package_root = M.root(".tests/site/pack/deps/start/")
-  if not vim.loop.fs_stat(package_root .. name) then
+  if not uv.fs_stat(package_root .. name) then
     print("Installing " .. plugin)
     vim.fn.mkdir(package_root, "p")
     vim.fn.system({
