@@ -1,14 +1,15 @@
 local M = {}
+local uv = vim.loop or vim.uv
 
 M.budget = 1
 local Scheduler = {}
 Scheduler._queue = {}
-Scheduler._executor = assert(vim.loop.new_check())
+Scheduler._executor = assert(uv.new_check())
 
 function Scheduler.step()
   local budget = M.budget * 1e6
-  local start = vim.loop.hrtime()
-  while #Scheduler._queue > 0 and vim.loop.hrtime() - start < budget do
+  local start = uv.hrtime()
+  while #Scheduler._queue > 0 and uv.hrtime() - start < budget do
     local a = table.remove(Scheduler._queue, 1)
     a:_step()
     if a.running then
