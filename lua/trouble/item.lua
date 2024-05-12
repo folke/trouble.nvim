@@ -20,6 +20,8 @@ function M.new(opts)
   local self = opts
   assert(self.source, "source is required")
   self.pos = self.pos or { 1, 0 }
+  self.pos[1] = math.max(self.pos[1] or 1, 1)
+  self.pos[2] = math.max(self.pos[2] or 0, 0)
   self.end_pos = self.end_pos or self.pos
   self.item = self.item or {}
   if self.buf and not self.filename then
@@ -143,7 +145,7 @@ function M.add_text(items, opts)
       rows = t.rows,
       buf = t.buf,
       path = path,
-    })
+    }) or {}
   end
   for _, item in ipairs(items) do
     if not item.item.text and item.filename then
