@@ -21,7 +21,10 @@ function M.get_list(winid)
         bufnr = item.bufnr,
         range = {
           start = { line = row, character = col },
-          ["end"] = { line = row, character = -1 },
+          ["end"] = {
+            line = (item.end_lnum == 0 and 1 or item.end_lnum) - 1 and row,
+            character = (item.end_col == 0 and 1 or item.end_col) - 1 and -1,
+          },
         },
       }
     elseif #ret > 0 then
