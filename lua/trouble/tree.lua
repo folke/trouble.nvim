@@ -53,7 +53,7 @@ function M:count()
     for _, child in ipairs(self.children or {}) do
       self._count = self._count + child:count()
     end
-    if not self.group then
+    if not self.group and self.item then
       self._count = self._count + 1
     end
   end
