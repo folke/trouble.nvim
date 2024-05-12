@@ -166,7 +166,10 @@ function M:render(buf)
           col + width + 1,
         })
       elseif segment.hl then
-        M.set_extmark(buf, row, col, { hl_group = segment.hl, end_col = col + width })
+        Util.set_extmark(buf, M.ns, row, col, {
+          hl_group = segment.hl,
+          end_col = col + width,
+        })
       end
       col = col + width
     end
@@ -177,21 +180,6 @@ function M:render(buf)
     TS.highlight(buf, lang, r)
   end
   vim.bo[buf].modifiable = false
-end
-
----@param buf number
----@param row number
----@param col number
----@param opts vim.api.keyset.set_extmark
----@param debug_info? any
-function M.set_extmark(buf, row, col, opts, debug_info)
-  local ok, err = pcall(vim.api.nvim_buf_set_extmark, buf, M.ns, row, col, opts)
-  if not ok then
-    Util.error(
-      "Failed to set extmark. Please report a bug with this info:\n"
-        .. vim.inspect({ info = debug_info, row = row, col = col, opts = opts, error = err })
-    )
-  end
 end
 
 function M:trim()
