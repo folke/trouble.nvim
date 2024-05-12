@@ -33,12 +33,19 @@ end
 function M.create(item)
   local buf = item.buf or vim.fn.bufnr(item.filename)
 
+  if item.filename and vim.fn.isdirectory(item.filename) then
+    return
+  end
+
   -- create a scratch preview buffer when needed
   if not (buf and vim.api.nvim_buf_is_loaded(buf)) then
     buf = vim.api.nvim_create_buf(false, true)
     vim.bo[buf].bufhidden = "wipe"
     vim.bo[buf].buftype = "nofile"
     local lines = Util.get_lines({ path = item.filename, buf = item.buf })
+    if not lines then
+      return
+    end
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
     local ft = item:get_ft()
     if ft then
@@ -85,6 +92,9 @@ function M.open(view, item)
   end
 
   local buf = M.create(item)
+  if not buf then
+    return
+  end
 
   M.preview = M.preview_win(buf, view)
 

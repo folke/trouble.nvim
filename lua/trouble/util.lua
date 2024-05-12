@@ -190,7 +190,7 @@ end
 
 --- Gets lines from a file or buffer
 ---@param opts {path?:string, buf?: number, rows?: number[]}
----@return table<number, string>
+---@return table<number, string>?
 function M.get_lines(opts)
   if opts.buf then
     local uri = vim.uri_from_bufnr(opts.buf)
@@ -216,9 +216,12 @@ function M.get_lines(opts)
 
   local fd = uv.fs_open(opts.path, "r", 438)
   if not fd then
-    return {}
+    return
   end
   local stat = assert(uv.fs_fstat(fd))
+  if not (stat.type == "file" or stat.type == "link") then
+    return
+  end
   local data = assert(uv.fs_read(fd, stat.size, 0)) --[[@as string]]
   assert(uv.fs_close(fd))
   local todo = opts.rows and #opts.rows or -1
