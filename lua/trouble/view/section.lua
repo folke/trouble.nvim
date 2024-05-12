@@ -127,6 +127,9 @@ function M:listen()
         if not this.opts.auto_refresh then
           return
         end
+        if not vim.api.nvim_buf_is_valid(e.buf) then
+          return
+        end
         if event.main then
           local main = this:main()
           if main and main.buf ~= e.buf then
