@@ -1,3 +1,4 @@
+local Config = require("trouble.config")
 local Render = require("trouble.view.render")
 local Util = require("trouble.util")
 
@@ -63,7 +64,7 @@ function M.create(item)
   end
 
   -- highlight the line
-  vim.api.nvim_buf_set_extmark(buf, Render.ns, item.pos[1] - 1, 0, {
+  Util.set_extmark(buf, Render.ns, item.pos[1] - 1, 0, {
     end_row = end_pos[1],
     hl_group = "CursorLine",
     hl_eol = true,
@@ -71,7 +72,7 @@ function M.create(item)
   })
 
   -- highlight the range
-  vim.api.nvim_buf_set_extmark(buf, Render.ns, item.pos[1] - 1, item.pos[2], {
+  Util.set_extmark(buf, Render.ns, item.pos[1] - 1, item.pos[2], {
     end_row = end_pos[1] - 1,
     end_col = end_pos[2],
     hl_group = "TroublePreview",

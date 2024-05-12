@@ -64,6 +64,19 @@ function M.debug(msg, ...)
   end
 end
 
+---@param buf number
+---@param row number
+---@param ns number
+---@param col number
+---@param opts vim.api.keyset.set_extmark
+---@param debug_info? any
+function M.set_extmark(buf, ns, row, col, opts, debug_info)
+  local ok, err = pcall(vim.api.nvim_buf_set_extmark, buf, ns, row, col, opts)
+  if not ok and Config.debug then
+    M.debug("Failed to set extmark for preview", { info = debug_info, row = row, col = col, opts = opts, error = err })
+  end
+end
+
 ---@param str string
 ---@param sep? string
 function M.camel(str, sep)
