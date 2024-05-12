@@ -60,6 +60,7 @@ and improvements:
 REQUIREMENTS                       *trouble.nvim-trouble-v3-beta-requirements*
 
 - Neovim >= 0.9.2
+- Neovim >= 0.10.0 **OR** the `markdown` and `markdown_inline` nvim-treesitter <https://github.com/nvim-treesitter/nvim-treesitter> parsers
 - Properly configured Neovim LSP client
 - nvim-web-devicons <https://github.com/nvim-tree/nvim-web-devicons> is optional to enable file icons
 - a theme with properly configured highlight groups for Neovim Diagnostics
