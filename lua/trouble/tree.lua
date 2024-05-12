@@ -60,6 +60,18 @@ function M:count()
   return self._count
 end
 
+---@param ret trouble.Item[]?
+function M:flatten(ret)
+  ret = ret or {}
+  for _, child in ipairs(self.children or {}) do
+    child:flatten(ret)
+  end
+  if not self.group and self.item then
+    ret[#ret + 1] = self.item
+  end
+  return ret
+end
+
 ---@param idx number|string
 ---@return trouble.Node?
 function M:get(idx)
