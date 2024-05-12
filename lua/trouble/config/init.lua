@@ -170,6 +170,15 @@ function M.setup(opts)
     error(msg)
     return
   end
+  if vim.fn.has("nvim-0.10.0") == 0 then
+    local ok = pcall(vim.treesitter.language.add, "markdown_inline") and pcall(vim.treesitter.language.add, "markdown")
+    if not ok then
+      local msg =
+        "trouble.nvim requires Neovim >= 0.10.0 or\nnvim-treesitter with the markdown and markdown_inline parser"
+      vim.notify_once(msg, vim.log.levels.ERROR, { title = "trouble.nvim" })
+      error(msg)
+    end
+  end
   opts = opts or {}
   opts.mode = nil
   options = {}
