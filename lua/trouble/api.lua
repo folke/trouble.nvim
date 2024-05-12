@@ -147,7 +147,9 @@ function M.statusline(opts)
   section.on_update = function()
     status = nil
     if package.loaded["lualine"] then
-      require("lualine").refresh()
+      vim.schedule(function()
+        require("lualine").refresh()
+      end)
     else
       vim.cmd.redrawstatus()
     end
