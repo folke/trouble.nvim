@@ -111,7 +111,7 @@ function M:statusline(opts)
   for _, line in ipairs(self._lines) do
     local parts = {}
     for _, segment in ipairs(line) do
-      local str = segment.str:gsub("%%", "%%")
+      local str = segment.str:gsub("%%", "%%%%")
       if segment.hl then
         str = ("%%#%s#%s%%*"):format(segment.hl, str)
       end
