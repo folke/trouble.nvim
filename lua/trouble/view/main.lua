@@ -82,6 +82,8 @@ function M.get(main)
   if not valid then
     main = M._find()
   end
+  -- Always return a main window even if it is not valid
+  main = main or M._info(vim.api.nvim_get_current_win())
   -- update the cursor, unless the preview is showing in the main window
   if main and not Preview.is_win(main.win) and vim.api.nvim_win_get_buf(main.win) == main.buf then
     main.cursor = vim.api.nvim_win_get_cursor(main.win)
