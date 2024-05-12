@@ -406,6 +406,14 @@ function M:count()
   return count
 end
 
+function M:flatten()
+  local ret = {}
+  for _, section in ipairs(self.sections) do
+    section.node:flatten(ret)
+  end
+  return ret
+end
+
 function M:update()
   if self.opts.auto_close and self:count() == 0 then
     return self:close()
