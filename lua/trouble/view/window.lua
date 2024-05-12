@@ -150,7 +150,7 @@ function M.new(opts)
     opts.relative = "win"
     opts.position = { 0, 0 }
     opts.size = { width = 1, height = 1 }
-    opts.wo.winhighlight = ""
+    opts.wo.winhighlight = "Normal:Normal"
   end
   self.opts = opts
   return self
