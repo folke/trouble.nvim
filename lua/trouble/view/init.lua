@@ -13,6 +13,7 @@ local Window = require("trouble.view.window")
 ---@field opts trouble.Mode
 ---@field sections trouble.Section[]
 ---@field renderer trouble.Render
+---@field first_update? boolean
 ---@field private _main? trouble.Main
 local M = {}
 M.__index = M
@@ -29,6 +30,7 @@ function M.new(opts)
   _idx = _idx + 1
   M._views[self] = _idx
   self.opts = opts or {}
+  self.first_update = true
   self.opts.win = self.opts.win or {}
   self.opts.win.on_mount = function()
     self:on_mount()
@@ -423,6 +425,13 @@ function M:update()
       return
     end
     self:open()
+  end
+  if self.win:valid() and self.first_update then
+    self.first_update = false
+    if self.opts.auto_jump and self:count() == 1 then
+      self:jump(self:flatten()[1])
+      return self:close()
+    end
   end
   self:render()
 end
