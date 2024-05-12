@@ -59,6 +59,7 @@ M.config = {
 
 for _, mode in ipairs({ "definitions", "references", "implementations", "type_definitions", "declarations" }) do
   M.config.modes["lsp_" .. mode] = {
+    auto_jump = true,
     mode = "lsp_base",
     title = "{hl:Title}" .. Util.camel(mode, " ") .. "{hl} {count}",
     source = "lsp." .. mode,
