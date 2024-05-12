@@ -33,7 +33,7 @@ end
 function M.create(item)
   local buf = item.buf or vim.fn.bufnr(item.filename)
 
-  if item.filename and vim.fn.isdirectory(item.filename) then
+  if item.filename and vim.fn.isdirectory(item.filename) == 1 then
     return
   end
 
