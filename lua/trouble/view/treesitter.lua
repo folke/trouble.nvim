@@ -9,7 +9,13 @@ function M.highlight(buf, lang, regions)
   lang = lang or "markdown"
   lang = lang == "markdown" and "markdown_inline" or lang
   -- lang = "markdown_inline"
-  local parser = vim.treesitter.get_parser(buf, lang)
+  local ok, parser = pcall(vim.treesitter.get_parser, buf, lang)
+
+  if not ok then
+    local msg = "nvim-treesitter parser missing `" .. lang .. "`"
+    vim.notify_once(msg, vim.log.levels.WARN, { title = "trouble.nvim" })
+    return
+  end
 
   ---@diagnostic disable-next-line: invisible
   parser:set_included_regions(regions)
