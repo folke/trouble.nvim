@@ -27,7 +27,7 @@ with a lot of new features and improvements:
 - LSP document symbols
 - lots of options to configure trouble windows (floats or splits)
 - `focus` option to focus the trouble window when opened (or not)
-- `follow` option to follow the item under the cursor
+- `follow` option to follow the item under the cursor in trouble window
 - `pinned` option to pin the buffer as the source for the opened trouble window
 - full tree views of anything
 - highly configurable views with custom formatters, filters, and sorters
@@ -119,11 +119,11 @@ local defaults = {
   auto_close = false, -- auto close when there are no items
   auto_open = false, -- auto open when there are items
   auto_preview = true, -- automatically open preview when on an item
-  auto_refresh = true, -- auto refresh when open
+  auto_refresh = true, -- auto refresh list when trouble window is open
   auto_jump = false, -- auto jump to the item when there's only one
   focus = false, -- Focus the window when opened
   restore = true, -- restores the last location in the list when opening
-  follow = true, -- Follow the current item
+  follow = true, -- Follow the current item in trouble window
   indent_guides = true, -- show indent guides
   max_items = 200, -- limit number of items that can be displayed per section
   multiline = true, -- render multi-line messages
