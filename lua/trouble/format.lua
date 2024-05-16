@@ -151,7 +151,7 @@ function M.field(ctx)
     if not result then
       return
     end
-    result = type(result) == "table" and vim.tbl_islist(result) and result or { result }
+    result = type(result) == "table" and Util.islist(result) and result or { result }
     format = {}
     ---@cast result (string|trouble.Format)[]
     for _, f in ipairs(result) do
