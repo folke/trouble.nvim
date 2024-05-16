@@ -1,4 +1,5 @@
 local Config = require("trouble.config")
+local Util = require("trouble.util")
 
 ---@alias trouble.SorterFn fun(item: trouble.Item): any?
 
@@ -103,7 +104,7 @@ end
 ---@param spec trouble.Sort.spec
 ---@return trouble.Sort[]
 function M.sort(spec)
-  spec = type(spec) == "table" and vim.tbl_islist(spec) and spec or { spec }
+  spec = type(spec) == "table" and Util.islist(spec) and spec or { spec }
   ---@cast spec (string|trouble.SorterFn|trouble.Filter.spec)[]
   local fields = {} ---@type trouble.Sort[]
   for f, field in ipairs(spec) do

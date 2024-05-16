@@ -43,7 +43,7 @@ function M.complete_opts()
       end
       local kk = top.k .. k
       candidates[#candidates + 1] = kk:gsub("^%.", "") .. "="
-      if type(v) == "table" and not vim.tbl_islist(v) then
+      if type(v) == "table" and not Util.islist(v) then
         table.insert(stack, { k = kk, t = v })
       end
     end

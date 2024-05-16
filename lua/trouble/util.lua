@@ -21,6 +21,8 @@ function M.try(fn, opts)
   end
 end
 
+M.islist = vim.islist or vim.tbl_islist
+
 ---@alias NotifyOpts {level?: number, title?: string, once?: boolean}
 
 ---@param msg string|string[]
