@@ -1,7 +1,11 @@
+local Cache = require("trouble.cache")
 local Item = require("trouble.item")
 local Util = require("trouble.util")
-local get_col = vim.lsp.util._get_line_byte_from_position
-local Cache = require("trouble.cache")
+
+local function get_col(bufnr, position, offset_encoding)
+  local ok, ret = pcall(vim.lsp.util._get_line_byte_from_position, bufnr, position, offset_encoding)
+  return ok and ret or position.character
+end
 
 ---@class trouble.Source.lsp: trouble.Source
 ---@diagnostic disable-next-line: missing-fields
@@ -176,7 +180,7 @@ end
 ---@param locations? lsp.Location[]|lsp.LocationLink[]|lsp.Location
 function M.get_items(client, locations)
   locations = locations or {}
-  locations = vim.tbl_islist(locations) and locations or { locations }
+  locations = Util.islist(locations) and locations or { locations }
   ---@cast locations (lsp.Location|lsp.LocationLink)[]
   local items = {} ---@type trouble.Item[]
 
