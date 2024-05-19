@@ -142,6 +142,10 @@ function M.get.document_symbols(cb)
   local params = { textDocument = vim.lsp.util.make_text_document_params() }
 
   M.request("textDocument/documentSymbol", params, function(results)
+    if not vim.api.nvim_buf_is_valid(buf) then
+      Cache.symbols[buf] = nil
+      return
+    end
     ---@cast results table<vim.lsp.Client,lsp.SymbolInformation[]|lsp.DocumentSymbol[]>
     local items = {} ---@type trouble.Item[]
 
