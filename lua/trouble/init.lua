@@ -31,7 +31,7 @@ end
 
 local function get_opts(...)
   local args = { ... }
-  if vim.islist(args) and #args == 1 and type(args[1]) == "table" then
+  if (vim.islist or vim.tbl_islist)(args) and #args == 1 and type(args[1]) == "table" then
     args = args[1]
   end
   local opts = {}
