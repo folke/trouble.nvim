@@ -1,5 +1,10 @@
 local M = {}
 
+local function overlaps(pos, item)
+  return (pos[1] > item.pos[1] or (pos[1] == item.pos[1] and pos[2] >= item.pos[2]))
+    and (pos[1] < item.end_pos[1] or (pos[1] == item.end_pos[1] and pos[2] <= item.end_pos[2]))
+end
+
 ---@alias trouble.Filter.ctx {opts:trouble.Config, main?:trouble.Main}
 ---@alias trouble.FilterFn fun(item:trouble.Item, value: any, ctx:trouble.Filter.ctx): boolean
 ---@class trouble.Filters: {[string]: trouble.FilterFn}
@@ -23,9 +28,9 @@ M.filters = {
     end
     local range = item.range --[[@as trouble.Item]]
     if range then
-      return main.cursor[1] >= range.pos[1] and main.cursor[1] <= range.end_pos[1]
+      return overlaps(main.cursor, range)
     else
-      return main.cursor[1] >= item.pos[1] and main.cursor[1] <= item.end_pos[1]
+      return overlaps(main.cursor, item)
     end
   end,
   ["not"] = function(item, filter, ctx)
