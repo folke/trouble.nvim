@@ -46,6 +46,10 @@ local M = {
   toggle_refresh = function(self)
     self.opts.auto_refresh = not self.opts.auto_refresh
   end,
+
+  filter = function(self, ctx)
+    self:filter(ctx.opts.filter)
+  end,
   -- Show the help
   help = function(self)
     self:help()

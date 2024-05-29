@@ -15,6 +15,7 @@ local Window = require("trouble.view.window")
 ---@field renderer trouble.Render
 ---@field first_update? boolean
 ---@field moving uv_timer_t
+---@field state table<string,any>
 ---@field private _main? trouble.Main
 local M = {}
 M.__index = M
@@ -32,6 +33,7 @@ function M.new(opts)
   local self = setmetatable({}, M)
   _idx = _idx + 1
   M._views[self] = _idx
+  self.state = {}
   self.opts = opts or {}
   self.first_update = true
   self.opts.win = self.opts.win or {}
@@ -97,6 +99,14 @@ function M.get(filter)
     return a.idx < b.idx
   end)
   return ret
+end
+
+---@param filter trouble.Filter
+function M:filter(filter)
+  for _, section in ipairs(self.sections) do
+    section.filter = filter
+  end
+  self:refresh()
 end
 
 function M:on_mount()
