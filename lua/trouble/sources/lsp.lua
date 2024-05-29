@@ -36,7 +36,7 @@ M.config = {
       groups = {
         { "filename", format = "{file_icon} {filename} {count}" },
       },
-      sort = { { buf = 0 }, "filename", "pos", "text" },
+      sort = { "filename", "pos", "text" },
       -- sort = { { buf = 0 }, { kind = "Function" }, "filename", "pos", "text" },
       format = "{kind_icon} {symbol.name} {text:Comment} {pos}",
     },
@@ -45,7 +45,7 @@ M.config = {
       groups = {
         { "filename", format = "{file_icon} {filename} {count}" },
       },
-      sort = { { buf = 0 }, "filename", "pos", "text" },
+      sort = { "filename", "pos", "text" },
       format = "{text:ts} ({item.client}) {pos}",
     },
     lsp = {

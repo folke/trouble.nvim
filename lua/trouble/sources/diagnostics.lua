@@ -25,7 +25,7 @@ M.config = {
         { "directory" },
         { "filename", format = "{file_icon} {basename} {count}" },
       },
-      sort = { { buf = 0 }, "severity", "filename", "pos", "message" },
+      sort = { "severity", "filename", "pos", "message" },
       format = "{severity_icon} {message:md} {item.source} ({code}) {pos}",
       -- filter = {
       -- ["not"] = {
