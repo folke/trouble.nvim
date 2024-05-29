@@ -160,7 +160,7 @@ Default Settings ~
         refresh = 20, -- fetches new data when needed
         update = 10, -- updates the window
         render = 10, -- renders the window
-        follow = 10, -- follows the current item
+        follow = 100, -- follows the current item
         preview = { ms = 100, debounce = true }, -- shows the preview for the current item
       },
       -- Key mappings can be set to the name of a builtin action,
