@@ -14,6 +14,7 @@ local Window = require("trouble.view.window")
 ---@field sections trouble.Section[]
 ---@field renderer trouble.Render
 ---@field first_update? boolean
+---@field moving uv_timer_t
 ---@field private _main? trouble.Main
 local M = {}
 M.__index = M
@@ -23,6 +24,8 @@ M._views = setmetatable({}, { __mode = "k" })
 
 ---@type table<string, trouble.Render.Location>
 M._last = {}
+
+M.MOVING_DELAY = 4000
 
 ---@param opts trouble.Mode
 function M.new(opts)
@@ -59,12 +62,13 @@ function M.new(opts)
   })
   self.update = Util.throttle(M.update, Util.throttle_opts(self.opts.throttle.update, { ms = 10 }))
   self.render = Util.throttle(M.render, Util.throttle_opts(self.opts.throttle.render, { ms = 10 }))
-  self.follow = Util.throttle(M.follow, Util.throttle_opts(self.opts.throttle.follow, { ms = 10 }))
+  self.follow = Util.throttle(M.follow, Util.throttle_opts(self.opts.throttle.follow, { ms = 100 }))
 
   if self.opts.auto_open then
     self:listen()
     self:refresh()
   end
+  self.moving = vim.uv.new_timer()
   return self
 end
 
@@ -295,6 +299,11 @@ end
 
 ---@param opts? {idx?: number, up?:number, down?:number, jump?:boolean}
 function M:move(opts)
+  -- start the moving timer. Will stop any previous timers,
+  -- so this acts as a debounce.
+  -- This is needed to prevent `follow` from being called
+  self.moving:start(M.MOVING_DELAY, 0, function() end)
+
   opts = opts or {}
   local cursor = vim.api.nvim_win_get_cursor(self.win.win)
   local from = 1
@@ -513,39 +522,42 @@ end
 
 -- When not in the trouble window, try to show the range
 function M:follow()
-  if not self.win:valid() then
+  if not self.win:valid() then -- trouble is closed
+    return
+  end
+  if self.moving:is_active() then -- dont follow when moving
     return
   end
   local current_win = vim.api.nvim_get_current_win()
-  if current_win ~= self.win.win then
-    local Filter = require("trouble.filter")
-    local ctx = { opts = self.opts, main = self:main() }
-    local fname = vim.api.nvim_buf_get_name(ctx.main.buf or 0)
+  if current_win == self.win.win then -- inside the trouble window
+    return
+  end
+  local Filter = require("trouble.filter")
+  local ctx = { opts = self.opts, main = self:main() }
+  local fname = vim.api.nvim_buf_get_name(ctx.main.buf or 0)
 
-    ---@type number[]|nil
-    local cursor_item = nil
-    local cursor_group = cursor_item
+  ---@type number[]|nil
+  local cursor_item = nil
+  local cursor_group = cursor_item
 
-    for row, l in pairs(self.renderer._locations) do
-      local is_group = l.node and l.node.group and l.node.item and l.node.item.filename == fname
-      if is_group then
-        cursor_group = { row, 1 }
-      end
-      local is_current = l.item and Filter.is(l.item, { range = true }, ctx)
-      if is_current then
-        cursor_item = { row, 1 }
-      end
+  for row, l in pairs(self.renderer._locations) do
+    local is_group = l.node and l.node.group and l.node.item and l.node.item.filename == fname
+    if is_group then
+      cursor_group = { row, 1 }
     end
-
-    local cursor = cursor_item or cursor_group
-    if cursor then
-      -- make sure the cursorline is visible
-      vim.wo[self.win.win].cursorline = true
-      vim.api.nvim_win_set_cursor(self.win.win, cursor)
-      return true
+    local is_current = l.item and Filter.is(l.item, { range = true }, ctx)
+    if is_current then
+      cursor_item = { row, 1 }
     end
   end
-  return false
+
+  local cursor = cursor_item or cursor_group
+  if cursor then
+    -- make sure the cursorline is visible
+    vim.wo[self.win.win].cursorline = true
+    vim.api.nvim_win_set_cursor(self.win.win, cursor)
+    return true
+  end
 end
 
 return M
