@@ -240,6 +240,9 @@ function M:jump(item, opts)
   -- order of the below seems important with splitkeep=screen
   vim.api.nvim_set_current_win(win)
   vim.api.nvim_win_set_cursor(win, item.pos)
+  vim.api.nvim_win_call(win, function()
+    vim.cmd("norm! zz zv")
+  end)
   return item
 end
 
