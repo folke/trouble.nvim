@@ -243,7 +243,7 @@ end
 
 function M:open()
   if self:valid() then
-    return
+    return self
   end
   self:close()
   self:mount()

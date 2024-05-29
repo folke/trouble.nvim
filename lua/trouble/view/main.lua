@@ -26,7 +26,6 @@ end
 
 ---@param main trouble.Main
 function M.set(main)
-  -- dd(main)
   M._main = main
 end
 
