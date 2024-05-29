@@ -386,6 +386,9 @@ function M:help()
 end
 
 function M:open()
+  if self.win:valid() then
+    return
+  end
   self.win:open()
   self:refresh()
   return self
