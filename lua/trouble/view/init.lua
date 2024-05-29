@@ -127,6 +127,7 @@ function M:on_mount()
     if not this then
       return true
     end
+    M._last[self.opts.mode or ""] = self:at()
     if this.opts.auto_preview then
       local loc = this:at()
       if loc and loc.item then
