@@ -59,6 +59,11 @@ M.colors = {
 function M.setup()
   M.link(M.colors)
   M.source("fs")
+  vim.api.nvim_create_autocmd("ColorScheme", {
+    callback = function()
+      M._fixed = {}
+    end,
+  })
 end
 
 ---@param prefix? string
