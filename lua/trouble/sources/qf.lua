@@ -31,7 +31,7 @@ M.config = {
         { "filename", format = "{file_icon} {filename} {count}" },
       },
       sort = { "severity", "filename", "pos", "message" },
-      format = "{severity_icon|item.type:DiagnosticSignWarn} {text} {pos}",
+      format = "{severity_icon|item.type:DiagnosticSignWarn} {text:ts} {pos}",
     },
     loclist = {
       desc = "Location List",
@@ -41,7 +41,7 @@ M.config = {
         { "filename", format = "{file_icon} {filename} {count}" },
       },
       sort = { "severity", "filename", "pos", "message" },
-      format = "{severity_icon|item.type:DiagnosticSignWarn} {text} {pos}",
+      format = "{severity_icon|item.type:DiagnosticSignWarn} {text:ts} {pos}",
     },
   },
 }
