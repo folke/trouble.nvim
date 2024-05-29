@@ -382,7 +382,7 @@ API ~
     
     -- Renders a trouble list as a statusline component.
     -- Check the docs for examples.
-    ---@param opts? trouble.Mode|string
+    ---@param opts? trouble.Mode|string|{hl_group?:string}
     ---@return {get: (fun():string), has: (fun():boolean)}
     require("trouble").statusline(opts)
     
@@ -597,6 +597,9 @@ Example for lualine.nvim <https://github.com/nvim-lualine/lualine.nvim>
           title = false,
           filter = { range = true },
           format = "{kind_icon}{symbol.name:Normal}",
+          -- The following line is needed to fix the background color
+          -- Set it to the lualine section you want to use
+          hl_group = "lualine_c_normal",
         })
         table.insert(opts.sections.lualine_c, {
           symbols.get,
