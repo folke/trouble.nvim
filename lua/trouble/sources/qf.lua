@@ -30,7 +30,7 @@ M.config = {
       groups = {
         { "filename", format = "{file_icon} {filename} {count}" },
       },
-      sort = { { buf = 0 }, "severity", "filename", "pos", "message" },
+      sort = { "severity", "filename", "pos", "message" },
       format = "{severity_icon|item.type:DiagnosticSignWarn} {text} {pos}",
     },
     loclist = {
@@ -40,7 +40,7 @@ M.config = {
       groups = {
         { "filename", format = "{file_icon} {filename} {count}" },
       },
-      sort = { { buf = 0 }, "severity", "filename", "pos", "message" },
+      sort = { "severity", "filename", "pos", "message" },
       format = "{severity_icon|item.type:DiagnosticSignWarn} {text} {pos}",
     },
   },
