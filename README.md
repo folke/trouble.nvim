@@ -183,6 +183,13 @@ local defaults = {
     zn = "fold_disable",
     zN = "fold_enable",
     zi = "fold_toggle_enable",
+    gb = { -- example of a custom action that toggles the active view filter
+      action = function(view)
+        view.state.filter_buffer = not view.state.filter_buffer
+        view:filter(view.state.filter_buffer and { buf = 0 } or nil)
+      end,
+      desc = "Toggle Current Buffer Filter",
+    },
   },
   ---@type table<string, trouble.Mode>
   modes = {
@@ -370,6 +377,11 @@ require("trouble").statusline(opts)
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").cancel(opts)
+
+-- filter
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").filter(opts)
 
 -- Go to the first item
 ---@param opts? trouble.Mode | { new? : boolean } | string
