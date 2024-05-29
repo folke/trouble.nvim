@@ -14,6 +14,7 @@ local Util = require("trouble.util")
 ---@field items trouble.Item[]
 ---@field node? trouble.Node
 ---@field fetching boolean
+---@field filter? trouble.Filter
 ---@field on_refresh? fun(self: trouble.Section)
 ---@field on_update? fun(self: trouble.Section)
 local M = {}
@@ -65,6 +66,9 @@ function M:refresh()
     local ctx = { opts = self.opts, main = main }
     self.finder(function(items)
       items = Filter.filter(items, self.section.filter, ctx)
+      if self.filter then
+        items = Filter.filter(items, self.filter, ctx)
+      end
       items = Sort.sort(items, self.section.sort, ctx)
       self.items = items
       self.node = Tree.build(items, self.section)
