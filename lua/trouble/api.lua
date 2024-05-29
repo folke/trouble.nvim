@@ -125,7 +125,7 @@ end
 
 -- Renders a trouble list as a statusline component.
 -- Check the docs for examples.
----@param opts? trouble.Mode|string
+---@param opts? trouble.Mode|string|{hl_group?:string}
 ---@return {get: (fun():string), has: (fun():boolean)}
 function M.statusline(opts)
   local Spec = require("trouble.spec")
@@ -166,7 +166,10 @@ function M.statusline(opts)
       end
       renderer:clear()
       renderer:sections({ section })
-      status = "%#StatusLine#" .. renderer:statusline()
+      status = renderer:statusline()
+      if opts.hl_group then
+        status = require("trouble.config.highlights").fix_statusline(status, opts.hl_group)
+      end
       return status
     end,
   }

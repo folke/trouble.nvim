@@ -83,4 +83,22 @@ function M.source(source, links)
   M.link(links, "Trouble" .. Util.camel(source))
 end
 
+M._fixed = {} ---@type table<string, string>
+---@param sl string
+function M.fix_statusline(sl, statusline_hl)
+  local bg = vim.api.nvim_get_hl(0, { name = statusline_hl, link = false })
+  bg = bg and bg.bg or nil
+
+  return sl:gsub("%%#(.-)#", function(hl)
+    if not M._fixed[hl] then
+      local opts = vim.api.nvim_get_hl(0, { name = hl, link = false }) or {}
+      opts.bg = bg
+      local group = "TroubleStatusline" .. vim.tbl_count(M._fixed)
+      vim.api.nvim_set_hl(0, group, opts)
+      M._fixed[hl] = group
+    end
+    return "%#" .. M._fixed[hl] .. "#"
+  end)
+end
+
 return M
