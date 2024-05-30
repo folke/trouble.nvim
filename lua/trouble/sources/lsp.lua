@@ -41,7 +41,11 @@ M.config = {
       format = "{kind_icon} {symbol.name} {text:Comment} {pos}",
     },
     lsp_base = {
-      events = { { event = "CursorHold", main = true } },
+      events = {
+        "BufEnter",
+        { event = "CursorHold", main = true },
+        { event = "LspAttach", main = true },
+      },
       groups = {
         { "filename", format = "{file_icon} {filename} {count}" },
       },
@@ -61,6 +65,16 @@ M.config = {
   },
 }
 
+for _, mode in ipairs({ "incoming_calls", "outgoing_calls" }) do
+  M.config.modes["lsp_" .. mode] = {
+    mode = "lsp_base",
+    title = "{hl:Title}" .. Util.camel(mode, " ") .. "{hl} {count}",
+    desc = Util.camel(mode, " "),
+    source = "lsp." .. mode,
+    format = "{kind_icon} {chi.name} {text:ts} {pos} {hl:Title}{item.client:Title}{hl}",
+  }
+end
+
 for _, mode in ipairs({ "definitions", "references", "implementations", "type_definitions", "declarations" }) do
   M.config.modes["lsp_" .. mode] = {
     auto_jump = true,
@@ -73,22 +87,29 @@ end
 
 ---@param method string
 ---@param params? table
+---@param opts? {client?:vim.lsp.Client}
 ---@param cb fun(results: table<vim.lsp.Client, any>)
-function M.request(method, params, cb)
+function M.request(method, params, cb, opts)
+  opts = opts or {}
   local buf = vim.api.nvim_get_current_buf()
   ---@type vim.lsp.Client[]
   local clients = {}
 
-  if vim.lsp.get_clients then
-    clients = vim.lsp.get_clients({ method = method, bufnr = buf })
+  if opts.client then
+    clients = { opts.client }
   else
-    ---@diagnostic disable-next-line: deprecated
-    clients = vim.lsp.get_active_clients({ bufnr = buf })
-    ---@param client vim.lsp.Client
-    clients = vim.tbl_filter(function(client)
-      return client.supports_method(method)
-    end, clients)
+    if vim.lsp.get_clients then
+      clients = vim.lsp.get_clients({ method = method, bufnr = buf })
+    else
+      ---@diagnostic disable-next-line: deprecated
+      clients = vim.lsp.get_active_clients({ bufnr = buf })
+      ---@param client vim.lsp.Client
+      clients = vim.tbl_filter(function(client)
+        return client.supports_method(method)
+      end, clients)
+    end
   end
+
   local results = {} ---@type table<vim.lsp.Client, any>
   local done = 0
   if #clients == 0 then
@@ -178,6 +199,64 @@ function M.get.document_symbols(cb)
     Cache.symbols[buf] = { changedtick = vim.b[buf].changedtick, symbols = items }
     cb(items)
   end)
+end
+
+---@param cb trouble.Source.Callback
+function M.call_hierarchy(cb, incoming)
+  ---@type lsp.CallHierarchyPrepareParams
+  local params = vim.lsp.util.make_position_params()
+  local items = {} ---@type trouble.Item[]
+
+  ---@param client vim.lsp.Client
+  ---@param chi lsp.CallHierarchyItem
+  ---@param range? lsp.Range
+  local function add(client, chi, range)
+    ---@type lsp.Location
+    local loc = { range = range or chi.selectionRange or chi.range, uri = chi.uri }
+    local item = M.location_to_item(client, loc)
+    local id = { item.buf, item.pos[1], item.pos[2], item.end_pos[1], item.end_pos[2], item.kind }
+    item.id = table.concat(id, "|")
+    -- the range enclosing this symbol. Useful to get the symbol of the current cursor position
+    item.range = chi.range and M.location(client, { range = chi.range, uri = chi.uri }) or nil
+    item.item.kind = vim.lsp.protocol.SymbolKind[chi.kind] or tostring(chi.kind)
+    item.item.chi = chi
+    items[#items + 1] = item
+    return item
+  end
+
+  M.request("textDocument/prepareCallHierarchy", params, function(results)
+    for client, chis in pairs(results or {}) do
+      ---@cast chis lsp.CallHierarchyItem[]
+      for _, chi in ipairs(chis) do
+        M.request(("callHierarchy/%sCalls"):format(incoming and "incoming" or "outgoing"), { item = chi }, function(res)
+          for _, calls in pairs(res or {}) do
+            ---@cast calls lsp.CallHierarchyIncomingCall[]|lsp.CallHierarchyOutgoingCall[]
+            for _, call in ipairs(calls) do
+              if incoming then
+                for _, r in ipairs(call.fromRanges) do
+                  add(client, call.from, r)
+                end
+              else
+                add(client, call.from or call.to)
+              end
+            end
+          end
+          Item.add_text(items, { mode = "after" })
+          cb(items)
+        end, { client = client })
+      end
+    end
+  end)
+end
+
+---@param cb trouble.Source.Callback
+function M.get.incoming_calls(cb)
+  M.call_hierarchy(cb, true)
+end
+
+---@param cb trouble.Source.Callback
+function M.get.outgoing_calls(cb)
+  M.call_hierarchy(cb, false)
 end
 
 ---@param client vim.lsp.Client
