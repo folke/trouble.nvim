@@ -109,3 +109,35 @@ Once those are resolved, less severe diagnostics will be shown.
   },
 }
 ```
+
+## Other
+
+### Automatically Open Trouble Quickfix
+
+```lua
+vim.api.nvim_create_autocmd("QuickFixCmdPost", {
+  callback = function()
+    vim.cmd([[Trouble qflist open]])
+  end,
+})
+```
+
+Test with something like `:silent grep vim %`
+
+### Open Trouble Quickfix when the qf list opens
+
+> This is **NOT** recommended, since you won't be able to use the quickfix list for other things.
+
+```lua
+
+vim.api.nvim_create_autocmd("BufRead", {
+  callback = function(ev)
+    if vim.bo[ev.buf].buftype == "quickfix" then
+      vim.schedule(function()
+        vim.cmd([[cclose]])
+        vim.cmd([[Trouble qflist open]])
+      end)
+    end
+  end,
+})
+```
