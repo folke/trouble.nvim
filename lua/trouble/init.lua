@@ -1,13 +1,9 @@
----@class trouble: trouble.api
 local M = {}
 
----@param opts? trouble.Config
-function M.setup(opts)
-  require("trouble.config").setup(opts)
+function M.setup()
+  local msg = "trouble.nvim v3 is merged on main.\nThe dev branch is EOL."
+  vim.notify_once(msg, vim.log.levels.ERROR, { title = "trouble.nvim" })
+  error(msg)
 end
 
-return setmetatable(M, {
-  __index = function(_, k)
-    return require("trouble.api")[k]
-  end,
-})
+return M
