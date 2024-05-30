@@ -25,7 +25,7 @@ M.config = {
   modes = {
     qflist = {
       desc = "Quickfix List",
-      events = { "BufEnter", "QuickFixCmdPost" },
+      events = { "BufEnter", "QuickFixCmdPost", "TextChanged" },
       source = "qf.qflist",
       groups = {
         { "filename", format = "{file_icon} {filename} {count}" },
@@ -35,7 +35,7 @@ M.config = {
     },
     loclist = {
       desc = "Location List",
-      events = { "BufEnter" },
+      events = { "BufEnter", "TextChanged" },
       source = "qf.loclist",
       groups = {
         { "filename", format = "{file_icon} {filename} {count}" },
