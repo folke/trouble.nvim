@@ -79,7 +79,6 @@ LAZY.NVIM ~
 >lua
     {
       "folke/trouble.nvim",
-      branch = "dev", -- IMPORTANT!
       keys = {
         {
           "<leader>xx",
