@@ -133,7 +133,13 @@ local defaults = {
   -- Window options for the preview window. Can be a split, floating window,
   -- or `main` to show the preview in the main editor window.
   ---@type trouble.Window.opts
-  preview = { type = "main" },
+  preview = {
+    type = "main",
+    -- when a buffer is not yet loaded, the preview window will be created
+    -- in a scratch buffer with only syntax highlighting enabled.
+    -- Set to false, if you want the preview to always be a real loaded buffer.
+    scratch = true,
+  },
   -- Throttle/Debounce settings. Should usually not be changed.
   ---@type table<string, number|{ms:number, debounce?:boolean}>
   throttle = {
