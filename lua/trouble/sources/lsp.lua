@@ -1,12 +1,19 @@
 local Cache = require("trouble.cache")
+local Config = require("trouble.config")
 local Filter = require("trouble.filter")
 local Item = require("trouble.item")
 local Util = require("trouble.util")
 
+-- FIXME: optimze call hierachy and symbols to batch convert locations to items
+-- like we did with lsp references, definitions, etc.
+
+---@deprecated refactor code to use M.locations_to_items
 local function get_col(bufnr, position, offset_encoding)
   local ok, ret = pcall(vim.lsp.util._get_line_byte_from_position, bufnr, position, offset_encoding)
   return ok and ret or position.character
 end
+
+local get_line_col = vim.lsp.util._str_byteindex_enc
 
 ---@class trouble.Source.lsp: trouble.Source
 ---@diagnostic disable-next-line: missing-fields
@@ -266,36 +273,76 @@ function M.get_items(client, locations)
   locations = locations or {}
   locations = Util.islist(locations) and locations or { locations }
   ---@cast locations (lsp.Location|lsp.LocationLink)[]
-  local items = {} ---@type trouble.Item[]
+
+  locations = vim.list_slice(locations, 1, Config.max_items)
+
+  local items = M.locations_to_items(client, locations)
 
   local cursor = vim.api.nvim_win_get_cursor(0)
   local fname = vim.api.nvim_buf_get_name(0)
   fname = vim.fs.normalize(fname)
 
-  for _, loc in ipairs(locations) do
-    local item = M.location_to_item(client, loc)
-    if not (item.filename == fname and Filter.overlaps(cursor, item)) then
-      items[#items + 1] = item
-    end
-  end
+  items = vim.tbl_filter(function(item)
+    return not (item.filename == fname and Filter.overlaps(cursor, item))
+  end, items)
 
   Item.add_text(items, { mode = "full" })
   return items
 end
 
+---@alias lsp.Loc lsp.Location|lsp.LocationLink
+---@param client vim.lsp.Client
+---@param locs lsp.Loc[]
+function M.locations_to_items(client, locs)
+  local todo = {} ---@type table<string, {locs:lsp.Loc[], rows:table<number,number>}>
+  for _, d in ipairs(locs) do
+    local uri = d.uri or d.targetUri
+    local range = d.range or d.targetSelectionRange
+    todo[uri] = todo[uri] or { locs = {}, rows = {} }
+    table.insert(todo[uri].locs, d)
+    local from = range.start.line + 1
+    local to = range["end"].line + 1
+    todo[uri].rows[from] = from
+    todo[uri].rows[to] = to
+  end
+
+  local ret = {} ---@type trouble.Item[]
+
+  for uri, t in pairs(todo) do
+    local buf = vim.uri_to_bufnr(uri)
+    local filename = vim.uri_to_fname(uri)
+    local lines = Util.get_lines({ rows = vim.tbl_keys(t.rows), buf = buf }) or {}
+    for _, loc in ipairs(t.locs) do
+      local range = loc.range or loc.targetSelectionRange
+      local line = lines[range.start.line + 1]
+      local end_line = lines[range["end"].line + 1]
+      local pos = { range.start.line + 1, get_line_col(line, range.start.character, client.offset_encoding) }
+      local end_pos = { range["end"].line + 1, get_line_col(end_line, range["end"].character, client.offset_encoding) }
+      ret[#ret + 1] = Item.new({
+        buf = buf,
+        filename = filename,
+        pos = pos,
+        end_pos = end_pos,
+        source = "lsp",
+        item = {
+          client_id = client.id,
+          client = client.name,
+          location = loc,
+        },
+      })
+    end
+  end
+  return ret
+end
+
+---@deprecated refactor code to use M.locations_to_items
 ---@param client vim.lsp.Client
 ---@param loc lsp.Location|lsp.LocationLink
 function M.location_to_item(client, loc)
-  local info = M.location(client, loc)
-  info.source = "lsp"
-  info.item = {
-    client_id = client.id,
-    client = client.name,
-    location = loc,
-  }
-  return Item.new(info)
+  return M.locations_to_items(client, { loc })[1]
 end
 
+---@deprecated refactor code to use M.locations_to_items
 ---@param client vim.lsp.Client
 ---@param loc lsp.Location|lsp.LocationLink
 ---@return {buf:number, filename:string, pos:trouble.Pos, end_pos:trouble.Pos}

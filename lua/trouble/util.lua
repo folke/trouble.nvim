@@ -239,16 +239,28 @@ function M.get_lines(opts)
   end
   local data = assert(uv.fs_read(fd, stat.size, 0)) --[[@as string]]
   assert(uv.fs_close(fd))
-  local todo = opts.rows and #opts.rows or -1
 
-  local ret = {} ---@type table<number, string>
+  local todo = 0
+  local ret = {} ---@type table<number, string|boolean>
+  for _, r in ipairs(opts.rows or {}) do
+    if not ret[r] then
+      todo = todo + 1
+      ret[r] = true
+    end
+  end
+
   for row, line in M.lines(data) do
-    if not opts.rows or vim.tbl_contains(opts.rows, row) then
+    if not opts.rows or ret[row] then
       todo = todo - 1
       ret[row] = line
       if todo == 0 then
         break
       end
+    end
+  end
+  for i, r in pairs(ret) do
+    if r == true then
+      ret[i] = ""
     end
   end
   return ret
