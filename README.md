@@ -59,6 +59,7 @@ Install the plugin with your preferred package manager:
 ```lua
 {
   "folke/trouble.nvim",
+  cmd = "Trouble",
   keys = {
     {
       "<leader>xx",
