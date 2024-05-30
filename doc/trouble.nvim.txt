@@ -3,24 +3,24 @@
 ==============================================================================
 Table of Contents                             *trouble.nvim-table-of-contents*
 
-1. Trouble v3 Beta                              |trouble.nvim-trouble-v3-beta|
-  - Features                           |trouble.nvim-trouble-v3-beta-features|
-  - What’s new?                 |trouble.nvim-trouble-v3-beta-what’s-new?|
-  - Requirements                   |trouble.nvim-trouble-v3-beta-requirements|
-  - Installation                   |trouble.nvim-trouble-v3-beta-installation|
-  - Configuration                 |trouble.nvim-trouble-v3-beta-configuration|
-  - Usage                                 |trouble.nvim-trouble-v3-beta-usage|
-  - Colors                               |trouble.nvim-trouble-v3-beta-colors|
+1. Trouble                                              |trouble.nvim-trouble|
+  - Features                                   |trouble.nvim-trouble-features|
+  - What’s new?                         |trouble.nvim-trouble-what’s-new?|
+  - Requirements                           |trouble.nvim-trouble-requirements|
+  - Installation                           |trouble.nvim-trouble-installation|
+  - Configuration                         |trouble.nvim-trouble-configuration|
+  - Usage                                         |trouble.nvim-trouble-usage|
+  - Colors                                       |trouble.nvim-trouble-colors|
 2. Links                                                  |trouble.nvim-links|
 
 ==============================================================================
-1. Trouble v3 Beta                              *trouble.nvim-trouble-v3-beta*
+1. Trouble                                              *trouble.nvim-trouble*
 
 A pretty list for showing diagnostics, references, telescope results, quickfix
 and location lists to help you solve all the trouble your code is causing.
 
 
-FEATURES                               *trouble.nvim-trouble-v3-beta-features*
+FEATURES                                       *trouble.nvim-trouble-features*
 
 - Diagnostics
 - LSP references
@@ -33,7 +33,7 @@ FEATURES                               *trouble.nvim-trouble-v3-beta-features*
 - Telescope <https://github.com/nvim-telescope/telescope.nvim> search results
 
 
-WHAT’S NEW?                     *trouble.nvim-trouble-v3-beta-what’s-new?*
+WHAT’S NEW?                             *trouble.nvim-trouble-what’s-new?*
 
 This is a full rewrite of the original **trouble.nvim**.
 
@@ -57,7 +57,7 @@ and improvements:
 - statusline component (useful with document symbols)
 
 
-REQUIREMENTS                       *trouble.nvim-trouble-v3-beta-requirements*
+REQUIREMENTS                               *trouble.nvim-trouble-requirements*
 
 - Neovim >= 0.9.2
 - Neovim >= 0.10.0 **OR** the `markdown` and `markdown_inline` nvim-treesitter <https://github.com/nvim-treesitter/nvim-treesitter> parsers
@@ -67,7 +67,7 @@ REQUIREMENTS                       *trouble.nvim-trouble-v3-beta-requirements*
 - a patched font <https://www.nerdfonts.com/> for the default severity and fold icons
 
 
-INSTALLATION                       *trouble.nvim-trouble-v3-beta-installation*
+INSTALLATION                               *trouble.nvim-trouble-installation*
 
 Install the plugin with your preferred package manager:
 
@@ -115,7 +115,7 @@ LAZY.NVIM ~
 <
 
 
-CONFIGURATION                     *trouble.nvim-trouble-v3-beta-configuration*
+CONFIGURATION                             *trouble.nvim-trouble-configuration*
 
 
 SETUP ~
@@ -300,7 +300,7 @@ Default Settings ~
 Make sure to check the Examples </docs/examples.md>!
 
 
-USAGE                                     *trouble.nvim-trouble-v3-beta-usage*
+USAGE                                             *trouble.nvim-trouble-usage*
 
 
 COMMANDS ~
@@ -618,7 +618,7 @@ Example for lualine.nvim <https://github.com/nvim-lualine/lualine.nvim>
 <
 
 
-COLORS                                   *trouble.nvim-trouble-v3-beta-colors*
+COLORS                                           *trouble.nvim-trouble-colors*
 
 The table below shows all the highlight groups defined for Trouble.
 
