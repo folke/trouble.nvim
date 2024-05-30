@@ -24,7 +24,7 @@ M.config = {
       groups = {
         { "filename", format = "{file_icon} {filename} {count}" },
       },
-      sort = { { buf = 0 }, "filename", "pos" },
+      sort = { "filename", "pos" },
       format = "{text:ts} {pos}",
     },
   },
