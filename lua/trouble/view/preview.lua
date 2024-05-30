@@ -90,7 +90,8 @@ end
 
 ---@param view trouble.View
 ---@param item trouble.Item
-function M.open(view, item)
+---@param opts? {scratch?:boolean}
+function M.open(view, item, opts)
   if M.item() == item then
     return
   end
@@ -98,7 +99,7 @@ function M.open(view, item)
     M.close()
   end
 
-  local buf = M.create(item)
+  local buf = M.create(item, opts)
   if not buf then
     return
   end

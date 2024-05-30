@@ -266,7 +266,7 @@ function M:preview(item)
     return Util.warn("No item to preview")
   end
 
-  return Preview.open(self, item)
+  return Preview.open(self, item, { scratch = self.opts.preview.scratch })
 end
 
 function M:main()
