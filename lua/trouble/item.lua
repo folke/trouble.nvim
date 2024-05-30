@@ -60,7 +60,7 @@ function M.add_id(items, fields)
 end
 
 ---@return string?
-function M:get_ft()
+function M:get_ft(buf)
   if self.buf and vim.api.nvim_buf_is_loaded(self.buf) then
     return vim.bo[self.buf].filetype
   end
@@ -69,7 +69,7 @@ function M:get_ft()
   end
   local ft = Cache.ft[self.filename]
   if ft == nil then
-    ft = vim.filetype.match({ filename = self.filename })
+    ft = vim.filetype.match({ filename = self.filename, buf = buf })
     Cache.ft[self.filename] = ft or false -- cache misses too
   end
   return ft

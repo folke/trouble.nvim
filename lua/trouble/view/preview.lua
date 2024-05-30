@@ -48,7 +48,7 @@ function M.create(item)
       return
     end
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-    local ft = item:get_ft()
+    local ft = item:get_ft(buf)
     if ft then
       local lang = vim.treesitter.language.get_lang(ft)
       if not pcall(vim.treesitter.start, buf, lang) then
