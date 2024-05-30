@@ -69,14 +69,16 @@ function M:get_ft(buf)
   end
   local ft = Cache.ft[self.filename]
   if ft == nil then
-    ft = vim.filetype.match({ filename = self.filename, buf = buf })
+    -- HACK: make sure we always pass a valid buf,
+    -- otherwise some detectors will fail hard (like ts)
+    ft = vim.filetype.match({ filename = self.filename, buf = buf or 0 })
     Cache.ft[self.filename] = ft or false -- cache misses too
   end
   return ft
 end
 
-function M:get_lang()
-  local ft = self:get_ft()
+function M:get_lang(buf)
+  local ft = self:get_ft(buf)
   return ft and ft ~= "" and vim.treesitter.language.get_lang(ft) or nil
 end
 
