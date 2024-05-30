@@ -46,6 +46,28 @@
 }
 ```
 
+### Make Trouble look like v2
+
+```lua
+{
+  icons = {
+    indent = {
+      middle = " ",
+      last = " ",
+      top = " ",
+      ws = "│  ",
+    },
+  },
+  modes = {
+    diagnostics = {
+      groups = {
+        { "filename", format = "{file_icon} {basename:Title} {count}" },
+      },
+    },
+  },
+}
+```
+
 ## Filtering
 
 ### Diagnostics for the current buffer only
