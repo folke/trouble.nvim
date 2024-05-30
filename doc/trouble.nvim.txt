@@ -28,6 +28,7 @@ FEATURES                                       *trouble.nvim-trouble-features*
 - LSP definitions
 - LSP type definitions
 - LSP Document Symbols
+- LSP Incoming/Outgoing calls
 - quickfix list
 - location list
 - Telescope <https://github.com/nvim-telescope/telescope.nvim> search results
