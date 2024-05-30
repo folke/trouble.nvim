@@ -125,7 +125,7 @@ function M:main()
 end
 
 function M:stop()
-  vim.api.nvim_del_augroup_by_name("trouble-section-" .. self.id)
+  pcall(vim.api.nvim_del_augroup_by_name, "trouble-section-" .. self.id)
 end
 
 function M:listen()
