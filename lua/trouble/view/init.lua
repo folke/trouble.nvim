@@ -241,7 +241,7 @@ function M:jump(item, opts)
   vim.api.nvim_set_current_win(win)
   vim.api.nvim_win_set_cursor(win, item.pos)
   vim.api.nvim_win_call(win, function()
-    vim.cmd("norm! zz zv")
+    vim.cmd("norm! zzzv")
   end)
   return item
 end
