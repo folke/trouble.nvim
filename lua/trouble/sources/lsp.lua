@@ -1,4 +1,5 @@
 local Cache = require("trouble.cache")
+local Filter = require("trouble.filter")
 local Item = require("trouble.item")
 local Util = require("trouble.util")
 
@@ -267,8 +268,15 @@ function M.get_items(client, locations)
   ---@cast locations (lsp.Location|lsp.LocationLink)[]
   local items = {} ---@type trouble.Item[]
 
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local fname = vim.api.nvim_buf_get_name(0)
+  fname = vim.fs.normalize(fname)
+
   for _, loc in ipairs(locations) do
-    items[#items + 1] = M.location_to_item(client, loc)
+    local item = M.location_to_item(client, loc)
+    if not (item.filename == fname and Filter.overlaps(cursor, item)) then
+      items[#items + 1] = item
+    end
   end
 
   Item.add_text(items, { mode = "full" })
