@@ -63,6 +63,7 @@ M.formatters = {
       severity = vim.diagnostic.severity[severity:upper()] or vim.diagnostic.severity.ERROR
     end
     local name = Util.camel(vim.diagnostic.severity[severity]:lower())
+    local sign = vim.fn.sign_getdefined("DiagnosticSign" .. name)[1]
     if vim.fn.has("nvim-0.10.0") == 1 then
       local config = vim.diagnostic.config() or {}
       if config.signs == nil or type(config.signs) == "boolean" then
@@ -72,9 +73,8 @@ M.formatters = {
       if type(signs) == "function" then
         signs = signs(0, 0) --[[@as vim.diagnostic.Opts.Signs]]
       end
-      return { text = signs.text and signs.text[severity] or name:sub(1, 1), hl = "DiagnosticSign" .. name }
+      return { text = signs.text and signs.text[severity] or sign.text or name:sub(1, 1), hl = "DiagnosticSign" .. name }
     else
-      local sign = vim.fn.sign_getdefined("DiagnosticSign" .. name)[1]
       return sign and { text = sign.text, hl = sign.texthl } or { text = name } or nil
     end
   end,
