@@ -670,7 +670,7 @@ Highlight Groups ~
   TroubleSource              Comment                   
   TroubleText                Normal                    
 ==============================================================================
-3. Links                                                  *trouble.nvim-links*
+2. Links                                                  *trouble.nvim-links*
 
 1. *image*: https://github.com/folke/trouble.nvim/assets/292349/481bc1f7-cb93-432d-8ab6-f54044334b96
 
