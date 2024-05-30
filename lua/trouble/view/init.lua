@@ -14,6 +14,7 @@ local Window = require("trouble.view.window")
 ---@field sections trouble.Section[]
 ---@field renderer trouble.Render
 ---@field first_update? boolean
+---@field first_render? boolean
 ---@field moving uv_timer_t
 ---@field state table<string,any>
 ---@field private _main? trouble.Main
@@ -36,6 +37,7 @@ function M.new(opts)
   self.state = {}
   self.opts = opts or {}
   self.first_update = true
+  self.first_render = true
   self.opts.win = self.opts.win or {}
   self.opts.win.on_mount = function()
     self:on_mount()
@@ -468,10 +470,10 @@ function M:render()
   end
 
   local loc = self:at()
-  local restore_loc = self.opts.restore and M._last[self.opts.mode or ""]
+  local restore_loc = self.opts.restore and self.first_render and M._last[self.opts.mode or ""]
   if restore_loc then
     loc = restore_loc
-    M._last[self.opts.mode or ""] = nil
+    self.first_render = false
   end
 
   -- render sections
