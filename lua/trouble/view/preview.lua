@@ -111,10 +111,11 @@ function M.open(view, item)
 
   -- no autocmds should be triggered. So LSP's etc won't try to attach in the preview
   Util.noautocmd(function()
-    vim.api.nvim_win_set_cursor(M.preview.win, item.pos)
-    vim.api.nvim_win_call(M.preview.win, function()
-      vim.cmd("norm! zzzv")
-    end)
+    if pcall(vim.api.nvim_win_set_cursor, M.preview.win, item.pos) then
+      vim.api.nvim_win_call(M.preview.win, function()
+        vim.cmd("norm! zzzv")
+      end)
+    end
   end)
 
   return item
