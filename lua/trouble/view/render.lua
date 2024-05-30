@@ -42,6 +42,9 @@ function M:fold(node, opts)
   self.foldenable = true
   opts = opts or {}
   local action = opts.action or "toggle"
+  if node:is_leaf() and node.parent then
+    node = node.parent
+  end
   local id = node.id
   if action == "toggle" then
     if self._folded[id] then
