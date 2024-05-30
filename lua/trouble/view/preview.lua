@@ -31,7 +31,10 @@ end
 --- If the item has a loaded buffer, use that,
 --- otherwise create a new buffer.
 ---@param item trouble.Item
-function M.create(item)
+---@param opts? {scratch?:boolean}
+function M.create(item, opts)
+  opts = opts or {}
+
   local buf = item.buf or vim.fn.bufnr(item.filename)
 
   if item.filename and vim.fn.isdirectory(item.filename) == 1 then
@@ -40,20 +43,24 @@ function M.create(item)
 
   -- create a scratch preview buffer when needed
   if not (buf and vim.api.nvim_buf_is_loaded(buf)) then
-    buf = vim.api.nvim_create_buf(false, true)
-    vim.bo[buf].bufhidden = "wipe"
-    vim.bo[buf].buftype = "nofile"
-    local lines = Util.get_lines({ path = item.filename, buf = item.buf })
-    if not lines then
-      return
-    end
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-    local ft = item:get_ft(buf)
-    if ft then
-      local lang = vim.treesitter.language.get_lang(ft)
-      if not pcall(vim.treesitter.start, buf, lang) then
-        vim.bo[buf].syntax = ft
+    if opts.scratch then
+      buf = vim.api.nvim_create_buf(false, true)
+      vim.bo[buf].bufhidden = "wipe"
+      vim.bo[buf].buftype = "nofile"
+      local lines = Util.get_lines({ path = item.filename, buf = item.buf })
+      if not lines then
+        return
       end
+      vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+      local ft = item:get_ft(buf)
+      if ft then
+        local lang = vim.treesitter.language.get_lang(ft)
+        if not pcall(vim.treesitter.start, buf, lang) then
+          vim.bo[buf].syntax = ft
+        end
+      end
+    else
+      vim.fn.bufload(buf)
     end
   end
 
