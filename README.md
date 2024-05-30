@@ -316,6 +316,8 @@ Modes:
 - **lsp_definitions**: definitions
 - **lsp_document_symbols**: document symbols
 - **lsp_implementations**: implementations
+- **lsp_incoming_calls**: Incoming Calls
+- **lsp_outgoing_calls**: Outgoing Calls
 - **lsp_references**: references
 - **lsp_type_definitions**: type definitions
 - **qflist**: Quickfix List
