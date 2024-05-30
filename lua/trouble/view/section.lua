@@ -16,9 +16,11 @@ local Util = require("trouble.util")
 ---@field fetching boolean
 ---@field filter? trouble.Filter
 ---@field first_update boolean
+---@field id number
 ---@field on_refresh? fun(self: trouble.Section)
 ---@field on_update? fun(self: trouble.Section)
 local M = {}
+M._id = 0
 
 ---@param section trouble.Section.opts
 ---@param opts trouble.Config
@@ -26,6 +28,8 @@ function M.new(section, opts)
   local self = setmetatable({}, { __index = M })
   self.section = section
   self.opts = opts
+  M._id = M._id + 1
+  self.id = M._id
   self.finder = Sources.get(section.source)
   self.items = {}
   self:main()
@@ -120,10 +124,16 @@ function M:main()
   return self._main
 end
 
+function M:stop()
+  vim.api.nvim_del_augroup_by_name("trouble-section-" .. self.id)
+end
+
 function M:listen()
   local _self = Util.weak(self)
+  local group = vim.api.nvim_create_augroup("trouble-section-" .. self.id, { clear = true })
   for _, event in ipairs(self.section.events or {}) do
     vim.api.nvim_create_autocmd(event.event, {
+      group = group,
       pattern = event.pattern,
       callback = function(e)
         local this = _self()

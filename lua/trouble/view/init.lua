@@ -123,6 +123,11 @@ function M:on_mount()
   self:listen()
   self.win:on("WinLeave", function()
     Preview.close()
+    if not self.opts.auto_open then
+      for _, section in ipairs(self.sections) do
+        section:stop()
+      end
+    end
   end)
 
   local _self = Util.weak(self)
@@ -282,7 +287,6 @@ function M:goto_main()
 end
 
 function M:listen()
-  local _self = Util.weak(self)
   self:main()
 
   for _, section in ipairs(self.sections) do
