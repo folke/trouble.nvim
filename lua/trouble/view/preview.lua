@@ -113,7 +113,7 @@ function M.open(view, item)
   Util.noautocmd(function()
     vim.api.nvim_win_set_cursor(M.preview.win, item.pos)
     vim.api.nvim_win_call(M.preview.win, function()
-      vim.cmd("norm! zz zv")
+      vim.cmd("norm! zzzv")
     end)
   end)
 
