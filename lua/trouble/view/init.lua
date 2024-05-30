@@ -551,16 +551,24 @@ function M:follow()
   local Filter = require("trouble.filter")
   local ctx = { opts = self.opts, main = self:main() }
   local fname = vim.api.nvim_buf_get_name(ctx.main.buf or 0)
+  local loc = self:at()
+
+  -- check if we're already in the file group
+  local in_group = loc.node and loc.node.item and loc.node.item.filename == fname
 
   ---@type number[]|nil
   local cursor_item = nil
   local cursor_group = cursor_item
 
   for row, l in pairs(self.renderer._locations) do
-    local is_group = l.node and l.node.group and l.node.item and l.node.item.filename == fname
+    -- only return the group if we're not yet in the group
+    -- and the group's filename matches the current file
+    local is_group = not in_group and l.node and l.node.group and l.node.item and l.node.item.filename == fname
     if is_group then
       cursor_group = { row, 1 }
     end
+
+    -- prefer a full match
     local is_current = l.item and Filter.is(l.item, { range = true }, ctx)
     if is_current then
       cursor_item = { row, 1 }
