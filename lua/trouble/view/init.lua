@@ -13,10 +13,11 @@ local Window = require("trouble.view.window")
 ---@field opts trouble.Mode
 ---@field sections trouble.Section[]
 ---@field renderer trouble.Render
----@field first_update? boolean
 ---@field first_render? boolean
 ---@field moving uv_timer_t
+---@field opening? boolean
 ---@field state table<string,any>
+---@field _waiting (fun())[]
 ---@field private _main? trouble.Main
 local M = {}
 M.__index = M
@@ -36,7 +37,7 @@ function M.new(opts)
   M._views[self] = _idx
   self.state = {}
   self.opts = opts or {}
-  self.first_update = true
+  self._waiting = {}
   self.first_render = true
   self.opts.win = self.opts.win or {}
   self.opts.win.on_mount = function()
@@ -85,7 +86,7 @@ function M.get(filter)
   local ret = {}
   for view, idx in pairs(M._views) do
     local is_open = view.win:valid()
-    local ok = is_open or view.opts.auto_open
+    local ok = is_open or view.opts.auto_open or view.opening
     ok = ok and (not filter.mode or filter.mode == view.opts.mode)
     ok = ok and (not filter.open or is_open)
     if ok then
@@ -177,6 +178,8 @@ function M:on_mount()
   for k, v in pairs(self.opts.keys) do
     self:map(k, v)
   end
+
+  self.opening = false
 end
 
 ---@param node? trouble.Node
@@ -246,6 +249,14 @@ function M:jump(item, opts)
     vim.cmd("norm! zzzv")
   end)
   return item
+end
+
+function M:wait(fn)
+  if self.opening then
+    table.insert(self._waiting, fn)
+  else
+    fn()
+  end
 end
 
 ---@param item? trouble.Item
@@ -354,17 +365,18 @@ end
 ---@param action trouble.Action
 ---@param opts? table
 function M:action(action, opts)
-  local at = self:at() or {}
-  action(self, {
-    item = at.item,
-    node = at.node,
-    opts = type(opts) == "table" and opts or {},
-  })
+  self:wait(function()
+    local at = self:at() or {}
+    action(self, {
+      item = at.item,
+      node = at.node,
+      opts = type(opts) == "table" and opts or {},
+    })
+  end)
 end
 
 function M:refresh()
-  local is_open = self.win:valid()
-  if not is_open and not self.opts.auto_open then
+  if not (self.opening or self.win:valid() or self.opts.auto_open) then
     return
   end
   for _, section in ipairs(self.sections) do
@@ -412,14 +424,16 @@ end
 
 function M:open()
   if self.win:valid() then
-    return
+    return self
   end
-  self.win:open()
+  self.opening = true
+  -- self.win:open()
   self:refresh()
   return self
 end
 
 function M:close()
+  self.opening = false
   self:goto_main()
   Preview.close()
   self.win:close()
@@ -444,26 +458,64 @@ function M:flatten()
   return ret
 end
 
+-- called when results are updated
 function M:update()
-  if self.opts.auto_close and self:count() == 0 then
-    return self:close()
+  local is_open = self.win:valid()
+  self.opening = self.opening and not is_open
+  local count = self:count()
+
+  local did_first_update = true
+  for _, section in ipairs(self.sections) do
+    if not section.first_update then
+      did_first_update = false
+      break
+    end
   end
-  if self.opts.auto_open and not self.win:valid() then
-    if self:count() == 0 then
+
+  if count == 0 then
+    if self.opening and not self.opts.open_no_results then
+      if did_first_update and self.opts.warn_no_results then
+        Util.warn("No results for **" .. self.opts.mode .. "**")
+      end
+      self.opening = not did_first_update
       return
     end
-    self:open()
+
+    if is_open and self.opts.auto_close then
+      return self:close()
+    end
   end
-  if self.win:valid() and self.first_update then
-    self.first_update = false
-    if self.opts.auto_jump and self:count() == 1 then
+
+  if self.opening and did_first_update then
+    if self.opts.auto_jump and count == 1 then
+      self.opening = false
       self:jump(self:flatten()[1])
       return self:close()
     end
   end
+
+  if self.opts.auto_open and not is_open and count > 0 then
+    self.win:open()
+    is_open = true
+  end
+
+  if self.opening then
+    self.win:open()
+    is_open = true
+  end
+
+  if not (self.opening or is_open) then
+    return
+  end
+
   self:render()
+
+  while #self._waiting > 0 do
+    Util.try(table.remove(self._waiting, 1))
+  end
 end
 
+-- render the results
 function M:render()
   if not self.win:valid() then
     return

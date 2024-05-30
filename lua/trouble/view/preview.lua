@@ -1,4 +1,3 @@
-local Config = require("trouble.config")
 local Render = require("trouble.view.render")
 local Util = require("trouble.util")
 

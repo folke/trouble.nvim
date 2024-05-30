@@ -15,6 +15,7 @@ local Util = require("trouble.util")
 ---@field node? trouble.Node
 ---@field fetching boolean
 ---@field filter? trouble.Filter
+---@field first_update boolean
 ---@field on_refresh? fun(self: trouble.Section)
 ---@field on_update? fun(self: trouble.Section)
 local M = {}
@@ -60,7 +61,7 @@ function M:refresh()
   end
   -- mark as completed after 2 seconds to avoid
   -- errors staling the fetching count
-  vim.defer_fn(complete, 1000)
+  vim.defer_fn(complete, 2000)
 
   self:main_call(function(main)
     local ctx = { opts = self.opts, main = main }
@@ -108,6 +109,7 @@ function M:main_call(fn)
 end
 
 function M:update()
+  self.first_update = true
   if self.on_update then
     self:on_update()
   end

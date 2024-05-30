@@ -54,7 +54,9 @@ function M.open(opts)
   if view then
     view:open()
     if _opts.focus ~= false then
-      view.win:focus()
+      view:wait(function()
+        view.win:focus()
+      end)
     end
   end
   return view
