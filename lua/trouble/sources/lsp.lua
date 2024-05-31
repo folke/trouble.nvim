@@ -31,7 +31,7 @@ function M.setup()
       local buf = ev.buf
       Cache.symbols[buf] = nil
       if vim.api.nvim_buf_is_valid(ev.buf) and vim.api.nvim_buf_is_loaded(ev.buf) and vim.bo[ev.buf].buftype == "" then
-        Cache.locations[buf] = nil
+        Cache.locations:clear()
       end
     end,
   })
