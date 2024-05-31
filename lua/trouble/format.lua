@@ -12,6 +12,9 @@ local M = {}
 ---@param source string
 ---@param field string
 function M.default_hl(source, field)
+  if not source then
+    return "Trouble" .. Util.camel(field)
+  end
   local key = source .. field
   local value = Cache.default_hl[key]
   if value then
@@ -102,6 +105,12 @@ M.formatters = {
   dirname = function(ctx)
     return {
       text = vim.fn.fnamemodify(ctx.item.dirname, ":p:~:."),
+    }
+  end,
+  filter = function(ctx)
+    return {
+      text = vim.inspect(ctx.item.filter):gsub("%s+", " "),
+      hl = "ts.lua",
     }
   end,
   kind_icon = function(ctx)

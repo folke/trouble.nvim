@@ -1,3 +1,4 @@
+local Format = require("trouble.format")
 local Main = require("trouble.view.main")
 local Preview = require("trouble.view.preview")
 local Render = require("trouble.view.render")
@@ -17,6 +18,7 @@ local Window = require("trouble.view.window")
 ---@field moving uv_timer_t
 ---@field opening? boolean
 ---@field state table<string,any>
+---@field _filters table<string, trouble.ViewFilter>
 ---@field _waiting (fun())[]
 ---@field private _main? trouble.Main
 local M = {}
@@ -38,6 +40,7 @@ function M.new(opts)
   self.state = {}
   self.opts = opts or {}
   self._waiting = {}
+  self._filters = {}
   self.first_render = true
   self.opts.win = self.opts.win or {}
   self.opts.win.on_mount = function()
@@ -106,14 +109,6 @@ function M.get(filter)
     return a.idx < b.idx
   end)
   return ret
-end
-
----@param filter trouble.Filter
-function M:filter(filter)
-  for _, section in ipairs(self.sections) do
-    section.filter = filter
-  end
-  self:refresh()
 end
 
 function M:on_mount()
@@ -518,6 +513,62 @@ function M:update()
   end
 end
 
+---@param filter trouble.Filter
+---@param opts? trouble.ViewFilter.opts
+function M:filter(filter, opts)
+  opts = opts or {}
+
+  ---@type trouble.ViewFilter
+  local view_filter = vim.tbl_deep_extend("force", {
+    id = vim.inspect(filter),
+    filter = filter,
+    data = opts.data,
+    template = opts.template,
+  }, opts)
+
+  if opts.del or (opts.toggle and self._filters[view_filter.id]) then
+    self._filters[view_filter.id] = nil
+  else
+    self._filters[view_filter.id] = view_filter
+  end
+
+  local filters = vim.tbl_count(self._filters) > 0
+      and vim.tbl_map(function(f)
+        return f.filter
+      end, vim.tbl_values(self._filters))
+    or nil
+
+  for _, section in ipairs(self.sections) do
+    section.filter = filters
+  end
+  self:refresh()
+end
+
+function M:header()
+  local ret = {} ---@type trouble.Format[][]
+  for _, filter in pairs(self._filters) do
+    local data = vim.tbl_deep_extend("force", {
+      filter = filter.filter,
+    }, type(filter.filter) == "table" and filter.filter or {}, filter.data or {})
+    local template = filter.template or "{hl:Title}Filter:{hl} {filter}"
+    ret[#ret + 1] = self:format(template, data)
+  end
+  return ret
+end
+
+---@param id string
+function M:get_filter(id)
+  return self._filters[id]
+end
+
+---@param template string
+---@param data table<string,any>
+function M:format(template, data)
+  data.source = "view"
+  assert(self.opts, "opts is nil")
+  return Format.format(template, { item = data, opts = self.opts })
+end
+
 -- render the results
 function M:render()
   if not self.win:valid() then
@@ -537,6 +588,15 @@ function M:render()
   for _ = 1, vim.tbl_get(self.opts.win, "padding", "top") or 0 do
     self.renderer:nl()
   end
+
+  local header = self:header()
+  for _, h in ipairs(header) do
+    for _, ff in ipairs(h) do
+      self.renderer:append(ff.text, ff)
+    end
+    self.renderer:nl()
+  end
+
   self.renderer:sections(self.sections)
   self.renderer:trim()
 

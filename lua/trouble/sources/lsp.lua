@@ -4,7 +4,14 @@ local Filter = require("trouble.filter")
 local Item = require("trouble.item")
 local Util = require("trouble.util")
 
-local get_line_col = vim.lsp.util._str_byteindex_enc
+---@param line string line to be indexed
+---@param index integer UTF index
+---@param encoding string utf-8|utf-16|utf-32| defaults to utf-16
+---@return integer byte (utf-8) index of `encoding` index `index` in `line`
+local function get_line_col(line, index, encoding)
+  local ok, ret = pcall(vim.lsp.util._str_byteindex_enc, line, index, encoding)
+  return ok and ret or #line
+end
 
 ---@class trouble.Source.lsp: trouble.Source
 ---@diagnostic disable-next-line: missing-fields

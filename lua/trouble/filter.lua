@@ -1,4 +1,19 @@
+local Util = require("trouble.util")
+
 local M = {}
+
+---@class trouble.ViewFilter.opts
+---@field id? string
+---@field template? string
+---@field data? table<string, any>
+---@field toggle? boolean
+---@field del? boolean
+
+---@class trouble.ViewFilter
+---@field id string
+---@field filter trouble.Filter
+---@field template? string
+---@field data? table<string, any>
 
 ---@param opts? {lines:boolean}
 ---@param range trouble.Range
@@ -62,6 +77,15 @@ M.filters = {
 ---@param filter trouble.Filter
 ---@param ctx trouble.Filter.ctx
 function M.is(item, filter, ctx)
+  if type(filter) == "table" and Util.islist(filter) then
+    for _, f in ipairs(filter) do
+      if not M.is(item, f, ctx) then
+        return false
+      end
+    end
+    return true
+  end
+
   filter = type(filter) == "table" and filter or { filter }
   for k, v in pairs(filter) do
     ---@type trouble.FilterFn?
