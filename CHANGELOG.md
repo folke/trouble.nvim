@@ -1,5 +1,44 @@
 # Changelog
 
+## [3.1.0](https://github.com/folke/trouble.nvim/compare/v3.0.0...v3.1.0) (2024-05-31)
+
+
+### Features
+
+* added severity filter keymap and improved filtering actions ([7842dbb](https://github.com/folke/trouble.nvim/commit/7842dbb70f088cbaae969004bd2fbae09b2a2d26))
+* only open trouble when results (optionally). Fixes [#450](https://github.com/folke/trouble.nvim/issues/450) ([8fbd2ab](https://github.com/folke/trouble.nvim/commit/8fbd2abb3ff42ebb134e389f405bfa9140db1fe3))
+* **telescope:** allow passing additional trouble options to telescope open/add. Fixes [#457](https://github.com/folke/trouble.nvim/issues/457) ([4eaaf9c](https://github.com/folke/trouble.nvim/commit/4eaaf9cf8b967010998ccfc4af525b3e6d70b8b5))
+
+
+### Bug Fixes
+
+* close section session when needed ([2caf73d](https://github.com/folke/trouble.nvim/commit/2caf73d2d136625d77c0d25cc3b5d5e1e0bef3d0))
+* **fold:** start folding with closest non leaf node. Fixes [#420](https://github.com/folke/trouble.nvim/issues/420) ([f248c69](https://github.com/folke/trouble.nvim/commit/f248c6941ba5a48be531cbb25aac32e1042c65ad))
+* **follow:** improve the way follow works ([cf81aac](https://github.com/folke/trouble.nvim/commit/cf81aaca820017388fc630c534774c95b58233f2))
+* **format:** compat old signs ([0e843ed](https://github.com/folke/trouble.nvim/commit/0e843edbdc1b25ca6a5468d636b22e7035a4ad69))
+* **format:** fallback to sign_defined. Fixes [#448](https://github.com/folke/trouble.nvim/issues/448) ([36545cb](https://github.com/folke/trouble.nvim/commit/36545cb88fa999f211bfc341998f501803bf5434))
+* **lsp:** batch get offset position for lsp results. See [#452](https://github.com/folke/trouble.nvim/issues/452) ([96c30dc](https://github.com/folke/trouble.nvim/commit/96c30dc6ae10e42ab47c1f68d7f715bf01100c48))
+* **lsp:** correctly clear location cache ([7ea94a6](https://github.com/folke/trouble.nvim/commit/7ea94a6366141878758938010e4a0818a56721ad))
+* **lsp:** exclude locations that match the current line ([8c03e13](https://github.com/folke/trouble.nvim/commit/8c03e133bc88fb7c242e9915d06f0a8978511c29))
+* make sure line is always a string passed to get_line_col ([5a12185](https://github.com/folke/trouble.nvim/commit/5a12185787896da209738bd41cbe4133d82ce9bb))
+* **preview:** correctly load non-scratch buffers ([965f56f](https://github.com/folke/trouble.nvim/commit/965f56f3e17baee4213cf50637f92de4be32d8e9))
+* **preview:** correctly pass options to create scratch buffers. Fixes [#451](https://github.com/folke/trouble.nvim/issues/451) ([c50c7e3](https://github.com/folke/trouble.nvim/commit/c50c7e35d4f504d6336875994109c546ff0634b5))
+* **preview:** don't error on invalid positions ([6112c3c](https://github.com/folke/trouble.nvim/commit/6112c3c5c903a05178276a083edc756ba3cb65a0))
+* **qf:** only listen for TextChanged in the main buffer. See [#201](https://github.com/folke/trouble.nvim/issues/201) ([f75992f](https://github.com/folke/trouble.nvim/commit/f75992f9a1b93cc4490dca28f93acc921c25419e))
+* **qf:** update qflist on TextChanged to update pos. Fixes [#201](https://github.com/folke/trouble.nvim/issues/201) ([c1d9294](https://github.com/folke/trouble.nvim/commit/c1d9294eb73479fd4007237613eb7e945cd84e20))
+* stop ([bda8de4](https://github.com/folke/trouble.nvim/commit/bda8de4205f06c3939b8b59e4da1f3713d04ea05))
+* **telescope:** remove filter on `buf = 0`. See [#399](https://github.com/folke/trouble.nvim/issues/399) ([f776ab0](https://github.com/folke/trouble.nvim/commit/f776ab0ff1658f052b7345d4bbd5961b443ea8a0))
+* **view:** restore loc on first render and dont delete last loc if trouble window was never visisted. See [#367](https://github.com/folke/trouble.nvim/issues/367) ([51bf510](https://github.com/folke/trouble.nvim/commit/51bf51068d929173157ebcfb863115760c837355))
+
+
+### Performance Improvements
+
+* **lsp:** cache location requests ([6053627](https://github.com/folke/trouble.nvim/commit/6053627943020d9774c75ec637eb06847a79c7a1))
+* **lsp:** optimize batch fetching lsp item locations. Fixes [#452](https://github.com/folke/trouble.nvim/issues/452) ([a6f1af5](https://github.com/folke/trouble.nvim/commit/a6f1af567fc987306f0f328e78651bab1bfe874e))
+* much faster treesitter highlighter ([d4de08d](https://github.com/folke/trouble.nvim/commit/d4de08d9314a9ddf7278ee16efb58d0efe332bc8))
+* prevent autocmd leaks ([9e3391c](https://github.com/folke/trouble.nvim/commit/9e3391ce735f4f6fa98fe70ba9a3e444f2fd539a))
+* **preview:** re-use existing preview when preview is for the same file ([a415b64](https://github.com/folke/trouble.nvim/commit/a415b64b8a702ab6388e3aaaf16306750fc53f79))
+
 ## [3.0.0](https://github.com/folke/trouble.nvim/compare/v2.10.0...v3.0.0) (2024-05-30)
 
 
