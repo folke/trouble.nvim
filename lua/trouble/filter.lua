@@ -1,12 +1,14 @@
 local M = {}
 
 ---@param opts? {lines:boolean}
-function M.overlaps(pos, item, opts)
+---@param range trouble.Range
+---@param pos trouble.Pos
+function M.overlaps(pos, range, opts)
   if opts and opts.lines then
-    return pos[1] >= item.pos[1] and pos[1] <= item.end_pos[1]
+    return pos[1] >= range.pos[1] and pos[1] <= range.end_pos[1]
   else
-    return (pos[1] > item.pos[1] or (pos[1] == item.pos[1] and pos[2] >= item.pos[2]))
-      and (pos[1] < item.end_pos[1] or (pos[1] == item.end_pos[1] and pos[2] <= item.end_pos[2]))
+    return (pos[1] > range.pos[1] or (pos[1] == range.pos[1] and pos[2] >= range.pos[2]))
+      and (pos[1] < range.end_pos[1] or (pos[1] == range.end_pos[1] and pos[2] <= range.end_pos[2]))
   end
 end
 
@@ -31,7 +33,7 @@ M.filters = {
     if not main or (main.buf ~= item.buf) then
       return false
     end
-    local range = item.range --[[@as trouble.Item]]
+    local range = item.range --[[@as trouble.Range]]
     if range then
       return M.overlaps(main.cursor, range, { lines = true })
     else

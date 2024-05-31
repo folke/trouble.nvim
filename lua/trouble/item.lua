@@ -2,6 +2,9 @@ local Cache = require("trouble.cache")
 local Util = require("trouble.util")
 
 ---@alias trouble.Pos {[1]:number, [2]:number}
+---@class trouble.Range
+---@field pos trouble.Pos
+---@field end_pos trouble.Pos
 
 ---@class trouble.Item: {[string]: any}
 ---@field id? string
@@ -13,6 +16,7 @@ local Util = require("trouble.util")
 ---@field item table<string,any>
 ---@field source string
 ---@field cache table<string,any>
+---@field range? trouble.Range
 local M = {}
 
 ---@param opts trouble.Item | {filename?:string}

@@ -4,15 +4,6 @@ local Filter = require("trouble.filter")
 local Item = require("trouble.item")
 local Util = require("trouble.util")
 
--- FIXME: optimze call hierachy and symbols to batch convert locations to items
--- like we did with lsp references, definitions, etc.
-
----@deprecated refactor code to use M.locations_to_items
-local function get_col(bufnr, position, offset_encoding)
-  local ok, ret = pcall(vim.lsp.util._get_line_byte_from_position, bufnr, position, offset_encoding)
-  return ok and ret or position.character
-end
-
 local get_line_col = vim.lsp.util._str_byteindex_enc
 
 ---@class trouble.Source.lsp: trouble.Source
@@ -171,6 +162,8 @@ function M.get.document_symbols(cb)
   ---@type lsp.DocumentSymbolParams
   local params = { textDocument = vim.lsp.util.make_text_document_params() }
 
+  ---@alias lsp.Symbol lsp.SymbolInformation|lsp.DocumentSymbol
+
   M.request("textDocument/documentSymbol", params, function(results)
     if not vim.api.nvim_buf_is_valid(buf) then
       Cache.symbols[buf] = nil
@@ -180,28 +173,7 @@ function M.get.document_symbols(cb)
     local items = {} ---@type trouble.Item[]
 
     for client, result in pairs(results) do
-      ---@param symbol lsp.SymbolInformation|lsp.DocumentSymbol
-      local function add(symbol)
-        ---@type lsp.Location
-        local loc = symbol.location or { range = symbol.selectionRange or symbol.range, uri = params.textDocument.uri }
-        local item = M.location_to_item(client, loc)
-        local id = { item.buf, item.pos[1], item.pos[2], item.end_pos[1], item.end_pos[2], item.kind }
-        item.id = table.concat(id, "|")
-        -- the range enclosing this symbol. Useful to get the symbol of the current cursor position
-        item.range = symbol.range and M.location(client, { range = symbol.range, uri = params.textDocument.uri }) or nil
-        item.item.kind = vim.lsp.protocol.SymbolKind[symbol.kind] or tostring(symbol.kind)
-        item.item.symbol = symbol
-        items[#items + 1] = item
-        for _, child in ipairs(symbol.children or {}) do
-          item:add_child(add(child))
-        end
-        symbol.children = nil
-        return item
-      end
-
-      for _, symbol in ipairs(result) do
-        add(symbol)
-      end
+      vim.list_extend(items, M.results_to_items(client, result, params.textDocument.uri))
     end
     Item.add_text(items, { mode = "after" })
     ---@diagnostic disable-next-line: no-unknown
@@ -216,40 +188,26 @@ function M.call_hierarchy(cb, incoming)
   local params = vim.lsp.util.make_position_params()
   local items = {} ---@type trouble.Item[]
 
-  ---@param client vim.lsp.Client
-  ---@param chi lsp.CallHierarchyItem
-  ---@param range? lsp.Range
-  local function add(client, chi, range)
-    ---@type lsp.Location
-    local loc = { range = range or chi.selectionRange or chi.range, uri = chi.uri }
-    local item = M.location_to_item(client, loc)
-    local id = { item.buf, item.pos[1], item.pos[2], item.end_pos[1], item.end_pos[2], item.kind }
-    item.id = table.concat(id, "|")
-    -- the range enclosing this symbol. Useful to get the symbol of the current cursor position
-    item.range = chi.range and M.location(client, { range = chi.range, uri = chi.uri }) or nil
-    item.item.kind = vim.lsp.protocol.SymbolKind[chi.kind] or tostring(chi.kind)
-    item.item.chi = chi
-    items[#items + 1] = item
-    return item
-  end
-
   M.request("textDocument/prepareCallHierarchy", params, function(results)
     for client, chis in pairs(results or {}) do
       ---@cast chis lsp.CallHierarchyItem[]
       for _, chi in ipairs(chis) do
         M.request(("callHierarchy/%sCalls"):format(incoming and "incoming" or "outgoing"), { item = chi }, function(res)
-          for _, calls in pairs(res or {}) do
-            ---@cast calls lsp.CallHierarchyIncomingCall[]|lsp.CallHierarchyOutgoingCall[]
-            for _, call in ipairs(calls) do
-              if incoming then
-                for _, r in ipairs(call.fromRanges) do
-                  add(client, call.from, r)
-                end
-              else
-                add(client, call.from or call.to)
+          local calls = res[client] --[[@as (lsp.CallHierarchyIncomingCall|lsp.CallHierarchyOutgoingCall)[] ]]
+          local todo = {} ---@type lsp.ResultItem[]
+
+          for _, call in ipairs(calls) do
+            if incoming then
+              for _, r in ipairs(call.fromRanges) do
+                local t = vim.deepcopy(chi) --[[@as lsp.ResultItem]]
+                t.location = { range = r or call.from.selectionRange or call.from.range, uri = call.from.uri }
+                todo[#todo + 1] = t
               end
+            else
+              todo[#todo + 1] = call.to
             end
           end
+          vim.list_extend(items, M.results_to_items(client, todo))
           Item.add_text(items, { mode = "after" })
           cb(items)
         end, { client = client })
@@ -283,18 +241,117 @@ function M.get_items(client, locations)
   local fname = vim.api.nvim_buf_get_name(0)
   fname = vim.fs.normalize(fname)
 
+  ---@param item trouble.Item
   items = vim.tbl_filter(function(item)
-    return not (item.filename == fname and Filter.overlaps(cursor, item))
+    return not (item.filename == fname and Filter.overlaps(cursor, item, { lines = true }))
   end, items)
 
-  Item.add_text(items, { mode = "full" })
+  -- Item.add_text(items, { mode = "full" })
   return items
 end
 
 ---@alias lsp.Loc lsp.Location|lsp.LocationLink
 ---@param client vim.lsp.Client
 ---@param locs lsp.Loc[]
+---@return trouble.Item[]
 function M.locations_to_items(client, locs)
+  local ranges = M.locations_to_ranges(client, locs)
+  ---@param range trouble.Range.lsp
+  return vim.tbl_map(function(range)
+    return M.range_to_item(client, range)
+  end, vim.tbl_values(ranges))
+end
+
+---@param client vim.lsp.Client
+---@param range trouble.Range.lsp
+---@return trouble.Item
+function M.range_to_item(client, range)
+  return Item.new({
+    buf = range.buf,
+    filename = range.filename,
+    pos = range.pos,
+    end_pos = range.end_pos,
+    source = "lsp",
+    item = {
+      client_id = client.id,
+      client = client.name,
+      location = range.location,
+      text = range.line and vim.trim(range.line) or nil,
+    },
+  })
+end
+
+---@alias lsp.ResultItem lsp.Symbol|lsp.CallHierarchyItem
+---@param client vim.lsp.Client
+---@param results lsp.ResultItem[]
+---@param default_uri? string
+function M.results_to_items(client, results, default_uri)
+  local items = {} ---@type trouble.Item[]
+  local locs = {} ---@type lsp.Loc[]
+  local processed = {} ---@type table<lsp.ResultItem, {uri:string, loc:lsp.Loc, range?:lsp.Loc}>
+
+  ---@param result lsp.ResultItem
+  local function process(result)
+    local uri = result.location and result.location.uri or result.uri or default_uri
+    assert(uri, "missing uri in result:\n" .. vim.inspect(result))
+    local loc = result.location or { range = result.selectionRange or result.range, uri = uri }
+    -- the range enclosing this symbol. Useful to get the symbol of the current cursor position
+    ---@type lsp.Location?
+    local range = result.range and { range = result.range, uri = uri } or nil
+    processed[result] = { uri = uri, loc = loc, range = range }
+    locs[#locs + 1] = loc
+    if range then
+      locs[#locs + 1] = range
+    end
+    for _, child in ipairs(result.children or {}) do
+      process(child)
+    end
+  end
+
+  for _, result in ipairs(results) do
+    process(result)
+  end
+
+  local ranges = M.locations_to_ranges(client, locs)
+
+  ---@param result lsp.ResultItem
+  local function add(result)
+    local loc = processed[result].loc
+    local range = processed[result].range
+
+    local item = M.range_to_item(client, ranges[loc])
+    local id = { item.buf, item.pos[1], item.pos[2], item.end_pos[1], item.end_pos[2], item.kind }
+    item.id = table.concat(id, "|")
+    -- item.text = nil
+    -- the range enclosing this symbol. Useful to get the symbol of the current cursor position
+    item.range = range and ranges[range] or nil
+    item.item.kind = vim.lsp.protocol.SymbolKind[result.kind] or tostring(result.kind)
+    item.item.symbol = result
+    items[#items + 1] = item
+    for _, child in ipairs(result.children or {}) do
+      item:add_child(add(child))
+    end
+    result.children = nil
+    return item
+  end
+
+  for _, result in ipairs(results) do
+    add(result)
+  end
+
+  return items
+end
+
+---@class trouble.Range.lsp: trouble.Range
+---@field buf? number
+---@field filename string
+---@field location lsp.Loc
+---@field client vim.lsp.Client
+---@field line string
+
+---@param client vim.lsp.Client
+---@param locs lsp.Loc[]
+function M.locations_to_ranges(client, locs)
   local todo = {} ---@type table<string, {locs:lsp.Loc[], rows:table<number,number>}>
   for _, d in ipairs(locs) do
     local uri = d.uri or d.targetUri
@@ -307,7 +364,7 @@ function M.locations_to_items(client, locs)
     todo[uri].rows[to] = to
   end
 
-  local ret = {} ---@type trouble.Item[]
+  local ret = {} ---@type table<lsp.Loc,trouble.Range.lsp>
 
   for uri, t in pairs(todo) do
     local buf = vim.uri_to_bufnr(uri)
@@ -319,46 +376,19 @@ function M.locations_to_items(client, locs)
       local end_line = lines[range["end"].line + 1] or ""
       local pos = { range.start.line + 1, get_line_col(line, range.start.character, client.offset_encoding) }
       local end_pos = { range["end"].line + 1, get_line_col(end_line, range["end"].character, client.offset_encoding) }
-      ret[#ret + 1] = Item.new({
+      ret[loc] = {
         buf = buf,
         filename = filename,
         pos = pos,
         end_pos = end_pos,
         source = "lsp",
-        item = {
-          client_id = client.id,
-          client = client.name,
-          location = loc,
-        },
-      })
+        client = client,
+        location = loc,
+        line = line,
+      }
     end
   end
   return ret
-end
-
----@deprecated refactor code to use M.locations_to_items
----@param client vim.lsp.Client
----@param loc lsp.Location|lsp.LocationLink
-function M.location_to_item(client, loc)
-  return M.locations_to_items(client, { loc })[1]
-end
-
----@deprecated refactor code to use M.locations_to_items
----@param client vim.lsp.Client
----@param loc lsp.Location|lsp.LocationLink
----@return {buf:number, filename:string, pos:trouble.Pos, end_pos:trouble.Pos}
-function M.location(client, loc)
-  local range = loc.range or loc.targetSelectionRange
-  local uri = loc.uri or loc.targetUri
-  local buf = vim.uri_to_bufnr(uri)
-  local pos = { range.start.line + 1, get_col(buf, range.start, client.offset_encoding) }
-  local end_pos = { range["end"].line + 1, get_col(buf, range["end"], client.offset_encoding) }
-  return {
-    buf = buf,
-    filename = vim.uri_to_fname(uri),
-    pos = pos,
-    end_pos = end_pos,
-  }
 end
 
 ---@param cb trouble.Source.Callback
