@@ -236,8 +236,8 @@ function M:check_alien()
 end
 
 function M:close()
-  self:augroup(true)
   pcall(vim.api.nvim_win_close, self.win, true)
+  self:augroup(true)
   self.win = nil
 end
 

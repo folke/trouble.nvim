@@ -124,13 +124,18 @@ function M:main()
   return self._main
 end
 
+function M:augroup()
+  return "trouble.section." .. self.section.source .. "." .. self.id
+end
+
 function M:stop()
-  pcall(vim.api.nvim_del_augroup_by_name, "trouble-section-" .. self.id)
+  pcall(vim.api.nvim_del_augroup_by_name, self:augroup())
 end
 
 function M:listen()
   local _self = Util.weak(self)
-  local group = vim.api.nvim_create_augroup("trouble-section-" .. self.id, { clear = true })
+
+  local group = vim.api.nvim_create_augroup(self:augroup(), { clear = true })
   for _, event in ipairs(self.section.events or {}) do
     vim.api.nvim_create_autocmd(event.event, {
       group = group,

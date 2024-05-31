@@ -60,6 +60,7 @@ function M.setup()
   M.link(M.colors)
   M.source("fs")
   vim.api.nvim_create_autocmd("ColorScheme", {
+    group = vim.api.nvim_create_augroup("trouble.colorscheme", { clear = true }),
     callback = function()
       M._fixed = {}
     end,

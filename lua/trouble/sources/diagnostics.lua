@@ -66,6 +66,7 @@ local cache = {}
 
 function M.setup()
   vim.api.nvim_create_autocmd("DiagnosticChanged", {
+    group = vim.api.nvim_create_augroup("trouble.diagnostics", { clear = true }),
     callback = function(event)
       -- NOTE: unfortunately, we can't use the event.data.diagnostics table here,
       -- since multiple namespaces exist and we can't tell which namespace the

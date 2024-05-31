@@ -44,7 +44,11 @@ function M.new(opts)
     self:on_mount()
   end
   self.opts.win.on_close = function()
-    M._last[self.opts.mode or ""] = self:at()
+    if not self.opts.auto_open then
+      for _, section in ipairs(self.sections) do
+        section:stop()
+      end
+    end
   end
 
   self.sections = {}
@@ -123,11 +127,6 @@ function M:on_mount()
   self:listen()
   self.win:on("WinLeave", function()
     Preview.close()
-    if not self.opts.auto_open then
-      for _, section in ipairs(self.sections) do
-        section:stop()
-      end
-    end
   end)
 
   local _self = Util.weak(self)

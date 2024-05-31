@@ -21,6 +21,7 @@ local M = {}
 
 function M.setup()
   vim.api.nvim_create_autocmd("LspAttach", {
+    group = vim.api.nvim_create_augroup("trouble.lsp.attach", { clear = true }),
     callback = function()
       Cache.symbols:clear()
     end,
