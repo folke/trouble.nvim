@@ -71,28 +71,6 @@ function M.create(item, opts)
     end
   end
 
-  -- make sure we highlight at least one character
-  local end_pos = { item.end_pos[1], item.end_pos[2] }
-  if end_pos[1] == item.pos[1] and end_pos[2] == item.pos[2] then
-    end_pos[2] = end_pos[2] + 1
-  end
-
-  -- highlight the line
-  Util.set_extmark(buf, Render.ns, item.pos[1] - 1, 0, {
-    end_row = end_pos[1],
-    hl_group = "CursorLine",
-    hl_eol = true,
-    strict = false,
-  })
-
-  -- highlight the range
-  Util.set_extmark(buf, Render.ns, item.pos[1] - 1, item.pos[2], {
-    end_row = end_pos[1] - 1,
-    end_col = end_pos[2],
-    hl_group = "TroublePreview",
-    strict = false,
-  })
-
   return buf
 end
 
@@ -103,19 +81,45 @@ function M.open(view, item, opts)
   if M.item() == item then
     return
   end
-  if M.preview then
+  if M.preview and M.preview.item.filename ~= item.filename then
     M.close()
   end
 
-  local buf = M.create(item, opts)
-  if not buf then
-    return
+  if not M.preview then
+    local buf = M.create(item, opts)
+    if not buf then
+      return
+    end
+
+    M.preview = M.preview_win(buf, view)
+
+    M.preview.buf = buf
+    M.preview.item = item
   end
 
-  M.preview = M.preview_win(buf, view)
+  Render.reset(M.preview.buf)
 
-  M.preview.buf = buf
-  M.preview.item = item
+  -- make sure we highlight at least one character
+  local end_pos = { item.end_pos[1], item.end_pos[2] }
+  if end_pos[1] == item.pos[1] and end_pos[2] == item.pos[2] then
+    end_pos[2] = end_pos[2] + 1
+  end
+
+  -- highlight the line
+  Util.set_extmark(M.preview.buf, Render.ns, item.pos[1] - 1, 0, {
+    end_row = end_pos[1],
+    hl_group = "CursorLine",
+    hl_eol = true,
+    strict = false,
+  })
+
+  -- highlight the range
+  Util.set_extmark(M.preview.buf, Render.ns, item.pos[1] - 1, item.pos[2], {
+    end_row = end_pos[1] - 1,
+    end_col = end_pos[2],
+    hl_group = "TroublePreview",
+    strict = false,
+  })
 
   -- no autocmds should be triggered. So LSP's etc won't try to attach in the preview
   Util.noautocmd(function()
