@@ -314,8 +314,8 @@ function M.locations_to_items(client, locs)
     local lines = Util.get_lines({ rows = vim.tbl_keys(t.rows), buf = buf }) or {}
     for _, loc in ipairs(t.locs) do
       local range = loc.range or loc.targetSelectionRange
-      local line = lines[range.start.line + 1]
-      local end_line = lines[range["end"].line + 1]
+      local line = lines[range.start.line + 1] or ""
+      local end_line = lines[range["end"].line + 1] or ""
       local pos = { range.start.line + 1, get_line_col(line, range.start.character, client.offset_encoding) }
       local end_pos = { range["end"].line + 1, get_line_col(end_line, range["end"].character, client.offset_encoding) }
       ret[#ret + 1] = Item.new({
