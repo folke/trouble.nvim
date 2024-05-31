@@ -7,6 +7,7 @@ M.stats = {}
 ---@class trouble.Cache: {[string]: any}
 ---@field data table<string, any>
 ---@field name string
+---@field size number
 local C = {}
 
 function C:__index(key)
@@ -26,15 +27,21 @@ function C:__index(key)
 end
 
 function C:__newindex(key, value)
+  if self.data[key] ~= nil and value == nil then
+    self.size = self.size - 1
+  elseif self.data[key] == nil and value ~= nil then
+    self.size = self.size + 1
+  end
   self.data[key] = value
 end
 
 function C:clear()
   self.data = {}
+  self.size = 0
 end
 
 function M.new(name)
-  return setmetatable({ data = {}, name = name }, C)
+  return setmetatable({ data = {}, name = name, size = 0 }, C)
 end
 
 function M.report()

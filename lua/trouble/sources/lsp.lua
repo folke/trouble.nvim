@@ -18,10 +18,21 @@ end
 local M = {}
 
 function M.setup()
-  vim.api.nvim_create_autocmd("LspAttach", {
-    group = vim.api.nvim_create_augroup("trouble.lsp.attach", { clear = true }),
+  vim.api.nvim_create_autocmd({ "LspAttach", "LspDetach" }, {
+    group = vim.api.nvim_create_augroup("trouble.lsp.dattach", { clear = true }),
     callback = function()
       Cache.symbols:clear()
+      Cache.locations:clear()
+    end,
+  })
+  vim.api.nvim_create_autocmd({ "BufDelete", "TextChanged", "TextChangedI" }, {
+    group = vim.api.nvim_create_augroup("trouble.lsp.buf", { clear = true }),
+    callback = function(ev)
+      local buf = ev.buf
+      Cache.symbols[buf] = nil
+      if vim.api.nvim_buf_is_valid(ev.buf) and vim.api.nvim_buf_is_loaded(ev.buf) and vim.bo[ev.buf].buftype == "" then
+        Cache.locations[buf] = nil
+      end
     end,
   })
 end
@@ -102,6 +113,8 @@ function M.request(method, params, cb, opts)
   ---@type vim.lsp.Client[]
   local clients = {}
 
+  -- Util.debug("LSP Request " .. method, params)
+
   if opts.client then
     clients = { opts.client }
   else
@@ -140,16 +153,32 @@ end
 ---@param context? any lsp params context
 function M.get_locations(method, cb, context)
   local win = vim.api.nvim_get_current_win()
+  local buf = vim.api.nvim_get_current_buf()
+  local cursor = vim.api.nvim_win_get_cursor(win)
+  local col = cursor[2]
+
+  local line = vim.api.nvim_get_current_line()
+  while col > 1 and vim.fn.strcharpart(line, col - 1, 1):match("^[a-zA-Z_]$") do
+    col = col - 1
+  end
+
+  local id = table.concat({ buf, cursor[1], col, method, vim.inspect(context) }, "-")
+
   ---@type lsp.TextDocumentPositionParams
   local params = vim.lsp.util.make_position_params(win)
   ---@diagnostic disable-next-line: inject-field
   params.context = context
+
+  if Cache.locations[id] then
+    return cb(Cache.locations[id])
+  end
 
   M.request(method, params, function(results)
     local items = {} ---@type trouble.Item[]
     for client, result in pairs(results) do
       vim.list_extend(items, M.get_items(client, result))
     end
+    Cache.locations[id] = items
     cb(items)
   end)
 end
@@ -159,11 +188,11 @@ M.get = {}
 ---@param cb trouble.Source.Callback
 function M.get.document_symbols(cb)
   local buf = vim.api.nvim_get_current_buf()
-  ---@type {changedtick:number, symbols:trouble.Item[]}
+  ---@type trouble.Item[]
   local ret = Cache.symbols[buf]
 
-  if ret and ret.changedtick == vim.b[buf].changedtick then
-    return cb(ret.symbols)
+  if ret then
+    return cb(ret)
   end
 
   ---@type lsp.DocumentSymbolParams
@@ -173,7 +202,6 @@ function M.get.document_symbols(cb)
 
   M.request("textDocument/documentSymbol", params, function(results)
     if not vim.api.nvim_buf_is_valid(buf) then
-      Cache.symbols[buf] = nil
       return
     end
     ---@cast results table<vim.lsp.Client,lsp.SymbolInformation[]|lsp.DocumentSymbol[]>
@@ -184,7 +212,7 @@ function M.get.document_symbols(cb)
     end
     Item.add_text(items, { mode = "after" })
     ---@diagnostic disable-next-line: no-unknown
-    Cache.symbols[buf] = { changedtick = vim.b[buf].changedtick, symbols = items }
+    Cache.symbols[buf] = items
     cb(items)
   end)
 end

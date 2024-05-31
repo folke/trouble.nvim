@@ -51,6 +51,12 @@ function M.new(section, opts)
 end
 
 function M:refresh()
+  -- if self.section.source ~= "lsp.document_symbols" then
+  --   Util.debug("Section Refresh", {
+  --     id = self.id,
+  --     source = self.section.source,
+  --   })
+  -- end
   self.fetching = true
   if self.on_refresh then
     self:on_refresh()

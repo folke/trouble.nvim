@@ -60,7 +60,7 @@ function M.debug(msg, ...)
   if Config.debug then
     if select("#", ...) > 0 then
       local obj = select("#", ...) == 1 and ... or { ... }
-      msg = msg .. "\n" .. vim.inspect(obj)
+      msg = msg .. "\n```lua\n" .. vim.inspect(obj) .. "\n```"
     end
     M.notify(msg, { title = "Trouble (debug)" })
   end
