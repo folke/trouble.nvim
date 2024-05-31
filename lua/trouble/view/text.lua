@@ -138,7 +138,7 @@ function M:render(buf)
   vim.api.nvim_buf_clear_namespace(buf, M.ns, 0, -1)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 
-  local regions = {} ---@type table<string, number[][][]>
+  local regions = {} ---@type trouble.LangRegions
 
   for l, line in ipairs(self._lines) do
     local col = self._opts.padding or 0
@@ -174,12 +174,15 @@ function M:render(buf)
       col = col + width
     end
   end
-
-  for lang, r in pairs(regions) do
-    local TS = require("trouble.view.treesitter")
-    TS.highlight(buf, lang, r)
-  end
   vim.bo[buf].modifiable = false
+  local changetick = vim.b[buf].changetick
+
+  vim.schedule(function()
+    if vim.b[buf].changetick ~= changetick then
+      return
+    end
+    require("trouble.view.treesitter").attach(buf, regions)
+  end)
 end
 
 function M:trim()
