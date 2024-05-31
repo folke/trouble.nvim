@@ -70,13 +70,16 @@ M.formatters = {
     if vim.fn.has("nvim-0.10.0") == 1 then
       local config = vim.diagnostic.config() or {}
       if config.signs == nil or type(config.signs) == "boolean" then
-        return { text = name:sub(1, 1), hl = "DiagnosticSign" .. name }
+        return { text = sign and sign.text or name:sub(1, 1), hl = "DiagnosticSign" .. name }
       end
       local signs = config.signs or {}
       if type(signs) == "function" then
         signs = signs(0, 0) --[[@as vim.diagnostic.Opts.Signs]]
       end
-      return { text = signs.text and signs.text[severity] or sign.text or name:sub(1, 1), hl = "DiagnosticSign" .. name }
+      return {
+        text = signs.text and signs.text[severity] or sign and sign.text or name:sub(1, 1),
+        hl = "DiagnosticSign" .. name,
+      }
     else
       return sign and { text = sign.text, hl = sign.texthl } or { text = name } or nil
     end
