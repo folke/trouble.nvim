@@ -214,10 +214,21 @@ Default Settings ~
         zi = "fold_toggle_enable",
         gb = { -- example of a custom action that toggles the active view filter
           action = function(view)
-            view.state.filter_buffer = not view.state.filter_buffer
-            view:filter(view.state.filter_buffer and { buf = 0 } or nil)
+            view:filter({ buf = 0 }, { toggle = true })
           end,
           desc = "Toggle Current Buffer Filter",
+        },
+        s = { -- example of a custom action that toggles the severity
+          action = function(view)
+            local f = view:get_filter("severity")
+            local severity = ((f and f.filter.severity or 0) + 1) % 5
+            view:filter({ severity = severity }, {
+              id = "severity",
+              template = "{hl:Title}Filter:{hl} {severity}",
+              del = severity == 0,
+            })
+          end,
+          desc = "Toggle Severity Filter",
         },
       },
       ---@type table<string, trouble.Mode>
