@@ -79,6 +79,7 @@ LAZY.NVIM ~
 >lua
     {
       "folke/trouble.nvim",
+      cmd = "Trouble",
       keys = {
         {
           "<leader>xx",
