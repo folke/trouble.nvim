@@ -230,12 +230,12 @@ function M.call_hierarchy(cb, incoming)
       ---@cast chis lsp.CallHierarchyItem[]
       for _, chi in ipairs(chis) do
         M.request(("callHierarchy/%sCalls"):format(incoming and "incoming" or "outgoing"), { item = chi }, function(res)
-          local calls = res[client] --[[@as (lsp.CallHierarchyIncomingCall|lsp.CallHierarchyOutgoingCall)[] ]]
+          local calls = res[client] or {} --[[@as (lsp.CallHierarchyIncomingCall|lsp.CallHierarchyOutgoingCall)[] ]]
           local todo = {} ---@type lsp.ResultItem[]
 
           for _, call in ipairs(calls) do
             if incoming then
-              for _, r in ipairs(call.fromRanges) do
+              for _, r in ipairs(call.fromRanges or {}) do
                 local t = vim.deepcopy(chi) --[[@as lsp.ResultItem]]
                 t.location = { range = r or call.from.selectionRange or call.from.range, uri = call.from.uri }
                 todo[#todo + 1] = t
