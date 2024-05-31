@@ -52,7 +52,8 @@ function M.get(cb, _ctx)
 end
 
 -- Append the current telescope buffer to the trouble list.
-function M.add(prompt_bufnr)
+---@param opts? trouble.Mode|string
+function M.add(prompt_bufnr, opts)
   local action_state = require("telescope.actions.state")
   ---@type Picker
   local picker = action_state.get_current_picker(prompt_bufnr)
@@ -70,15 +71,21 @@ function M.add(prompt_bufnr)
 
   vim.schedule(function()
     require("telescope.actions").close(prompt_bufnr)
-    require("trouble").open("telescope")
+    opts = opts or {}
+    if type(opts) == "string" then
+      opts = { mode = opts }
+    end
+    opts = vim.tbl_extend("force", { mode = "telescope" }, opts)
+    require("trouble").open(opts)
   end)
 end
 
 -- Opens the current telescope buffer in the trouble list.
 -- This will clear the existing items.
-function M.open(prompt_bufnr)
+---@param opts? trouble.Mode|string
+function M.open(prompt_bufnr, opts)
   M.items = {}
-  M.add(prompt_bufnr)
+  M.add(prompt_bufnr, opts)
 end
 
 return M
