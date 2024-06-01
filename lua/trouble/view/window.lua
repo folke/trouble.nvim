@@ -97,7 +97,9 @@ local defaults = {
     filetype = "trouble",
     buftype = "nofile",
   },
-  wo = {},
+  wo = {
+    winbar = "",
+  },
 }
 
 ---@type trouble.Window.opts
@@ -116,6 +118,7 @@ local minimal = {
     relativenumber = false,
     signcolumn = "no",
     spell = false,
+    winbar = "",
     statuscolumn = "",
     winfixheight = true,
     winfixwidth = true,
