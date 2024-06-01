@@ -1,5 +1,6 @@
 local Actions = require("trouble.config.actions")
 local Config = require("trouble.config")
+local Util = require("trouble.util")
 local View = require("trouble.view")
 
 ---@alias trouble.ApiFn fun(opts?: trouble.Config|string): trouble.View
@@ -41,13 +42,15 @@ end
 -- When a view is already open and `opts.new = true`,
 -- a new view will be created.
 ---@param opts? trouble.Mode | { new?: boolean } | string
----@return trouble.View
+---@return trouble.View?
 function M.open(opts)
   opts = opts or {}
   local view, _opts = M._find_last(opts)
   if not view or _opts.new then
     if not _opts.mode then
-      error("No mode specified")
+      return Util.error("No mode specified")
+    elseif not vim.tbl_contains(Config.modes(), _opts.mode) then
+      return Util.error("Invalid mode `" .. _opts.mode .. "`")
     end
     view = View.new(_opts)
   end
@@ -75,7 +78,7 @@ end
 
 -- Toggle the view with the given mode.
 ---@param opts? trouble.Mode|string
----@return trouble.View
+---@return trouble.View?
 function M.toggle(opts)
   if M.is_open(opts) then
     ---@diagnostic disable-next-line: return-type-mismatch
@@ -107,7 +110,9 @@ function M._action(action)
   ---@cast action trouble.Action
   return function(opts)
     local view = M.open(opts)
-    view:action(action, opts)
+    if view then
+      view:action(action, opts)
+    end
     return view
   end
 end
