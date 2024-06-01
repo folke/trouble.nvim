@@ -363,7 +363,7 @@ You can use the following functions in your keybindings:
 -- When a view is already open and `opts.new = true`,
 -- a new view will be created.
 ---@param opts? trouble.Mode | { new?: boolean } | string
----@return trouble.View
+---@return trouble.View?
 require("trouble").open(opts)
 
 -- Closes the last open view matching the filter.
@@ -373,7 +373,7 @@ require("trouble").close(opts)
 
 -- Toggle the view with the given mode.
 ---@param opts? trouble.Mode|string
----@return trouble.View
+---@return trouble.View?
 require("trouble").toggle(opts)
 
 -- Returns true if there is an open view matching the mode.
