@@ -1,6 +1,7 @@
 local Format = require("trouble.format")
 local Main = require("trouble.view.main")
 local Preview = require("trouble.view.preview")
+local Promise = require("trouble.promise")
 local Render = require("trouble.view.render")
 local Section = require("trouble.view.section")
 local Spec = require("trouble.spec")
@@ -16,10 +17,9 @@ local Window = require("trouble.view.window")
 ---@field renderer trouble.Render
 ---@field first_render? boolean
 ---@field moving uv_timer_t
----@field opening? boolean
+---@field first_update trouble.Promise
 ---@field state table<string,any>
 ---@field _filters table<string, trouble.ViewFilter>
----@field _waiting (fun())[]
 ---@field private _main? trouble.Main
 local M = {}
 M.__index = M
@@ -39,9 +39,9 @@ function M.new(opts)
   M._views[self] = _idx
   self.state = {}
   self.opts = opts or {}
-  self._waiting = {}
   self._filters = {}
   self.first_render = true
+  self.first_update = Promise.new(function() end)
   self.opts.win = self.opts.win or {}
   self.opts.win.on_mount = function()
     self:on_mount()
@@ -93,7 +93,7 @@ function M.get(filter)
   local ret = {}
   for view, idx in pairs(M._views) do
     local is_open = view.win:valid()
-    local ok = is_open or view.opts.auto_open or view.opening
+    local ok = is_open or view.opts.auto_open or view.first_update:is_pending()
     ok = ok and (not filter.mode or filter.mode == view.opts.mode)
     ok = ok and (not filter.open or is_open)
     if ok then
@@ -177,8 +177,6 @@ function M:on_mount()
   for k, v in pairs(self.opts.keys) do
     self:map(k, v)
   end
-
-  self.opening = false
 end
 
 ---@param node? trouble.Node
@@ -251,11 +249,7 @@ function M:jump(item, opts)
 end
 
 function M:wait(fn)
-  if self.opening then
-    table.insert(self._waiting, fn)
-  else
-    fn()
-  end
+  self.first_update:next(fn)
 end
 
 ---@param item? trouble.Item
@@ -373,13 +367,16 @@ function M:action(action, opts)
   end)
 end
 
-function M:refresh()
-  if not (self.opening or self.win:valid() or self.opts.auto_open) then
+---@param opts? {update?: boolean, opening?: boolean}
+function M:refresh(opts)
+  opts = opts or {}
+  if not (opts.opening or self.win:valid() or self.opts.auto_open) then
     return
   end
-  for _, section in ipairs(self.sections) do
-    section:refresh()
-  end
+  ---@param section trouble.Section
+  return Promise.all(vim.tbl_map(function(section)
+    return section:refresh(opts)
+  end, self.sections))
 end
 
 function M:help()
@@ -424,14 +421,29 @@ function M:open()
   if self.win:valid() then
     return self
   end
-  self.opening = true
-  -- self.win:open()
-  self:refresh()
+  self
+    :refresh({ update = false, opening = true })
+    :next(function()
+      local count = self:count()
+      if count == 0 then
+        if not self.opts.open_no_results then
+          if self.opts.warn_no_results then
+            Util.warn("No results for **" .. self.opts.mode .. "**")
+          end
+          return
+        end
+      elseif count == 1 and self.opts.auto_jump then
+        self:jump(self:flatten()[1])
+        return self:close()
+      end
+      self.win:open()
+      self:update()
+    end)
+    :next(self.first_update.resolve)
   return self
 end
 
 function M:close()
-  self.opening = false
   self:goto_main()
   Preview.close()
   self.win:close()
@@ -459,37 +471,10 @@ end
 -- called when results are updated
 function M:update()
   local is_open = self.win:valid()
-  self.opening = self.opening and not is_open
   local count = self:count()
 
-  local did_first_update = true
-  for _, section in ipairs(self.sections) do
-    if not section.first_update then
-      did_first_update = false
-      break
-    end
-  end
-
-  if count == 0 then
-    if self.opening and not self.opts.open_no_results then
-      if did_first_update and self.opts.warn_no_results then
-        Util.warn("No results for **" .. self.opts.mode .. "**")
-      end
-      self.opening = not did_first_update
-      return
-    end
-
-    if is_open and self.opts.auto_close then
-      return self:close()
-    end
-  end
-
-  if self.opening and did_first_update then
-    if self.opts.auto_jump and count == 1 then
-      self.opening = false
-      self:jump(self:flatten()[1])
-      return self:close()
-    end
+  if count == 0 and is_open and self.opts.auto_close then
+    return self:close()
   end
 
   if self.opts.auto_open and not is_open and count > 0 then
@@ -497,20 +482,11 @@ function M:update()
     is_open = true
   end
 
-  if self.opening then
-    self.win:open()
-    is_open = true
-  end
-
-  if not (self.opening or is_open) then
+  if not is_open then
     return
   end
 
   self:render()
-
-  while #self._waiting > 0 do
-    Util.try(table.remove(self._waiting, 1))
-  end
 end
 
 ---@param filter trouble.Filter

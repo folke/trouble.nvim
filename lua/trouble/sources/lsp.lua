@@ -2,6 +2,7 @@ local Cache = require("trouble.cache")
 local Config = require("trouble.config")
 local Filter = require("trouble.filter")
 local Item = require("trouble.item")
+local Promise = require("trouble.promise")
 local Util = require("trouble.util")
 
 ---@param line string line to be indexed
@@ -105,11 +106,12 @@ for _, mode in ipairs({ "definitions", "references", "implementations", "type_de
   }
 end
 
+---@class trouble.lsp.Response<R,P>: {client: vim.lsp.Client, result: R, err: lsp.ResponseError, params: P}
+
 ---@param method string
 ---@param params? table
 ---@param opts? {client?:vim.lsp.Client}
----@param cb fun(results: table<vim.lsp.Client, any>)
-function M.request(method, params, cb, opts)
+function M.request(method, params, opts)
   opts = opts or {}
   local buf = vim.api.nvim_get_current_buf()
   ---@type vim.lsp.Client[]
@@ -132,22 +134,19 @@ function M.request(method, params, cb, opts)
     end
   end
 
-  local results = {} ---@type table<vim.lsp.Client, any>
-  local done = 0
-  if #clients == 0 then
-    return cb(results)
-  end
-  for _, client in ipairs(clients) do
-    vim.lsp.buf_request(buf, method, params, function(_, result)
-      done = done + 1
-      if result then
-        results[client] = result
-      end
-      if done == #clients then
-        cb(results)
-      end
+  ---@param client vim.lsp.Client
+  return Promise.all(vim.tbl_map(function(client)
+    return Promise.new(function(resolve)
+      vim.lsp.buf_request(buf, method, params, function(err, result)
+        resolve({ client = client, result = result, err = err, params = params })
+      end)
     end)
-  end
+  end, clients)):next(function(results)
+    ---@param v trouble.lsp.Response<any,any>
+    return vim.tbl_filter(function(v)
+      return v.result ~= nil
+    end, results)
+  end)
 end
 
 ---@param method string
@@ -175,14 +174,17 @@ function M.get_locations(method, cb, context)
     return cb(Cache.locations[id])
   end
 
-  M.request(method, params, function(results)
-    local items = {} ---@type trouble.Item[]
-    for client, result in pairs(results) do
-      vim.list_extend(items, M.get_items(client, result))
+  M.request(method, params):next(
+    ---@param results trouble.lsp.Response<lsp.Loc>[]
+    function(results)
+      local items = {} ---@type trouble.Item[]
+      for _, resp in ipairs(results) do
+        vim.list_extend(items, M.get_items(resp.client, resp.result))
+      end
+      Cache.locations[id] = items
+      cb(items)
     end
-    Cache.locations[id] = items
-    cb(items)
-  end)
+  )
 end
 
 M.get = {}
@@ -202,55 +204,77 @@ function M.get.document_symbols(cb)
 
   ---@alias lsp.Symbol lsp.SymbolInformation|lsp.DocumentSymbol
 
-  M.request("textDocument/documentSymbol", params, function(results)
-    if not vim.api.nvim_buf_is_valid(buf) then
-      return
-    end
-    ---@cast results table<vim.lsp.Client,lsp.SymbolInformation[]|lsp.DocumentSymbol[]>
-    local items = {} ---@type trouble.Item[]
+  M.request("textDocument/documentSymbol", params):next(
+    ---@param results trouble.lsp.Response<lsp.SymbolInformation[]|lsp.DocumentSymbol[]>[]
+    function(results)
+      if not vim.api.nvim_buf_is_valid(buf) then
+        return
+      end
+      local items = {} ---@type trouble.Item[]
 
-    for client, result in pairs(results) do
-      vim.list_extend(items, M.results_to_items(client, result, params.textDocument.uri))
+      for _, res in ipairs(results) do
+        vim.list_extend(items, M.results_to_items(res.client, res.result, params.textDocument.uri))
+      end
+      Item.add_text(items, { mode = "after" })
+      ---@diagnostic disable-next-line: no-unknown
+      Cache.symbols[buf] = items
+      cb(items)
     end
-    Item.add_text(items, { mode = "after" })
-    ---@diagnostic disable-next-line: no-unknown
-    Cache.symbols[buf] = items
-    cb(items)
-  end)
+  )
 end
 
 ---@param cb trouble.Source.Callback
 function M.call_hierarchy(cb, incoming)
   ---@type lsp.CallHierarchyPrepareParams
   local params = vim.lsp.util.make_position_params()
-  local items = {} ---@type trouble.Item[]
 
-  M.request("textDocument/prepareCallHierarchy", params, function(results)
-    for client, chis in pairs(results or {}) do
-      ---@cast chis lsp.CallHierarchyItem[]
-      for _, chi in ipairs(chis) do
-        M.request(("callHierarchy/%sCalls"):format(incoming and "incoming" or "outgoing"), { item = chi }, function(res)
-          local calls = res[client] or {} --[[@as (lsp.CallHierarchyIncomingCall|lsp.CallHierarchyOutgoingCall)[] ]]
-          local todo = {} ---@type lsp.ResultItem[]
-
-          for _, call in ipairs(calls) do
-            if incoming then
-              for _, r in ipairs(call.fromRanges or {}) do
-                local t = vim.deepcopy(chi) --[[@as lsp.ResultItem]]
-                t.location = { range = r or call.from.selectionRange or call.from.range, uri = call.from.uri }
-                todo[#todo + 1] = t
-              end
-            else
-              todo[#todo + 1] = call.to
-            end
+  M.request("textDocument/prepareCallHierarchy", params)
+    :next(
+      ---@param results trouble.lsp.Response<lsp.CallHierarchyItem[]>[]
+      function(results)
+        local requests = {} ---@type trouble.Promise[]
+        for _, res in ipairs(results or {}) do
+          for _, chi in ipairs(res.result) do
+            requests[#requests + 1] = M.request(
+              ("callHierarchy/%sCalls"):format(incoming and "incoming" or "outgoing"),
+              { item = chi },
+              { client = res.client }
+            )
           end
-          vim.list_extend(items, M.results_to_items(client, todo))
-          Item.add_text(items, { mode = "after" })
-          cb(items)
-        end, { client = client })
+        end
+        return Promise.all(requests)
       end
-    end
-  end)
+    )
+    :next(
+      ---@param responses trouble.lsp.Response<(lsp.CallHierarchyIncomingCall|lsp.CallHierarchyOutgoingCall)[]>[][]
+      function(responses)
+        local items = {} ---@type trouble.Item[]
+        for _, results in ipairs(responses) do
+          for _, res in ipairs(results) do
+            local client = res.client
+            local calls = res.result
+            local todo = {} ---@type lsp.ResultItem[]
+            local chi = res.params.item
+
+            for _, call in ipairs(calls) do
+              if incoming then
+                for _, r in ipairs(call.fromRanges or {}) do
+                  local t = vim.deepcopy(chi) --[[@as lsp.ResultItem]]
+                  t.location = { range = r or call.from.selectionRange or call.from.range, uri = call.from.uri }
+                  todo[#todo + 1] = t
+                end
+              else
+                todo[#todo + 1] = call.to
+              end
+            end
+            vim.list_extend(items, M.results_to_items(client, todo))
+          end
+        end
+        Item.add_text(items, { mode = "after" })
+        cb(items)
+      end
+    )
+  -- :catch(Util.error)
 end
 
 ---@param cb trouble.Source.Callback

@@ -1,6 +1,7 @@
 local Filter = require("trouble.filter")
 local Main = require("trouble.view.main")
 local Preview = require("trouble.view.preview")
+local Promise = require("trouble.promise")
 local Sort = require("trouble.sort")
 local Sources = require("trouble.sources")
 local Tree = require("trouble.tree")
@@ -15,10 +16,9 @@ local Util = require("trouble.util")
 ---@field node? trouble.Node
 ---@field fetching boolean
 ---@field filter? trouble.Filter
----@field first_update boolean
 ---@field id number
----@field on_refresh? fun(self: trouble.Section)
 ---@field on_update? fun(self: trouble.Section)
+---@field _refresh fun()
 local M = {}
 M._id = 0
 
@@ -36,7 +36,7 @@ function M.new(section, opts)
 
   local _self = Util.weak(self)
 
-  self.refresh = Util.throttle(
+  self._refresh = Util.throttle(
     M.refresh,
     Util.throttle_opts(opts.throttle.refresh, {
       ms = 20,
@@ -50,7 +50,8 @@ function M.new(section, opts)
   return self
 end
 
-function M:refresh()
+---@param opts? {update?: boolean}
+function M:refresh(opts)
   -- if self.section.source ~= "lsp.document_symbols" then
   --   Util.debug("Section Refresh", {
   --     id = self.id,
@@ -58,35 +59,30 @@ function M:refresh()
   --   })
   -- end
   self.fetching = true
-  if self.on_refresh then
-    self:on_refresh()
-  end
-  local done = false
-  local complete = function()
-    if done then
-      return
-    end
-    done = true
-    self.fetching = false
-  end
-  -- mark as completed after 2 seconds to avoid
-  -- errors staling the fetching count
-  vim.defer_fn(complete, 2000)
-
-  self:main_call(function(main)
-    local ctx = { opts = self.opts, main = main }
-    self.finder(function(items)
-      items = Filter.filter(items, self.section.filter, ctx)
-      if self.filter then
-        items = Filter.filter(items, self.filter, ctx)
-      end
-      items = Sort.sort(items, self.section.sort, ctx)
-      self.items = items
-      self.node = Tree.build(items, self.section)
-      complete()
-      self:update()
-    end, ctx)
+  return Promise.new(function(resolve)
+    self:main_call(function(main)
+      local ctx = { opts = self.opts, main = main }
+      self.finder(function(items)
+        items = Filter.filter(items, self.section.filter, ctx)
+        if self.filter then
+          items = Filter.filter(items, self.filter, ctx)
+        end
+        items = Sort.sort(items, self.section.sort, ctx)
+        self.items = items
+        self.node = Tree.build(items, self.section)
+        if not (opts and opts.update == false) then
+          self:update()
+        end
+        resolve(self)
+      end, ctx)
+    end)
   end)
+    :catch(Util.error)
+    :timeout(2000)
+    :catch(function() end)
+    :finally(function()
+      self.fetching = false
+    end)
 end
 
 ---@param fn fun(main: trouble.Main)
@@ -119,7 +115,6 @@ function M:main_call(fn)
 end
 
 function M:update()
-  self.first_update = true
   if self.on_update then
     self:on_update()
   end
@@ -166,7 +161,7 @@ function M:listen()
         if e.event == "BufEnter" and vim.bo[e.buf].buftype ~= "" then
           return
         end
-        this:refresh()
+        this:_refresh()
       end,
     })
   end
