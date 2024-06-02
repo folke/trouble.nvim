@@ -99,6 +99,7 @@ local defaults = {
   },
   wo = {
     winbar = "",
+    winblend = 0,
   },
 }
 
