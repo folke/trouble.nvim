@@ -68,7 +68,7 @@ M.config = {
         { "filename", format = "{file_icon} {filename} {count}" },
       },
       sort = { "filename", "pos", "text" },
-      format = "{text:ts} ({item.client}) {pos}",
+      format = "{text:ts} {item.client:Comment} {pos}",
     },
     lsp = {
       desc = "LSP definitions, references, implementations, type definitions, and declarations",
@@ -91,7 +91,7 @@ for _, mode in ipairs({ "incoming_calls", "outgoing_calls" }) do
     title = "{hl:Title}" .. Util.camel(mode, " ") .. "{hl} {count}",
     desc = Util.camel(mode, " "),
     source = "lsp." .. mode,
-    format = "{kind_icon} {chi.name} {text:ts} {pos} {hl:Title}{item.client:Title}{hl}",
+    format = "{kind_icon} {chi.name} {text:ts} {item.client:Comment} {pos}",
   }
 end
 
