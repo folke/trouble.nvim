@@ -46,7 +46,7 @@ end
 M.formatters = {
   pos = function(ctx)
     return {
-      text = "[" .. (ctx.item.pos[1] + 1) .. ", " .. ctx.item.pos[2] .. "]",
+      text = "[" .. ctx.item.pos[1] .. ", " .. (ctx.item.pos[2] + 1) .. "]",
     }
   end,
   severity = function(ctx)
