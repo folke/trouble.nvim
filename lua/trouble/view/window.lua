@@ -168,7 +168,15 @@ function M:parent_size()
   if self.opts.relative == "editor" or self.opts.relative == "cursor" then
     return { width = vim.o.columns, height = vim.o.lines }
   end
-  return { width = vim.api.nvim_win_get_width(self.opts.win), height = vim.api.nvim_win_get_height(self.opts.win) }
+  local ret = {
+    width = vim.api.nvim_win_get_width(self.opts.win),
+    height = vim.api.nvim_win_get_height(self.opts.win),
+  }
+  -- account for winbar
+  if vim.wo[self.opts.win].winbar ~= "" then
+    ret.height = ret.height - 1
+  end
+  return ret
 end
 
 ---@param type "win" | "buf"
