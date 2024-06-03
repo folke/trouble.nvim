@@ -103,6 +103,13 @@ local defaults = {
   },
 }
 
+M.FOLDS = {
+  foldcolumn = "0",
+  foldenable = false,
+  foldlevel = 99,
+  foldmethod = "manual",
+}
+
 ---@type trouble.Window.opts
 local minimal = {
   wo = {

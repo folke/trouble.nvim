@@ -42,7 +42,7 @@ function M.new(opts)
   self._filters = {}
   self.first_render = Promise.new(function() end)
   self.first_update = Promise.new(function() end)
-  self.opts.win = self.opts.win or {}
+  self.opts.win = vim.tbl_deep_extend("force", self.opts.win or {}, Window.FOLDS)
   self.opts.win.on_mount = function()
     self:on_mount()
   end
