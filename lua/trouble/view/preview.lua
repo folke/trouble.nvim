@@ -94,8 +94,8 @@ function M.open(view, item, opts)
     M.preview = M.preview_win(buf, view)
 
     M.preview.buf = buf
-    M.preview.item = item
   end
+  M.preview.item = item
 
   Render.reset(M.preview.buf)
 
@@ -111,6 +111,7 @@ function M.open(view, item, opts)
     hl_group = "CursorLine",
     hl_eol = true,
     strict = false,
+    priority = 150,
   })
 
   -- highlight the range
@@ -119,6 +120,7 @@ function M.open(view, item, opts)
     end_col = end_pos[2],
     hl_group = "TroublePreview",
     strict = false,
+    priority = 160,
   })
 
   -- no autocmds should be triggered. So LSP's etc won't try to attach in the preview
