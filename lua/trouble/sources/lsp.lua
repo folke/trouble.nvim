@@ -144,7 +144,7 @@ function M.request(method, params, opts)
   end, clients)):next(function(results)
     ---@param v trouble.lsp.Response<any,any>
     return vim.tbl_filter(function(v)
-      return v.result ~= nil
+      return v.result
     end, results)
   end)
 end
