@@ -15,9 +15,9 @@ local Window = require("trouble.view.window")
 ---@field opts trouble.Mode
 ---@field sections trouble.Section[]
 ---@field renderer trouble.Render
----@field first_render? boolean
----@field moving uv_timer_t
+---@field first_render trouble.Promise
 ---@field first_update trouble.Promise
+---@field moving uv_timer_t
 ---@field state table<string,any>
 ---@field _filters table<string, trouble.ViewFilter>
 ---@field private _main? trouble.Main
@@ -40,7 +40,7 @@ function M.new(opts)
   self.state = {}
   self.opts = opts or {}
   self._filters = {}
-  self.first_render = true
+  self.first_render = Promise.new(function() end)
   self.first_update = Promise.new(function() end)
   self.opts.win = self.opts.win or {}
   self.opts.win.on_mount = function()
@@ -249,7 +249,7 @@ function M:jump(item, opts)
 end
 
 function M:wait(fn)
-  self.first_update:next(fn)
+  self.first_render:next(fn)
 end
 
 ---@param item? trouble.Item
@@ -552,10 +552,9 @@ function M:render()
   end
 
   local loc = self:at()
-  local restore_loc = self.opts.restore and self.first_render and M._last[self.opts.mode or ""]
+  local restore_loc = self.opts.restore and self.first_render:is_pending() and M._last[self.opts.mode or ""]
   if restore_loc then
     loc = restore_loc
-    self.first_render = false
   end
 
   -- render sections
@@ -585,6 +584,10 @@ function M:render()
       return self:render()
     end
   end
+
+  vim.schedule(function()
+    self.first_render.resolve()
+  end)
 
   -- render extmarks and restore window view
   local view = vim.api.nvim_win_call(self.win.win, vim.fn.winsaveview)
