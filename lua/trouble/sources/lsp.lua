@@ -137,9 +137,9 @@ function M.request(method, params, opts)
   ---@param client vim.lsp.Client
   return Promise.all(vim.tbl_map(function(client)
     return Promise.new(function(resolve)
-      vim.lsp.buf_request(buf, method, params, function(err, result)
+      client.request(method, params, function(err, result)
         resolve({ client = client, result = result, err = err, params = params })
-      end)
+      end, buf)
     end)
   end, clients)):next(function(results)
     ---@param v trouble.lsp.Response<any,any>
