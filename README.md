@@ -333,6 +333,7 @@ Modes:
 - **diagnostics**: diagnostics
 - **loclist**: Location List
 - **lsp**: LSP definitions, references, implementations, type definitions, and declarations
+- **lsp_command**: command
 - **lsp_declarations**: declarations
 - **lsp_definitions**: definitions
 - **lsp_document_symbols**: document symbols
