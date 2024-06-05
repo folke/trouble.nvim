@@ -207,6 +207,9 @@ function M.get.document_symbols(cb)
   M.request("textDocument/documentSymbol", params):next(
     ---@param results trouble.lsp.Response<lsp.SymbolInformation[]|lsp.DocumentSymbol[]>[]
     function(results)
+      if vim.tbl_isempty(results) then
+        return cb({})
+      end
       if not vim.api.nvim_buf_is_valid(buf) then
         return
       end
@@ -354,8 +357,9 @@ function M.results_to_items(client, results, default_uri)
   ---@param result lsp.ResultItem
   local function process(result)
     local uri = result.location and result.location.uri or result.uri or default_uri
-    assert(uri, "missing uri in result:\n" .. vim.inspect(result))
     local loc = result.location or { range = result.selectionRange or result.range, uri = uri }
+    loc.uri = loc.uri or uri
+    assert(loc.uri, "missing uri in result:\n" .. vim.inspect(result))
     -- the range enclosing this symbol. Useful to get the symbol of the current cursor position
     ---@type lsp.Location?
     local range = result.range and { range = result.range, uri = uri } or nil
