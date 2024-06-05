@@ -96,7 +96,7 @@ for _, mode in ipairs({ "incoming_calls", "outgoing_calls" }) do
   }
 end
 
-for _, mode in ipairs({ "definitions", "references", "implementations", "type_definitions", "declarations" }) do
+for _, mode in ipairs({ "definitions", "references", "implementations", "type_definitions", "declarations", "command" }) do
   M.config.modes["lsp_" .. mode] = {
     auto_jump = true,
     mode = "lsp_base",
@@ -116,8 +116,6 @@ function M.request(method, params, opts)
   local buf = vim.api.nvim_get_current_buf()
   ---@type vim.lsp.Client[]
   local clients = {}
-
-  -- Util.debug("LSP Request " .. method, params)
 
   if opts.client then
     clients = { opts.client }
@@ -151,8 +149,8 @@ end
 
 ---@param method string
 ---@param cb trouble.Source.Callback
----@param context? any lsp params context
-function M.get_locations(method, cb, context)
+---@param opts? {context?:any, params?:table<string,any>}
+function M.get_locations(method, cb, opts)
   local win = vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_get_current_buf()
   local cursor = vim.api.nvim_win_get_cursor(win)
@@ -163,13 +161,13 @@ function M.get_locations(method, cb, context)
     col = col - 1
   end
 
-  local id = table.concat({ buf, cursor[1], col, method, vim.inspect(context) }, "-")
-
+  opts = opts or {}
   ---@type lsp.TextDocumentPositionParams
-  local params = vim.lsp.util.make_position_params(win)
+  local params = opts.params or vim.lsp.util.make_position_params(win)
   ---@diagnostic disable-next-line: inject-field
-  params.context = context
+  params.context = params.context or opts.context or nil
 
+  local id = table.concat({ buf, cursor[1], col, method, vim.inspect(params) }, "-")
   if Cache.locations[id] then
     return cb(Cache.locations[id])
   end
@@ -457,8 +455,24 @@ function M.locations_to_ranges(client, locs)
 end
 
 ---@param cb trouble.Source.Callback
+---@param ctx trouble.Source.ctx
+function M.get.command(cb, ctx)
+  local err = "Missing command params for `lsp_command`.\n"
+    .. "You need to specify `opts.params = {command = 'the_command', arguments = {}}`"
+  if not ctx.opts.params then
+    return Util.error(err)
+  end
+  ---@type lsp.ExecuteCommandParams
+  local params = ctx.opts.params
+  if not params.command then
+    return Util.error(err)
+  end
+  M.get_locations("workspace/executeCommand", cb, { params = params })
+end
+
+---@param cb trouble.Source.Callback
 function M.get.references(cb)
-  M.get_locations("textDocument/references", cb, { includeDeclaration = true })
+  M.get_locations("textDocument/references", cb, { context = { includeDeclaration = true } })
 end
 
 ---@param cb trouble.Source.Callback

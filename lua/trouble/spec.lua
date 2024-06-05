@@ -19,6 +19,7 @@ local Util = require("trouble.util")
 ---@field flatten? boolean when true, items with a natural hierarchy will be flattened
 ---@field format? string
 ---@field max_items? number
+---@field params? table<string, any>
 
 ---@alias trouble.Filter table<string, any>|fun(items: trouble.Item[]): trouble.Item[]
 
@@ -47,6 +48,7 @@ local Util = require("trouble.util")
 ---@field sort? trouble.Sort[]
 ---@field filter? trouble.Filter
 ---@field max_items? number
+---@field params? table<string, any>
 
 local M = {}
 
@@ -76,6 +78,7 @@ function M.section(spec)
     format = spec.format or "{filename} {pos}",
     events = events,
     flatten = spec.flatten,
+    params = spec.params,
   }
   -- A title is just a group without fields
   if spec.title then
