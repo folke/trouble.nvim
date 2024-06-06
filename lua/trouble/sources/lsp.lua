@@ -149,8 +149,9 @@ end
 
 ---@param method string
 ---@param cb trouble.Source.Callback
+---@param ctx trouble.Source.ctx
 ---@param opts? {context?:any, params?:table<string,any>}
-function M.get_locations(method, cb, opts)
+function M.get_locations(method, cb, ctx, opts)
   local win = vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_get_current_buf()
   local cursor = vim.api.nvim_win_get_cursor(win)
@@ -177,7 +178,7 @@ function M.get_locations(method, cb, opts)
     function(results)
       local items = {} ---@type trouble.Item[]
       for _, resp in ipairs(results) do
-        vim.list_extend(items, M.get_items(resp.client, resp.result))
+        vim.list_extend(items, M.get_items(resp.client, resp.result, ctx.opts.params))
       end
       Cache.locations[id] = items
       cb(items)
@@ -290,7 +291,9 @@ end
 
 ---@param client vim.lsp.Client
 ---@param locations? lsp.Location[]|lsp.LocationLink[]|lsp.Location
-function M.get_items(client, locations)
+---@param opts? {include_current?:boolean}
+function M.get_items(client, locations, opts)
+  opts = opts or {}
   locations = locations or {}
   locations = Util.islist(locations) and locations or { locations }
   ---@cast locations (lsp.Location|lsp.LocationLink)[]
@@ -303,10 +306,12 @@ function M.get_items(client, locations)
   local fname = vim.api.nvim_buf_get_name(0)
   fname = vim.fs.normalize(fname)
 
-  ---@param item trouble.Item
-  items = vim.tbl_filter(function(item)
-    return not (item.filename == fname and Filter.overlaps(cursor, item, { lines = true }))
-  end, items)
+  if not opts.include_current then
+    ---@param item trouble.Item
+    items = vim.tbl_filter(function(item)
+      return not (item.filename == fname and Filter.overlaps(cursor, item, { lines = true }))
+    end, items)
+  end
 
   -- Item.add_text(items, { mode = "full" })
   return items
@@ -467,34 +472,44 @@ function M.get.command(cb, ctx)
   if not params.command then
     return Util.error(err)
   end
-  M.get_locations("workspace/executeCommand", cb, { params = params })
+  M.get_locations("workspace/executeCommand", cb, ctx, { params = params })
+end
+
+---@param ctx trouble.Source.ctx
+---@param cb trouble.Source.Callback
+function M.get.references(cb, ctx)
+  local params = ctx.opts.params or {}
+  M.get_locations("textDocument/references", cb, ctx, {
+    context = {
+      includeDeclaration = params.include_declaration ~= false,
+    },
+  })
 end
 
 ---@param cb trouble.Source.Callback
-function M.get.references(cb)
-  M.get_locations("textDocument/references", cb, { context = { includeDeclaration = true } })
+---@param ctx trouble.Source.ctx
+function M.get.definitions(cb, ctx)
+  M.get_locations("textDocument/definition", cb, ctx)
 end
 
 ---@param cb trouble.Source.Callback
-function M.get.definitions(cb)
-  M.get_locations("textDocument/definition", cb)
-end
-
----@param cb trouble.Source.Callback
-function M.get.implementations(cb)
-  M.get_locations("textDocument/implementation", cb)
+---@param ctx trouble.Source.ctx
+function M.get.implementations(cb, ctx)
+  M.get_locations("textDocument/implementation", cb, ctx)
 end
 
 -- Type Definitions
 ---@param cb trouble.Source.Callback
-function M.get.type_definitions(cb)
-  M.get_locations("textDocument/typeDefinition", cb)
+---@param ctx trouble.Source.ctx
+function M.get.type_definitions(cb, ctx)
+  M.get_locations("textDocument/typeDefinition", cb, ctx)
 end
 
 -- Declaration
 ---@param cb trouble.Source.Callback
-function M.get.declarations(cb)
-  M.get_locations("textDocument/declaration", cb)
+---@param ctx trouble.Source.ctx
+function M.get.declarations(cb, ctx)
+  M.get_locations("textDocument/declaration", cb, ctx)
 end
 
 return M
