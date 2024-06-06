@@ -1,5 +1,37 @@
 # Changelog
 
+## [3.2.0](https://github.com/folke/trouble.nvim/compare/v3.1.0...v3.2.0) (2024-06-06)
+
+
+### Features
+
+* **lsp:** add incoming/outgoing calls to lsp mode ([8adafc1](https://github.com/folke/trouble.nvim/commit/8adafc14d8fe2a4471a0311ff72927250390d7bd))
+* **lsp:** added support for showing locations from lsp execute commands ([b1d16ac](https://github.com/folke/trouble.nvim/commit/b1d16ac02d787e40165130e0cd09474ce639b175))
+* promise class ([84f0c6d](https://github.com/folke/trouble.nvim/commit/84f0c6d047dbf182622f3d89bc47ec4a70c900b2))
+
+
+### Bug Fixes
+
+* **api:** show error when an invalid mode was used. Fixes [#465](https://github.com/folke/trouble.nvim/issues/465) ([4b1914c](https://github.com/folke/trouble.nvim/commit/4b1914c5cdbf7be18fee797c410df2faa2be13f2))
+* **format:** pos format. See [#472](https://github.com/folke/trouble.nvim/issues/472) ([abdfa1d](https://github.com/folke/trouble.nvim/commit/abdfa1daeb9713470a9b61676a82f24f32e31900))
+* **lsp:** check for nil on faulty lsp results ([d7f69ff](https://github.com/folke/trouble.nvim/commit/d7f69ff5638cf1864cabac54ade1b1694adfe085))
+* **lsp:** dont process nil results ([06a4892](https://github.com/folke/trouble.nvim/commit/06a48922e83b114a78c63ec770819b4afacd2166))
+* **lsp:** send request only to needed clients ([c147a75](https://github.com/folke/trouble.nvim/commit/c147a75c421b2df6986d82f61657ccec2f302091))
+* **lsp:** use document uri of document symbols don't have an uri set. Fixes [#480](https://github.com/folke/trouble.nvim/issues/480) ([358f0ee](https://github.com/folke/trouble.nvim/commit/358f0ee6ce4c379a3b0c37bb04ab6587c86e285a))
+* **preview:** hide winbar when previewing in main. Fixes [#464](https://github.com/folke/trouble.nvim/issues/464) ([250ea79](https://github.com/folke/trouble.nvim/commit/250ea79c810a3e5fff846c788792441f1c795c92))
+* **preview:** respect fold settings. Fixes [#459](https://github.com/folke/trouble.nvim/issues/459) ([29d1bb8](https://github.com/folke/trouble.nvim/commit/29d1bb81adc847e89ddbbf5b11ff0079daf7cc0a))
+* **preview:** set correct extmark priorities in preview highlight. Fixes [#476](https://github.com/folke/trouble.nvim/issues/476) ([13ad959](https://github.com/folke/trouble.nvim/commit/13ad95902cf479b0fa091a77368af0e03b486fe3))
+* **view:** correctly set folding options to wo. See [#477](https://github.com/folke/trouble.nvim/issues/477) ([9151797](https://github.com/folke/trouble.nvim/commit/915179759c9459b69faae90a38da6fc1ca6b90d7))
+* **view:** ensure fold settings are correct for the trouble views. See [#477](https://github.com/folke/trouble.nvim/issues/477) ([b5181b6](https://github.com/folke/trouble.nvim/commit/b5181b65912c704d5378f8fe6889924f0182c357))
+* **view:** execute actions on first render ([97bfb74](https://github.com/folke/trouble.nvim/commit/97bfb74826476b26634b5321c5d8dfbc46e41497))
+* **window:** account for winbar for preview in main. Fixes [#468](https://github.com/folke/trouble.nvim/issues/468) ([23ded52](https://github.com/folke/trouble.nvim/commit/23ded52593d017fd7d6042215460419801e35481))
+* **window:** set default winblend=0. See [#468](https://github.com/folke/trouble.nvim/issues/468) ([e296940](https://github.com/folke/trouble.nvim/commit/e2969409cf3f38f69913cc8fd9aa13137aabe760))
+
+
+### Performance Improvements
+
+* use promises for fetching sections ([e49a490](https://github.com/folke/trouble.nvim/commit/e49a49044cca072c4aca1cb3a5013aa92ac3b4f9))
+
 ## [3.1.0](https://github.com/folke/trouble.nvim/compare/v3.0.0...v3.1.0) (2024-05-31)
 
 
