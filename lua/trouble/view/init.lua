@@ -33,6 +33,8 @@ M._last = {}
 
 M.MOVING_DELAY = 4000
 
+local uv = vim.loop or vim.uv
+
 ---@param opts trouble.Mode
 function M.new(opts)
   local self = setmetatable({}, M)
@@ -81,8 +83,8 @@ function M.new(opts)
     self:listen()
     self:refresh()
   end
-  self.moving = vim.uv.new_timer()
-  self.clicked = vim.uv.new_timer()
+  self.moving = uv.new_timer()
+  self.clicked = uv.new_timer()
   return self
 end
 
