@@ -362,23 +362,24 @@ function M:on(events, fn, opts)
 end
 
 ---@param key string
----@param fn fun(self: trouble.Window)
----@param desc? string
-function M:map(key, fn, desc)
+---@param fn fun(self: trouble.Window):any
+---@param opts? string|vim.keymap.set.Opts
+function M:map(key, fn, opts)
+  opts = vim.tbl_deep_extend("force", {
+    buffer = self.buf,
+    nowait = true,
+  }, type(opts) == "string" and { desc = opts } or opts or {})
+  ---@cast opts vim.keymap.set.Opts
   if not self:valid() then
     error("Cannot create a keymap for an invalid window")
   end
-  self.keys[key] = desc or key
+  self.keys[key] = opts.desc or key
   local weak_self = Util.weak(self)
   vim.keymap.set("n", key, function()
     if weak_self() then
-      fn(weak_self())
+      return fn(weak_self())
     end
-  end, {
-    nowait = true,
-    buffer = self.buf,
-    desc = desc,
-  })
+  end, opts)
 end
 
 return M
