@@ -18,6 +18,7 @@ local Window = require("trouble.view.window")
 ---@field first_render trouble.Promise
 ---@field first_update trouble.Promise
 ---@field moving uv_timer_t
+---@field clicked uv_timer_t
 ---@field state table<string,any>
 ---@field _filters table<string, trouble.ViewFilter>
 ---@field private _main? trouble.Main
@@ -81,6 +82,7 @@ function M.new(opts)
     self:refresh()
   end
   self.moving = vim.uv.new_timer()
+  self.clicked = vim.uv.new_timer()
   return self
 end
 
@@ -121,6 +123,17 @@ function M:on_mount()
 
   self:listen()
   self.win:on("WinLeave", function()
+    if self.opts.preview.type == "main" and self.clicked:is_active() and Preview.is_open() then
+      local main = self.preview_win.opts.win
+      local preview = self.preview_win.win
+      if main and preview and vim.api.nvim_win_is_valid(main) and vim.api.nvim_win_is_valid(preview) then
+        local view = vim.api.nvim_win_call(preview, vim.fn.winsaveview)
+        vim.api.nvim_win_call(main, function()
+          vim.fn.winrestview(view)
+        end)
+        vim.api.nvim_set_current_win(main)
+      end
+    end
     Preview.close()
   end)
 
@@ -177,6 +190,11 @@ function M:on_mount()
   for k, v in pairs(self.opts.keys) do
     self:map(k, v)
   end
+
+  self.win:map("<leftmouse>", function()
+    self.clicked:start(100, 0, function() end)
+    return "<leftmouse>"
+  end, { remap = false, expr = true })
 end
 
 ---@param node? trouble.Node
