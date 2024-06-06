@@ -419,6 +419,7 @@ end
 
 function M:open()
   if self.win:valid() then
+    self:refresh()
     return self
   end
   self
