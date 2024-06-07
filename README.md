@@ -383,7 +383,7 @@ You can use the following functions in your keybindings:
 -- it will be focused unless `opts.focus = false`.
 -- When a view is already open and `opts.new = true`,
 -- a new view will be created.
----@param opts? trouble.Mode | { new?: boolean } | string
+---@param opts? trouble.Mode | { new?: boolean, refresh?: boolean } | string
 ---@return trouble.View?
 require("trouble").open(opts)
 
