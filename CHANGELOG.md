@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.3.0](https://github.com/folke/trouble.nvim/compare/v3.2.0...v3.3.0) (2024-06-07)
+
+
+### Features
+
+* **lsp:** most lsp sources now support `params.include_current`. Fixes [#482](https://github.com/folke/trouble.nvim/issues/482) ([29d19d4](https://github.com/folke/trouble.nvim/commit/29d19d4f2102306176578f1fe537fbd9740b19e1))
+* **window:** more options for mapping keys ([fdcfc5a](https://github.com/folke/trouble.nvim/commit/fdcfc5a200491e9509e56e04c6b3cdee8ada3153))
+* you can now use `dd` and `d` to delete items in the trouble list. Fixes [#149](https://github.com/folke/trouble.nvim/issues/149). Fixes [#347](https://github.com/folke/trouble.nvim/issues/347) ([e879302](https://github.com/folke/trouble.nvim/commit/e879302d003bf5bda746a36365431d4a72cf3226))
+
+
+### Bug Fixes
+
+* **api:** only refresh on open if there's no action. Fixes [#488](https://github.com/folke/trouble.nvim/issues/488) ([2661f46](https://github.com/folke/trouble.nvim/commit/2661f4612209cbbc1106fb9537666ea0133e4859))
+* **preview:** fixed mouse clicks in the preview main window. Fixes [#484](https://github.com/folke/trouble.nvim/issues/484) ([98d9ed7](https://github.com/folke/trouble.nvim/commit/98d9ed74aec4e82171de3ae0541cdd078558e546))
+* **telescope:** show error when use tries to add when telescope picker does not exist ([c11dc27](https://github.com/folke/trouble.nvim/commit/c11dc2777d52da2c8da25836817e43608ec951a5))
+* use vim.loop for nvim 0.9 in view/init.lua ([#487](https://github.com/folke/trouble.nvim/issues/487)) ([791278e](https://github.com/folke/trouble.nvim/commit/791278e498e1147520e4214982767f77ca4a99df))
+* **view:** when calling open when the view is already open, do a refresh. See [#485](https://github.com/folke/trouble.nvim/issues/485) ([39595e8](https://github.com/folke/trouble.nvim/commit/39595e883e2f91456413ca4df287575d31665940))
+
 ## [3.2.0](https://github.com/folke/trouble.nvim/compare/v3.1.0...v3.2.0) (2024-06-06)
 
 
