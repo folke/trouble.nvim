@@ -1,4 +1,4 @@
-*trouble.nvim.txt*        For Neovim >= 0.8.0        Last change: 2024 June 06
+*trouble.nvim.txt*        For Neovim >= 0.8.0        Last change: 2024 June 07
 
 ==============================================================================
 Table of Contents                             *trouble.nvim-table-of-contents*
@@ -175,7 +175,7 @@ Default Settings ~
       },
       -- Key mappings can be set to the name of a builtin action,
       -- or you can define your own custom action.
-      ---@type table<string, string|trouble.Action>
+      ---@type table<string, trouble.Action.spec>
       keys = {
         ["?"] = "help",
         r = "refresh",
@@ -195,6 +195,8 @@ Default Settings ~
         -- k = "prev",
         ["{"] = "prev",
         ["[["] = "prev",
+        dd = "delete",
+        d = { action = "delete", mode = "v" },
         i = "inspect",
         p = "preview",
         P = "toggle_preview",
@@ -433,6 +435,11 @@ API ~
     ---@param opts? trouble.Mode | { new? : boolean } | string
     ---@return trouble.View
     require("trouble").cancel(opts)
+    
+    -- Open the preview
+    ---@param opts? trouble.Mode | { new? : boolean } | string
+    ---@return trouble.View
+    require("trouble").delete(opts)
     
     -- filter
     ---@param opts? trouble.Mode | { new? : boolean } | string

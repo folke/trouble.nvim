@@ -155,7 +155,7 @@ local defaults = {
   },
   -- Key mappings can be set to the name of a builtin action,
   -- or you can define your own custom action.
-  ---@type table<string, string|trouble.Action>
+  ---@type table<string, trouble.Action.spec>
   keys = {
     ["?"] = "help",
     r = "refresh",
@@ -175,6 +175,8 @@ local defaults = {
     -- k = "prev",
     ["{"] = "prev",
     ["[["] = "prev",
+    dd = "delete",
+    d = { action = "delete", mode = "v" },
     i = "inspect",
     p = "preview",
     P = "toggle_preview",
@@ -419,6 +421,11 @@ require("trouble").statusline(opts)
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").cancel(opts)
+
+-- Open the preview
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").delete(opts)
 
 -- filter
 ---@param opts? trouble.Mode | { new? : boolean } | string
