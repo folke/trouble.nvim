@@ -41,7 +41,7 @@ end
 -- it will be focused unless `opts.focus = false`.
 -- When a view is already open and `opts.new = true`,
 -- a new view will be created.
----@param opts? trouble.Mode | { new?: boolean } | string
+---@param opts? trouble.Mode | { new?: boolean, refresh?: boolean } | string
 ---@return trouble.View?
 function M.open(opts)
   opts = opts or {}
@@ -55,7 +55,13 @@ function M.open(opts)
     view = View.new(_opts)
   end
   if view then
-    view:open()
+    if view:is_open() then
+      if opts.refresh ~= false then
+        view:refresh()
+      end
+    else
+      view:open()
+    end
     if _opts.focus ~= false then
       view:wait(function()
         view.win:focus()
@@ -107,6 +113,13 @@ end
 ---@param action trouble.Action.spec
 function M._action(action)
   return function(opts)
+    opts = opts or {}
+    if type(opts) == "string" then
+      opts = { mode = opts }
+    end
+    opts = vim.tbl_deep_extend("force", {
+      refresh = false,
+    }, opts)
     local view = M.open(opts)
     if view then
       view:action(action, opts)

@@ -461,9 +461,12 @@ function M:help()
   win:map("q", win.close)
 end
 
+function M:is_open()
+  return self.win:valid()
+end
+
 function M:open()
   if self.win:valid() then
-    self:refresh()
     return self
   end
   self
