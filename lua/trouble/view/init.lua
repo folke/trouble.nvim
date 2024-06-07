@@ -233,7 +233,9 @@ end
 function M:jump(item, opts)
   opts = opts or {}
   item = item or self:at().item
-  Preview.close()
+  vim.schedule(function()
+    Preview.close()
+  end)
   if not item then
     return Util.warn("No item to jump to")
   end

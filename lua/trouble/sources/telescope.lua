@@ -1,5 +1,6 @@
 ---@diagnostic disable: inject-field
 local Item = require("trouble.item")
+local Util = require("trouble.util")
 
 ---Represents an item in a Neovim quickfix/loclist.
 ---@class telescope.Item
@@ -57,6 +58,9 @@ function M.add(prompt_bufnr, opts)
   local action_state = require("telescope.actions.state")
   ---@type Picker
   local picker = action_state.get_current_picker(prompt_bufnr)
+  if not picker then
+    return Util.error("No Telescope picker found?")
+  end
 
   if #picker:get_multi_selection() > 0 then
     for _, item in ipairs(picker:get_multi_selection()) do
