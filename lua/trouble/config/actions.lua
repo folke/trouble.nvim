@@ -2,9 +2,10 @@ local Util = require("trouble.util")
 
 ---@alias trouble.Action.ctx {item?: trouble.Item, node?: trouble.Node, opts?: table}
 ---@alias trouble.ActionFn fun(view:trouble.View, ctx:trouble.Action.ctx)
----@alias trouble.Action trouble.ActionFn|{action:trouble.ActionFn, desc?:string}
+---@alias trouble.Action {action: trouble.ActionFn, desc?: string, mode?: string}
+---@alias trouble.Action.spec string|trouble.ActionFn|trouble.Action|{action: string}
 
----@class trouble.actions: {[string]: trouble.Action}
+---@class trouble.actions: {[string]: trouble.ActionFn}
 local M = {
   -- Refresh the trouble source
   refresh = function(self)
@@ -32,12 +33,25 @@ local M = {
       self:preview(ctx.item)
     end
   end,
+  -- Open the preview
+  delete = function(self)
+    local enabled = self.opts.auto_refresh
+    self:delete()
+    if enabled and not self.opts.auto_refresh then
+      Util.warn("Auto refresh **disabled**", { id = "toggle_refresh" })
+    end
+  end,
   -- Toggle the preview
-  toggle_preview = function(self)
+  toggle_preview = function(self, ctx)
     self.opts.auto_preview = not self.opts.auto_preview
+    local enabled = self.opts.auto_preview and "enabled" or "disabled"
+    local notify = (enabled == "enabled") and Util.info or Util.warn
+    notify("Auto preview **" .. enabled .. "**", { id = "toggle_preview" })
     local Preview = require("trouble.view.preview")
     if self.opts.auto_preview then
-      self:preview()
+      if ctx.item then
+        self:preview()
+      end
     else
       Preview.close()
     end
@@ -45,6 +59,9 @@ local M = {
   -- Toggle the auto refresh
   toggle_refresh = function(self)
     self.opts.auto_refresh = not self.opts.auto_refresh
+    local enabled = self.opts.auto_refresh and "enabled" or "disabled"
+    local notify = (enabled == "enabled") and Util.info or Util.warn
+    notify("Auto refresh **" .. enabled .. "**", { id = "toggle_refresh" })
   end,
 
   filter = function(self, ctx)

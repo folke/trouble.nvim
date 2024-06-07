@@ -87,6 +87,22 @@ function M.section(spec)
   return ret
 end
 
+---@param action trouble.Action.spec
+function M.action(action)
+  if type(action) == "string" then
+    action = { action = action, desc = action:gsub("_", " ") }
+  end
+  if type(action) == "function" then
+    action = { action = action }
+  end
+  if type(action.action) == "string" then
+    action.desc = action.desc or action.action:gsub("_", " ")
+    action.action = require("trouble.config.actions")[action.action]
+  end
+  ---@cast action trouble.Action
+  return action
+end
+
 ---@param mode trouble.Mode
 ---@return trouble.Section.opts[]
 function M.sections(mode)

@@ -50,7 +50,7 @@ local defaults = {
   },
   -- Key mappings can be set to the name of a builtin action,
   -- or you can define your own custom action.
-  ---@type table<string, string|trouble.Action>
+  ---@type table<string, trouble.Action.spec>
   keys = {
     ["?"] = "help",
     r = "refresh",
@@ -70,6 +70,8 @@ local defaults = {
     -- k = "prev",
     ["{"] = "prev",
     ["[["] = "prev",
+    dd = "delete",
+    d = { action = "delete", mode = "v" },
     i = "inspect",
     p = "preview",
     P = "toggle_preview",

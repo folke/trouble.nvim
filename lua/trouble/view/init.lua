@@ -200,6 +200,19 @@ function M:on_mount()
 end
 
 ---@param node? trouble.Node
+function M:delete(node)
+  local selection = node and { node } or self:selection()
+  if #selection == 0 then
+    return
+  end
+  for _, n in ipairs(selection) do
+    n:delete()
+  end
+  self.opts.auto_refresh = false
+  self:render()
+end
+
+---@param node? trouble.Node
 ---@param opts? trouble.Render.fold_opts
 function M:fold(node, opts)
   node = node or self:at().node
@@ -311,29 +324,37 @@ function M:at(cursor)
   return self.renderer:at(cursor[1])
 end
 
+function M:selection()
+  if not vim.fn.mode():lower():find("v") then
+    local ret = self:at()
+    return ret.node and { ret.node } or {}
+  end
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), "x", false)
+
+  local from = vim.api.nvim_buf_get_mark(self.win.buf, "<")[1]
+  local to = vim.api.nvim_buf_get_mark(self.win.buf, ">")[1]
+  ---@type trouble.Node[]
+  local ret = {}
+  for row = from, to do
+    local node = self.renderer:at(row).node
+    if not vim.tbl_contains(ret, node) then
+      ret[#ret + 1] = node
+    end
+  end
+  return ret
+end
+
 ---@param key string
----@param action trouble.Action|string
+---@param action trouble.Action.spec
 function M:map(key, action)
-  local desc ---@type string?
-  if type(action) == "string" then
-    desc = action:gsub("_", " ")
-    action = require("trouble.config.actions")[action]
-  end
-  ---@type trouble.ActionFn
-  local fn
-  if type(action) == "function" then
-    fn = action
-  else
-    fn = action.action
-    desc = action.desc or desc
-  end
+  action = Spec.action(action)
   local _self = Util.weak(self)
   self.win:map(key, function()
     local this = _self()
     if this then
-      this:action(fn)
+      this:action(action)
     end
-  end, desc)
+  end, { desc = action.desc, mode = action.mode })
 end
 
 ---@param opts? {idx?: number, up?:number, down?:number, jump?:boolean}
@@ -374,12 +395,13 @@ function M:move(opts)
   end
 end
 
----@param action trouble.Action
+---@param action trouble.Action.spec
 ---@param opts? table
 function M:action(action, opts)
+  action = Spec.action(action)
   self:wait(function()
     local at = self:at() or {}
-    action(self, {
+    action.action(self, {
       item = at.item,
       node = at.node,
       opts = type(opts) == "table" and opts or {},

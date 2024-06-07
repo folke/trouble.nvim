@@ -104,10 +104,8 @@ function M.refresh(opts)
 end
 
 -- Proxy to last view's action.
----@param action trouble.Action|string
+---@param action trouble.Action.spec
 function M._action(action)
-  action = type(action) == "string" and Actions[action] or action
-  ---@cast action trouble.Action
   return function(opts)
     local view = M.open(opts)
     if view then

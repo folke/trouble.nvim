@@ -25,6 +25,26 @@ function M.new(opts)
   return self
 end
 
+function M:delete()
+  local parent = self.parent
+  if not parent then
+    return
+  end
+  if parent.children then
+    parent.children = vim.tbl_filter(function(c)
+      return c ~= self
+    end, parent.children)
+  end
+  if parent.index and self.id then
+    parent.index[self.id] = nil
+  end
+  parent._count = nil
+  parent._degree = nil
+  if parent:count() == 0 then
+    parent:delete()
+  end
+end
+
 -- Max depth of the tree
 function M:degree()
   if not self._degree then
@@ -60,6 +80,7 @@ function M:count()
   return self._count
 end
 
+--- Gets all the items in the tree, recursively.
 ---@param ret trouble.Item[]?
 function M:flatten(ret)
   ret = ret or {}

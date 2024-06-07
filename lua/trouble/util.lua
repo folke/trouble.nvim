@@ -23,7 +23,10 @@ end
 
 M.islist = vim.islist or vim.tbl_islist
 
----@alias NotifyOpts {level?: number, title?: string, once?: boolean}
+---@alias NotifyOpts {level?: number, title?: string, once?: boolean, id?:string}
+
+---@type table<string, any>
+local notif_ids = {}
 
 ---@param msg string|string[]
 ---@param opts? NotifyOpts
@@ -32,7 +35,8 @@ function M.notify(msg, opts)
   msg = type(msg) == "table" and table.concat(msg, "\n") or msg
   ---@cast msg string
   msg = vim.trim(msg)
-  return vim[opts.once and "notify_once" or "notify"](msg, opts.level, {
+  local ret = vim[opts.once and "notify_once" or "notify"](msg, opts.level, {
+    replace = opts.id and notif_ids[opts.id] or nil,
     title = opts.title or "Trouble",
     on_open = function(win)
       vim.wo.conceallevel = 3
@@ -41,12 +45,22 @@ function M.notify(msg, opts)
       vim.treesitter.start(vim.api.nvim_win_get_buf(win), "markdown")
     end,
   })
+  if opts.id then
+    notif_ids[opts.id] = ret
+  end
+  return ret
 end
 
 ---@param msg string|string[]
 ---@param opts? NotifyOpts
 function M.warn(msg, opts)
   M.notify(msg, vim.tbl_extend("keep", { level = vim.log.levels.WARN }, opts or {}))
+end
+
+---@param msg string|string[]
+---@param opts? NotifyOpts
+function M.info(msg, opts)
+  M.notify(msg, vim.tbl_extend("keep", { level = vim.log.levels.INFO }, opts or {}))
 end
 
 ---@param msg string|string[]
