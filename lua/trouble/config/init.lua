@@ -218,6 +218,23 @@ function M.setup(opts)
     return
   end
   opts = opts or {}
+
+  if opts.auto_open then
+    require("trouble.util").warn({
+      "You specified `auto_open = true` in your global config.",
+      "This is probably not what you want.",
+      "Add it to the mode you want to auto open instead.",
+      "```lua",
+      "opts = {",
+      "  modes = {",
+      "    diagnostics = { auto_open = true },",
+      "  }",
+      "}",
+      "```",
+      "Disabling global `auto_open`.",
+    })
+    opts.auto_open = nil
+  end
   opts.mode = nil
   options = {}
   options = M.get(opts)
@@ -232,6 +249,13 @@ function M.setup(opts)
     desc = "Trouble",
   })
   require("trouble.view.main").setup()
+  vim.schedule(function()
+    for mode, mode_opts in pairs(options.modes) do
+      if mode_opts.auto_open then
+        require("trouble.view").new(M.get(mode))
+      end
+    end
+  end)
   return options
 end
 

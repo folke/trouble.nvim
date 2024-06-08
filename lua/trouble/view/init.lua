@@ -28,6 +28,9 @@ local _idx = 0
 ---@type table<trouble.View, number>
 M._views = setmetatable({}, { __mode = "k" })
 
+---@type trouble.View[]
+M._auto = {}
+
 ---@type table<string, trouble.Render.Location>
 M._last = {}
 
@@ -80,6 +83,8 @@ function M.new(opts)
   self.follow = Util.throttle(M.follow, Util.throttle_opts(self.opts.throttle.follow, { ms = 100 }))
 
   if self.opts.auto_open then
+    -- add to a table, so that the view doesn't gc
+    table.insert(M._auto, self)
     self:listen()
     self:refresh()
   end
