@@ -41,11 +41,11 @@ The following filter keeps items with severity `HINT`
 
 Item attributes are documented in `lua/trouble/item.lua`
 
-|     Name     |            Type            |                    Description                    |
-| ------------ | -------------------------- | ------------------------------------------------- |
-| **buf**      | `number`                   | Buffer number.                                    |
-| **filename** | `string`                   | Absolute file path.                               |
-| **ft**       | `string` or `string[]`     | File types.                                       |
-| **kind**     | `string`                   | Symbol kind. See `:h SymbolKind`                  |
-| **pos**      | `{[1]:number, [2]:number}` | Item position.                                    |
-| **severity** | `number`                   | Diagnostic severity. See `:h diagnostic-severity` |
+|     Name     |            Type            |                    Description                     |
+| ------------ | -------------------------- | -------------------------------------------------- |
+| **buf**      | `number`                   | Buffer id.                                         |
+| **filename** | `string`                   | Absolute file path.                                |
+| **ft**       | `string` or `string[]`     | File types.                                        |
+| **kind**     | `string`                   | Symbol kind. See `:h SymbolKind`.                  |
+| **pos**      | `{[1]:number, [2]:number}` | Item position.                                     |
+| **severity** | `number`                   | Diagnostic severity. See `:h diagnostic-severity`. |
