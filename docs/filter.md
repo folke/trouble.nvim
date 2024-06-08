@@ -15,7 +15,7 @@ i.e., diagnostics with severity error to the current buffer when its filetype is
         ft = 'lua',
       },
     },
-  }
+  },
 }
 ```
 
