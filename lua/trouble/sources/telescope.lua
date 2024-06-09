@@ -20,13 +20,20 @@ M.config = {
   modes = {
     telescope = {
       desc = "Telescope results previously opened with `require('trouble.sources.telescope').open()`.",
-      -- events = { "BufEnter", "QuickFixCmdPost" },
       source = "telescope",
+      title = "{hl:Title}Telescope{hl} {count}",
       groups = {
         { "filename", format = "{file_icon} {filename} {count}" },
       },
       sort = { "filename", "pos" },
       format = "{text:ts} {pos}",
+    },
+    telescope_files = {
+      desc = "Telescope results previously opened with `require('trouble.sources.telescope').open()`.",
+      source = "telescope",
+      title = "{hl:Title}Telescope{hl} {count}",
+      sort = { "filename", "pos" },
+      format = "{file_icon} {filename}",
     },
   },
 }
@@ -52,6 +59,16 @@ function M.get(cb, _ctx)
   cb(M.items)
 end
 
+-- Returns the mode based on the items.
+function M.mode()
+  for _, item in ipairs(M.items) do
+    if item.text then
+      return "telescope"
+    end
+  end
+  return "telescope_files"
+end
+
 -- Append the current telescope buffer to the trouble list.
 ---@param opts? trouble.Mode|string
 function M.add(prompt_bufnr, opts)
@@ -71,7 +88,7 @@ function M.add(prompt_bufnr, opts)
       table.insert(M.items, M.item(item))
     end
   end
-  Item.add_text(M.items, { mode = "after" })
+  -- Item.add_text(M.items, { mode = "after" })
 
   vim.schedule(function()
     require("telescope.actions").close(prompt_bufnr)
@@ -79,7 +96,7 @@ function M.add(prompt_bufnr, opts)
     if type(opts) == "string" then
       opts = { mode = opts }
     end
-    opts = vim.tbl_extend("force", { mode = "telescope" }, opts)
+    opts = vim.tbl_extend("force", { mode = M.mode() }, opts)
     require("trouble").open(opts)
   end)
 end
