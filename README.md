@@ -366,6 +366,7 @@ Modes:
 - **quickfix**: Quickfix List
 - **symbols**: document symbols
 - **telescope**: Telescope results previously opened with `require('trouble.sources.telescope').open()`.
+- **telescope_files**: Telescope results previously opened with `require('trouble.sources.telescope').open()`.
 
 <!-- modes:end -->
 

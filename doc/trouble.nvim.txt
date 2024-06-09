@@ -1,4 +1,4 @@
-*trouble.nvim.txt*        For Neovim >= 0.8.0        Last change: 2024 June 08
+*trouble.nvim.txt*        For Neovim >= 0.8.0        Last change: 2024 June 09
 
 ==============================================================================
 Table of Contents                             *trouble.nvim-table-of-contents*
@@ -383,6 +383,7 @@ Modes:
 - **quickfix**Quickfix List
 - **symbols**document symbols
 - **telescope**Telescope results previously opened with `require('trouble.sources.telescope').open()`.
+- **telescope_files**Telescope results previously opened with `require('trouble.sources.telescope').open()`.
 
 
 API ~
