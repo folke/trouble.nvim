@@ -8,6 +8,7 @@ local Util = require("trouble.util")
 ---@field col? number The column number where the item starts.
 ---@field bufnr? number The buffer number where the item originates.
 ---@field filename? string The filename of the item.
+---@field text? string The text of the item.
 ---@field cwd? string The current working directory of the item.
 
 ---@class trouble.Source.telescope: trouble.Source
@@ -44,11 +45,14 @@ function M.item(item)
   if item.cwd then
     filename = item.cwd .. "/" .. filename
   end
+  local word = item.text and item.text:sub(item.col):match("%S+")
+  local pos = (item.lnum and item.col) and { item.lnum, item.col - 1 } or nil
   return Item.new({
     source = "telescope",
     buf = item.bufnr,
     filename = filename,
-    pos = (item.lnum and item.col) and { item.lnum, item.col - 1 } or nil,
+    pos = pos,
+    end_pos = word and pos and { pos[1], pos[2] + #word } or nil,
     item = item,
   })
 end
