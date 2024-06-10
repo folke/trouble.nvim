@@ -107,7 +107,7 @@ function M.open(selected, fzf_opts, opts)
   M.add(selected, fzf_opts, opts)
 end
 
-local smart_prefix = require("trouble.util").is_win() and "IF %FZF_SELECT_COUNT% LEQ 0 (echo select-all)"
+local smart_prefix = require("trouble.util").is_win() and "transform(IF %FZF_SELECT_COUNT% LEQ 0 (echo select-all))"
   or "transform([ $FZF_SELECT_COUNT -eq 0 ] && echo select-all)"
 
 M.actions = {
