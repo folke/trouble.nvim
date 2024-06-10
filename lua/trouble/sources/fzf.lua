@@ -107,10 +107,21 @@ function M.open(selected, fzf_opts, opts)
   M.add(selected, fzf_opts, opts)
 end
 
+local smart_prefix = require("trouble.util").is_win() and "IF %FZF_SELECT_COUNT% LEQ 0 (echo select-all)"
+  or "transform([ $FZF_SELECT_COUNT -eq 0 ] && echo select-all)"
+
 M.actions = {
-  open = M.open,
+  -- Open selected or all items in the trouble list.
+  open = { fn = M.open, prefix = smart_prefix },
+  -- Open selected items in the trouble list.
+  open_selected = M.open,
+  -- Open all items in the trouble list.
   open_all = { fn = M.open, prefix = "select-all" },
-  add = M.add,
+  -- Add selected or all items to the trouble list.
+  add = { fn = M.add, prefix = smart_prefix },
+  -- Add selected items to the trouble list.
+  add_selected = M.add,
+  -- Add all items to the trouble list.
   add_all = { fn = M.add, prefix = "select-all" },
 }
 

@@ -628,8 +628,7 @@ You can easily open any search results in **Trouble**, by defining a custom acti
 ```lua
 local config = require("fzf-lua.config")
 local actions = require("trouble.sources.fzf").actions
-config.defaults.actions.files["ctrl-t"] = actions.open_all
-config.defaults.actions.files["alt-t"] = actions.open
+config.defaults.actions.files["ctrl-t"] = actions.open
 ```
 
 When you open telescope, you can now hit `<c-t>` to open the results in **Trouble**

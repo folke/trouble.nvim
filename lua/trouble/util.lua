@@ -11,6 +11,10 @@ function M.noautocmd(fn)
   vim.o.eventignore = ei
 end
 
+function M.is_win()
+  return vim.uv.os_uname().sysname:find("Windows") ~= nil
+end
+
 ---@param opts? {msg?: string}
 function M.try(fn, opts)
   local ok, err = pcall(fn)
