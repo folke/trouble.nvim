@@ -112,17 +112,17 @@ local smart_prefix = require("trouble.util").is_win() and "transform(IF %FZF_SEL
 
 M.actions = {
   -- Open selected or all items in the trouble list.
-  open = { fn = M.open, prefix = smart_prefix },
+  open = { fn = M.open, prefix = smart_prefix, desc = "smart-open-with-trouble" },
   -- Open selected items in the trouble list.
-  open_selected = M.open,
+  open_selected = { fn = M.open, desc = "open-with-trouble" },
   -- Open all items in the trouble list.
-  open_all = { fn = M.open, prefix = "select-all" },
+  open_all = { fn = M.open, prefix = "select-all", desc = "open-all-with-trouble" },
   -- Add selected or all items to the trouble list.
-  add = { fn = M.add, prefix = smart_prefix },
+  add = { fn = M.add, prefix = smart_prefix, desc = "smart-add-to-trouble" },
   -- Add selected items to the trouble list.
-  add_selected = M.add,
+  add_selected = { fn = M.add, desc = "add-to-trouble" },
   -- Add all items to the trouble list.
-  add_all = { fn = M.add, prefix = "select-all" },
+  add_all = { fn = M.add, prefix = "select-all", desc = "add-all-to-trouble" },
 }
 
 return M
