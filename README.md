@@ -631,7 +631,7 @@ local actions = require("trouble.sources.fzf").actions
 config.defaults.actions.files["ctrl-t"] = actions.open
 ```
 
-When you open telescope, you can now hit `<c-t>` to open the results in **Trouble**
+When you open fzf-lua, you can now hit `<c-t>` to open the results in **Trouble**
 
 ### Statusline Component
 
