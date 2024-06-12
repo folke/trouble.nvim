@@ -153,7 +153,7 @@ function M.new(opts)
   elseif opts.type == "float" then
     opts.relative = opts.relative or "editor"
     opts.size = opts.size or { width = 0.8, height = 0.8 }
-    opts.position = type(opts.position) == "table" and opts.poition or { 0.5, 0.5 }
+    opts.position = type(opts.position) == "table" and opts.position or { 0.5, 0.5 }
   elseif opts.type == "main" then
     opts.type = "float"
     opts.relative = "win"
