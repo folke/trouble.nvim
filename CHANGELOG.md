@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.1](https://github.com/folke/trouble.nvim/compare/v3.4.0...v3.4.1) (2024-06-12)
+
+
+### Bug Fixes
+
+* **fzf:** added descriptions ([5e45bb7](https://github.com/folke/trouble.nvim/commit/5e45bb78f8da3444d35616934c180fce3742c439))
+
 ## [3.4.0](https://github.com/folke/trouble.nvim/compare/v3.3.0...v3.4.0) (2024-06-11)
 
 
