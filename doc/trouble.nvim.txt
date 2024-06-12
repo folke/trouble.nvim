@@ -1,4 +1,4 @@
-*trouble.nvim.txt*        For Neovim >= 0.8.0        Last change: 2024 June 11
+*trouble.nvim.txt*        For Neovim >= 0.8.0        Last change: 2024 June 12
 
 ==============================================================================
 Table of Contents                             *trouble.nvim-table-of-contents*
@@ -646,7 +646,7 @@ action:
     config.defaults.actions.files["ctrl-t"] = actions.open
 <
 
-When you open telescope, you can now hit `<c-t>` to open the results in
+When you open fzf-lua, you can now hit `<c-t>` to open the results in
 **Trouble**
 
 
