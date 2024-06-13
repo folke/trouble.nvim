@@ -73,7 +73,7 @@ function M.error(msg, opts)
   M.notify(msg, vim.tbl_extend("keep", { level = vim.log.levels.ERROR }, opts or {}))
 end
 
----@param msg string
+---@param msg string|string[]
 function M.debug(msg, ...)
   if Config.debug then
     if select("#", ...) > 0 then

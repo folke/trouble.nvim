@@ -110,7 +110,11 @@ function M:main_call(fn)
       fn(main)
     end)
   else
-    Util.debug("Main window switched buffers")
+    Util.debug({
+      "Main window switched buffers",
+      "Main: " .. vim.api.nvim_buf_get_name(main.buf),
+      "Current: " .. vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(main.win)),
+    })
   end
 end
 

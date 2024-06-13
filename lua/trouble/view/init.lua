@@ -482,7 +482,10 @@ function M:open()
       if count == 0 then
         if not self.opts.open_no_results then
           if self.opts.warn_no_results then
-            Util.warn("No results for **" .. self.opts.mode .. "**")
+            Util.warn({
+              "No results for **" .. self.opts.mode .. "**",
+              "Buffer: " .. vim.api.nvim_buf_get_name(self:main().buf),
+            })
           end
           return
         end
