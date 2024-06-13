@@ -498,7 +498,9 @@ function M:open()
 end
 
 function M:close()
-  self:goto_main()
+  if vim.api.nvim_get_current_win() == self.win.win then
+    self:goto_main()
+  end
   Preview.close()
   self.win:close()
   return self
