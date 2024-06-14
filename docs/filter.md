@@ -91,8 +91,12 @@ less severe entries are shown.
     my_diagnostics = {
       mode = 'diagnostics',
       filter = function(items)
-        local severity = vim.iter(items):fold(vim.diagnostic.severity.HINT, function(r, v) return math.min(r, v.severity) end)
-        return vim.tbl_filter(function(item) return item.severity == severity end, items)
+        local severity = vim.iter(items):fold(
+          vim.diagnostic.severity.HINT,
+          function(r, v) return math.min(r, v.severity) end)
+        return vim.tbl_filter(
+          function(item) return item.severity == severity end,
+          items)
       end,
     },
   },
