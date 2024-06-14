@@ -1,4 +1,4 @@
-*trouble.nvim.txt*        For Neovim >= 0.8.0        Last change: 2024 June 13
+*trouble.nvim.txt*        For Neovim >= 0.8.0        Last change: 2024 June 14
 
 ==============================================================================
 Table of Contents                             *trouble.nvim-table-of-contents*
@@ -686,6 +686,7 @@ Highlight Groups ~
 
   Highlight Group            Default Group             Description
   -------------------------- ------------------------- -------------
+  TroubleCode                Special                   
   TroubleCount               TabLineSel                
   TroubleDirectory           Directory                 
   TroubleFileName            Directory                 

@@ -670,6 +670,7 @@ The table below shows all the highlight groups defined for Trouble.
 
 | Highlight Group | Default Group | Description |
 | --- | --- | --- |
+| **TroubleCode** | ***Special*** |  |
 | **TroubleCount** | ***TabLineSel*** |  |
 | **TroubleDirectory** | ***Directory*** |  |
 | **TroubleFileName** | ***Directory*** |  |
