@@ -39,6 +39,23 @@ The following filter keeps items with severity `HINT`
 
 ## Advanced examples
 
+### The `not` filter
+
+The `not` negates filter results.
+The following filter **removes** diagnostics with severity `INFO`
+```lua
+{
+  modes = {
+    my_diagnostics = {
+      mode = 'diagnostics',
+      filter = {
+        ['not'] = { severity = vim.diagnostic.severity.INFO },
+      },
+    },
+  },
+}
+```
+
 ## Item attributes
 
 Item attributes are documented in `lua/trouble/item.lua`
@@ -49,5 +66,6 @@ Item attributes are documented in `lua/trouble/item.lua`
 | **filename** | `string`                   | Absolute file path.                                |
 | **ft**       | `string` or `string[]`     | File types.                                        |
 | **kind**     | `string`                   | Symbol kind. See `:h symbol`.                      |
+| **not**      | Loginal `not`              | Filter result negation.                            |
 | **pos**      | `{[1]:number, [2]:number}` | Item position.                                     |
 | **severity** | `number`                   | Diagnostic severity. See `:h diagnostic-severity`. |
