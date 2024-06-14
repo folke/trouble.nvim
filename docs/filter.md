@@ -11,10 +11,7 @@ i.e., diagnostics with severity error to the current buffer when its filetype is
   modes = {
     my_diagnostics = {
       mode = 'diagnostics',
-      filter = {
-        buf = 0,
-        ft = 'lua',
-      },
+      filter = { buf = 0, ft = 'lua' },
     },
   },
 }
