@@ -53,12 +53,39 @@ The following filter **removes** diagnostics with severity `INFO`
 }
 ```
 
+### The `any` filter
+
+The `any` filter provides logical disjunction.
+The following filter **keeps** diagnostics for the current buffer **or** diagnostics with severity `ERROR` for the current project.
+
+```lua
+{
+  modes = {
+    my_diagnostics = {
+      mode = 'diagnostics',
+      filter = {
+        any = {
+          buf = 0,
+          {
+            severity = vim.diagnostic.severity.ERROR,
+            function(item)
+              return item.filename:find((vim.loop or vim.uv).cwd(), 1, true)
+            end,
+          },
+        },
+      },
+    },
+  },
+}
+```
+
 ## Item attributes
 
 Item attributes are documented in `lua/trouble/item.lua`
 
 |     Name     |            Type            |                    Description                     |
 | ------------ | -------------------------- | -------------------------------------------------- |
+| **any**      | Logical `or`               | Filter result disjunction                          |
 | **buf**      | `number`                   | Buffer id.                                         |
 | **filename** | `string`                   | Absolute file path.                                |
 | **ft**       | `string` or `string[]`     | File types.                                        |
