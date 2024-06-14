@@ -86,6 +86,7 @@ Item attributes are documented in `lua/trouble/item.lua`
 |     Name     |            Type            |                    Description                     |
 | ------------ | -------------------------- | -------------------------------------------------- |
 | **any**      | Logical `or`               | Filter result disjunction                          |
+| **basename** | `string`                   | File name.                                         |
 | **buf**      | `number`                   | Buffer id.                                         |
 | **filename** | `string`                   | Absolute file path.                                |
 | **ft**       | `string` or `string[]`     | File types.                                        |
