@@ -15,6 +15,7 @@ M.colors = {
   Directory         = "Directory",
   IconDirectory     = "Special",
   Source            = "Comment",
+  Code              = "Special",
   Pos               = "LineNr",
   Count             = "TabLineSel",
 
