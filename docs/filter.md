@@ -95,3 +95,4 @@ Item attributes are documented in `lua/trouble/item.lua`
 | **not**      | Logical `not`              | Filter result negation.                            |
 | **pos**      | `{[1]:number, [2]:number}` | Item position.                                     |
 | **severity** | `number`                   | Diagnostic severity. See `:h diagnostic-severity`. |
+| **source**   | `string`                   | Item source.                                       |
