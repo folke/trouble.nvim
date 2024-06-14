@@ -48,6 +48,6 @@ Item attributes are documented in `lua/trouble/item.lua`
 | **buf**      | `number`                   | Buffer id.                                         |
 | **filename** | `string`                   | Absolute file path.                                |
 | **ft**       | `string` or `string[]`     | File types.                                        |
-| **kind**     | `string`                   | Symbol kind. See `:h SymbolKind`.                  |
+| **kind**     | `string`                   | Symbol kind. See `:h symbol`.                      |
 | **pos**      | `{[1]:number, [2]:number}` | Item position.                                     |
 | **severity** | `number`                   | Diagnostic severity. See `:h diagnostic-severity`. |
