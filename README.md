@@ -369,6 +369,10 @@ Modes:
 
 <!-- modes:end -->
 
+### Filters
+
+Please refer to the [filter docs](docs/filter.md) for more information examples on filters.
+
 ### API
 
 You can use the following functions in your keybindings:
