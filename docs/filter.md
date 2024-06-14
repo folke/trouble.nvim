@@ -4,7 +4,7 @@
 
 A simple filter is a table whose keys are item attributes.
 The following filter keeps items with attribute `buf = 0` **and** `ft = 'lua'`,
-i.e., diagnostics with severity error to the current buffer when its filetype is `lua`.
+i.e., diagnostics from the current buffer with filetype `lua`.
 
 ```lua
 {
