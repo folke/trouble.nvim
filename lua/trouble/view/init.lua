@@ -102,9 +102,10 @@ function M.get(filter)
   local ret = {}
   for view, idx in pairs(M._views) do
     local is_open = view.win:valid()
-    local ok = is_open or view.opts.auto_open or view.first_update:is_pending()
+    local opening = view.first_update:is_pending()
+    local ok = is_open or view.opts.auto_open or opening
     ok = ok and (not filter.mode or filter.mode == view.opts.mode)
-    ok = ok and (not filter.open or is_open)
+    ok = ok and (not filter.open or is_open or opening)
     if ok then
       ret[#ret + 1] = {
         idx = idx,
@@ -481,7 +482,10 @@ function M:open()
       if count == 0 then
         if not self.opts.open_no_results then
           if self.opts.warn_no_results then
-            Util.warn("No results for **" .. self.opts.mode .. "**")
+            Util.warn({
+              "No results for **" .. self.opts.mode .. "**",
+              "Buffer: " .. vim.api.nvim_buf_get_name(self:main().buf),
+            })
           end
           return
         end
@@ -497,7 +501,9 @@ function M:open()
 end
 
 function M:close()
-  self:goto_main()
+  if vim.api.nvim_get_current_win() == self.win.win then
+    self:goto_main()
+  end
   Preview.close()
   self.win:close()
   return self

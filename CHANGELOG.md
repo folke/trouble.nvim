@@ -1,5 +1,42 @@
 # Changelog
 
+## [3.4.2](https://github.com/folke/trouble.nvim/compare/v3.4.1...v3.4.2) (2024-06-14)
+
+
+### Bug Fixes
+
+* correct invalid float positions. Fixes [#502](https://github.com/folke/trouble.nvim/issues/502) ([88a40f1](https://github.com/folke/trouble.nvim/commit/88a40f1cc3af846b520ae167f0177b5faa148c86))
+* **diagnostics:** custom format for code. Fixes [#508](https://github.com/folke/trouble.nvim/issues/508) ([ada78fa](https://github.com/folke/trouble.nvim/commit/ada78fae41fc05d52883f19fb5e22d5a61e0ef08))
+* fixup ([60b0ac3](https://github.com/folke/trouble.nvim/commit/60b0ac3772e991bc194207afc28368a5f15d913a))
+* **highlights:** link TroubleBasename to TroubleFilename. Fixes [#507](https://github.com/folke/trouble.nvim/issues/507) ([276e7b7](https://github.com/folke/trouble.nvim/commit/276e7b7a8764cd59de5c8a588771a54a979ab3c3))
+* **main:** handle windows with changed buffers ([286c044](https://github.com/folke/trouble.nvim/commit/286c04474cbb24894d233e6b0c00f1e6c8d2ae54))
+* **view:** dont go to main when not in the trouble window when closing ([8d5e05c](https://github.com/folke/trouble.nvim/commit/8d5e05c0d0ce7a2c630ce92cb3cc923044848063))
+
+## [3.4.1](https://github.com/folke/trouble.nvim/compare/v3.4.0...v3.4.1) (2024-06-12)
+
+
+### Bug Fixes
+
+* **fzf:** added descriptions ([5e45bb7](https://github.com/folke/trouble.nvim/commit/5e45bb78f8da3444d35616934c180fce3742c439))
+
+## [3.4.0](https://github.com/folke/trouble.nvim/compare/v3.3.0...v3.4.0) (2024-06-11)
+
+
+### Features
+
+* added fzf-lua integration ([d14323f](https://github.com/folke/trouble.nvim/commit/d14323fe3461b89e91fb569148b44731655ae196))
+* **fzf-lua:** added smart open/add that will use selection or all when nothing selected. ([bed3c5b](https://github.com/folke/trouble.nvim/commit/bed3c5b79298d94d4981d86ed699c70f58ceccff))
+
+
+### Bug Fixes
+
+* **fzf-lua:** smart-open on windows ([4d0f045](https://github.com/folke/trouble.nvim/commit/4d0f0454ae2a246ec3e0ff541a347164dac23b7b))
+* initialize `auto_open`. Fixes [#489](https://github.com/folke/trouble.nvim/issues/489) ([0793267](https://github.com/folke/trouble.nvim/commit/0793267d3d4b782e46161931b7cbaaf062a892d7))
+* **spec:** properly process actions. Fixes [#494](https://github.com/folke/trouble.nvim/issues/494) ([3082f4b](https://github.com/folke/trouble.nvim/commit/3082f4b10fe9f0a8aa922065b998bc37115c4bef))
+* **telescope:** autmatically select telescope_files mode if list are files without locations. Fixes [#466](https://github.com/folke/trouble.nvim/issues/466) ([1ad6b14](https://github.com/folke/trouble.nvim/commit/1ad6b141316f90a658c6d654516092d43e3e596c))
+* **telescope:** set end_pos to end of word ([4deb811](https://github.com/folke/trouble.nvim/commit/4deb8111e7ffa48a4a27bad1ecdfb7779f4efb7d))
+* **views:** pending should be considered open. Fixes [#492](https://github.com/folke/trouble.nvim/issues/492) ([57b50a6](https://github.com/folke/trouble.nvim/commit/57b50a6dc129f3a82c3bdd9f81b9f2d4e770ac09))
+
 ## [3.3.0](https://github.com/folke/trouble.nvim/compare/v3.2.0...v3.3.0) (2024-06-07)
 
 

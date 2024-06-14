@@ -49,6 +49,15 @@ M.formatters = {
       text = "[" .. ctx.item.pos[1] .. ", " .. (ctx.item.pos[2] + 1) .. "]",
     }
   end,
+  code = function(ctx)
+    if not ctx.item.code then
+      return
+    end
+    return {
+      text = "(" .. ctx.item.code .. ")",
+      hl = "TroubleCode",
+    }
+  end,
   severity = function(ctx)
     local severity = ctx.item.severity or vim.diagnostic.severity.ERROR
     local name = vim.diagnostic.severity[severity] or "OTHER"

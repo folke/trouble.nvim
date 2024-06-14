@@ -88,6 +88,7 @@ function M.section(spec)
 end
 
 ---@param action trouble.Action.spec
+---@return trouble.Action
 function M.action(action)
   if type(action) == "string" then
     action = { action = action, desc = action:gsub("_", " ") }
@@ -96,8 +97,12 @@ function M.action(action)
     action = { action = action }
   end
   if type(action.action) == "string" then
-    action.desc = action.desc or action.action:gsub("_", " ")
+    local desc = action.action:gsub("_", " ")
     action.action = require("trouble.config.actions")[action.action]
+    if type(action.action) == "table" then
+      action = action.action
+    end
+    action.desc = action.desc or desc
   end
   ---@cast action trouble.Action
   return action
