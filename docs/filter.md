@@ -9,7 +9,8 @@ i.e., diagnostics with severity error to the current buffer when its filetype is
 ```lua
 {
   modes = {
-    diagnostics = {
+    my_diagnostics = {
+      mode = 'diagnostics',
       filter = {
         buf = 0,
         ft = 'lua',
@@ -24,7 +25,8 @@ The following filter keeps items with severity `HINT`
 ```lua
 {
   modes = {
-    diagnostics = {
+    my_diagnostics = {
+      mode = 'diagnostics',
       filter = function(items)
         return vim.tbl_filter(function(item)
           return item.severity == vim.diagnostic.severity.HINT
