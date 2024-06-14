@@ -16,6 +16,7 @@ A pretty list for showing diagnostics, references, telescope results, quickfix a
 - quickfix list
 - location list
 - [Telescope](https://github.com/nvim-telescope/telescope.nvim) search results
+- [fzf-lua](https://github.com/ibhagwan/fzf-lua) results
 
 ## 📰 What's new?
 
@@ -351,6 +352,8 @@ Modes:
 <!-- modes:start -->
 
 - **diagnostics**: diagnostics
+- **fzf**: FzfLua results previously opened with `require('trouble.sources.fzf').open()`.
+- **fzf_files**: FzfLua results previously opened with `require('trouble.sources.fzf').open()`.
 - **loclist**: Location List
 - **lsp**: LSP definitions, references, implementations, type definitions, and declarations
 - **lsp_command**: command
@@ -366,6 +369,7 @@ Modes:
 - **quickfix**: Quickfix List
 - **symbols**: document symbols
 - **telescope**: Telescope results previously opened with `require('trouble.sources.telescope').open()`.
+- **telescope_files**: Telescope results previously opened with `require('trouble.sources.telescope').open()`.
 
 <!-- modes:end -->
 
@@ -617,6 +621,18 @@ telescope.setup({
 
 When you open telescope, you can now hit `<c-t>` to open the results in **Trouble**
 
+### fzf-lua
+
+You can easily open any search results in **Trouble**, by defining a custom action:
+
+```lua
+local config = require("fzf-lua.config")
+local actions = require("trouble.sources.fzf").actions
+config.defaults.actions.files["ctrl-t"] = actions.open
+```
+
+When you open fzf-lua, you can now hit `<c-t>` to open the results in **Trouble**
+
 ### Statusline Component
 
 Example for [lualine.nvim](https://github.com/nvim-lualine/lualine.nvim):
@@ -654,9 +670,11 @@ The table below shows all the highlight groups defined for Trouble.
 
 | Highlight Group | Default Group | Description |
 | --- | --- | --- |
+| **TroubleBasename** | ***TroubleFilename*** |  |
+| **TroubleCode** | ***Special*** |  |
 | **TroubleCount** | ***TabLineSel*** |  |
 | **TroubleDirectory** | ***Directory*** |  |
-| **TroubleFileName** | ***Directory*** |  |
+| **TroubleFilename** | ***Directory*** |  |
 | **TroubleIconArray** | ***@punctuation.bracket*** |  |
 | **TroubleIconBoolean** | ***@boolean*** |  |
 | **TroubleIconClass** | ***@type*** |  |

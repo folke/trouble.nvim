@@ -8,6 +8,7 @@ local Util = require("trouble.util")
 ---@field col? number The column number where the item starts.
 ---@field bufnr? number The buffer number where the item originates.
 ---@field filename? string The filename of the item.
+---@field text? string The text of the item.
 ---@field cwd? string The current working directory of the item.
 
 ---@class trouble.Source.telescope: trouble.Source
@@ -20,13 +21,20 @@ M.config = {
   modes = {
     telescope = {
       desc = "Telescope results previously opened with `require('trouble.sources.telescope').open()`.",
-      -- events = { "BufEnter", "QuickFixCmdPost" },
       source = "telescope",
+      title = "{hl:Title}Telescope{hl} {count}",
       groups = {
         { "filename", format = "{file_icon} {filename} {count}" },
       },
       sort = { "filename", "pos" },
       format = "{text:ts} {pos}",
+    },
+    telescope_files = {
+      desc = "Telescope results previously opened with `require('trouble.sources.telescope').open()`.",
+      source = "telescope",
+      title = "{hl:Title}Telescope{hl} {count}",
+      sort = { "filename", "pos" },
+      format = "{file_icon} {filename}",
     },
   },
 }
@@ -37,11 +45,14 @@ function M.item(item)
   if item.cwd then
     filename = item.cwd .. "/" .. filename
   end
+  local word = item.text and item.text:sub(item.col):match("%S+")
+  local pos = (item.lnum and item.col) and { item.lnum, item.col - 1 } or nil
   return Item.new({
     source = "telescope",
     buf = item.bufnr,
     filename = filename,
-    pos = (item.lnum and item.col) and { item.lnum, item.col - 1 } or nil,
+    pos = pos,
+    end_pos = word and pos and { pos[1], pos[2] + #word } or nil,
     item = item,
   })
 end
@@ -50,6 +61,16 @@ end
 ---@param _ctx trouble.Source.ctx)
 function M.get(cb, _ctx)
   cb(M.items)
+end
+
+-- Returns the mode based on the items.
+function M.mode()
+  for _, item in ipairs(M.items) do
+    if item.text then
+      return "telescope"
+    end
+  end
+  return "telescope_files"
 end
 
 -- Append the current telescope buffer to the trouble list.
@@ -71,7 +92,7 @@ function M.add(prompt_bufnr, opts)
       table.insert(M.items, M.item(item))
     end
   end
-  Item.add_text(M.items, { mode = "after" })
+  -- Item.add_text(M.items, { mode = "after" })
 
   vim.schedule(function()
     require("telescope.actions").close(prompt_bufnr)
@@ -79,7 +100,7 @@ function M.add(prompt_bufnr, opts)
     if type(opts) == "string" then
       opts = { mode = opts }
     end
-    opts = vim.tbl_extend("force", { mode = "telescope" }, opts)
+    opts = vim.tbl_extend("force", { mode = M.mode() }, opts)
     require("trouble").open(opts)
   end)
 end
