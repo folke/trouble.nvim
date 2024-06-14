@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.4.2](https://github.com/folke/trouble.nvim/compare/v3.4.1...v3.4.2) (2024-06-14)
+
+
+### Bug Fixes
+
+* correct invalid float positions. Fixes [#502](https://github.com/folke/trouble.nvim/issues/502) ([88a40f1](https://github.com/folke/trouble.nvim/commit/88a40f1cc3af846b520ae167f0177b5faa148c86))
+* **diagnostics:** custom format for code. Fixes [#508](https://github.com/folke/trouble.nvim/issues/508) ([ada78fa](https://github.com/folke/trouble.nvim/commit/ada78fae41fc05d52883f19fb5e22d5a61e0ef08))
+* fixup ([60b0ac3](https://github.com/folke/trouble.nvim/commit/60b0ac3772e991bc194207afc28368a5f15d913a))
+* **highlights:** link TroubleBasename to TroubleFilename. Fixes [#507](https://github.com/folke/trouble.nvim/issues/507) ([276e7b7](https://github.com/folke/trouble.nvim/commit/276e7b7a8764cd59de5c8a588771a54a979ab3c3))
+* **main:** handle windows with changed buffers ([286c044](https://github.com/folke/trouble.nvim/commit/286c04474cbb24894d233e6b0c00f1e6c8d2ae54))
+* **view:** dont go to main when not in the trouble window when closing ([8d5e05c](https://github.com/folke/trouble.nvim/commit/8d5e05c0d0ce7a2c630ce92cb3cc923044848063))
+
 ## [3.4.1](https://github.com/folke/trouble.nvim/compare/v3.4.0...v3.4.1) (2024-06-12)
 
 
