@@ -12,7 +12,7 @@ function M.noautocmd(fn)
 end
 
 function M.is_win()
-  return vim.uv.os_uname().sysname:find("Windows") ~= nil
+  return uv.os_uname().sysname:find("Windows") ~= nil
 end
 
 ---@param opts? {msg?: string}
