@@ -30,6 +30,9 @@ function M.new(opts)
   self.item = self.item or {}
   if self.buf and not self.filename then
     self.filename = vim.api.nvim_buf_get_name(self.buf)
+    if self.filename == "" then
+      self.filename = "[buffer:" .. self.buf .. "]"
+    end
   end
   assert(self.filename, "filename is required")
   if self.filename then
