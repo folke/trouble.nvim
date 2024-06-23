@@ -269,6 +269,9 @@ function M.get_lines(opts)
 
   for row, line in M.lines(data) do
     if not opts.rows or ret[row] then
+      if line:sub(-1) == "\r" then
+        line = line:sub(1, -2)
+      end
       todo = todo - 1
       ret[row] = line
       if todo == 0 then
