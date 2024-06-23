@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.4.3](https://github.com/folke/trouble.nvim/compare/v3.4.2...v3.4.3) (2024-06-23)
+
+
+### Bug Fixes
+
+* **item:** empty filenames ([77f17d1](https://github.com/folke/trouble.nvim/commit/77f17d1bb29b32e06f75afa5c4fe0eba6f5ab397))
+* **promise:** vim.loop. Fixes [#513](https://github.com/folke/trouble.nvim/issues/513) ([1acfb6c](https://github.com/folke/trouble.nvim/commit/1acfb6c45c38f07f4d0a5e4cbdd60c9bb6880908))
+* **util:** crlf. Fixes [#518](https://github.com/folke/trouble.nvim/issues/518) ([032fa2c](https://github.com/folke/trouble.nvim/commit/032fa2c36a7c8738eb1e1d2f52a433be085f603a))
+* **utils:** use `vim.loop or vim.ev` declared in the beginning of a file ([#519](https://github.com/folke/trouble.nvim/issues/519)) ([235dc61](https://github.com/folke/trouble.nvim/commit/235dc61cf49b61e7970897c3eed51b1b30121b9e))
+
 ## [3.4.2](https://github.com/folke/trouble.nvim/compare/v3.4.1...v3.4.2) (2024-06-14)
 
 
