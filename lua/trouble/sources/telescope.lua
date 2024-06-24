@@ -10,6 +10,7 @@ local Util = require("trouble.util")
 ---@field filename? string The filename of the item.
 ---@field text? string The text of the item.
 ---@field cwd? string The current working directory of the item.
+---@field path? string The path of the item.
 
 ---@class trouble.Source.telescope: trouble.Source
 local M = {}
@@ -41,9 +42,15 @@ M.config = {
 
 ---@param item telescope.Item
 function M.item(item)
-  local filename = item.filename
-  if item.cwd then
-    filename = item.cwd .. "/" .. filename
+  ---@type string
+  local filename
+  if item.path then
+    filename = item.path
+  else
+    filename = item.filename
+    if item.cwd then
+      filename = item.cwd .. "/" .. filename
+    end
   end
   local word = item.text and item.text:sub(item.col):match("%S+")
   local pos = (item.lnum and item.col) and { item.lnum, item.col - 1 } or nil
