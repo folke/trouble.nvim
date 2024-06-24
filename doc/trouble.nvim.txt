@@ -1,4 +1,4 @@
-*trouble.nvim.txt*        For Neovim >= 0.8.0        Last change: 2024 June 23
+*trouble.nvim.txt*        For Neovim >= 0.8.0        Last change: 2024 June 24
 
 ==============================================================================
 Table of Contents                             *trouble.nvim-table-of-contents*
