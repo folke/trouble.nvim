@@ -12,7 +12,7 @@ function M.noautocmd(fn)
 end
 
 function M.is_win()
-  return vim.uv.os_uname().sysname:find("Windows") ~= nil
+  return uv.os_uname().sysname:find("Windows") ~= nil
 end
 
 ---@param opts? {msg?: string}
@@ -73,7 +73,7 @@ function M.error(msg, opts)
   M.notify(msg, vim.tbl_extend("keep", { level = vim.log.levels.ERROR }, opts or {}))
 end
 
----@param msg string
+---@param msg string|string[]
 function M.debug(msg, ...)
   if Config.debug then
     if select("#", ...) > 0 then
@@ -269,6 +269,9 @@ function M.get_lines(opts)
 
   for row, line in M.lines(data) do
     if not opts.rows or ret[row] then
+      if line:sub(-1) == "\r" then
+        line = line:sub(1, -2)
+      end
       todo = todo - 1
       ret[row] = line
       if todo == 0 then

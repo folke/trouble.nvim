@@ -1,4 +1,4 @@
-*trouble.nvim.txt*        For Neovim >= 0.8.0        Last change: 2024 June 12
+*trouble.nvim.txt*        For Neovim >= 0.8.0        Last change: 2024 June 24
 
 ==============================================================================
 Table of Contents                             *trouble.nvim-table-of-contents*
@@ -389,6 +389,12 @@ Modes:
 - **telescope_files**Telescope results previously opened with `require('trouble.sources.telescope').open()`.
 
 
+FILTERS ~
+
+Please refer to the filter docs <docs/filter.md> for more information examples
+on filters.
+
+
 API ~
 
 You can use the following functions in your keybindings:
@@ -686,9 +692,11 @@ Highlight Groups ~
 
   Highlight Group            Default Group             Description
   -------------------------- ------------------------- -------------
+  TroubleBasename            TroubleFilename           
+  TroubleCode                Special                   
   TroubleCount               TabLineSel                
   TroubleDirectory           Directory                 
-  TroubleFileName            Directory                 
+  TroubleFilename            Directory                 
   TroubleIconArray           @punctuation.bracket      
   TroubleIconBoolean         @boolean                  
   TroubleIconClass           @type                     

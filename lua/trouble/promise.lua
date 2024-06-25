@@ -123,7 +123,7 @@ end
 
 function P:timeout(ms)
   return P.new(function(resolve, reject)
-    local timer = vim.loop.new_timer()
+    local timer = (vim.uv or vim.loop).new_timer()
     timer:start(ms, 0, function()
       timer:close()
       vim.schedule(function()

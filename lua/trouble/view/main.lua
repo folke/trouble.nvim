@@ -14,10 +14,10 @@ function M.setup()
   vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
     group = group,
     callback = function()
-      local buf = vim.api.nvim_get_current_buf()
       local win = vim.api.nvim_get_current_win()
+      local buf = vim.api.nvim_win_get_buf(win)
       if M._valid(win, buf) then
-        M.set(M._find())
+        M.set(M._info(win))
       end
     end,
   })
@@ -30,6 +30,15 @@ function M.set(main)
 end
 
 function M._valid(win, buf)
+  if not win or not buf then
+    return false
+  end
+  if not vim.api.nvim_win_is_valid(win) or not vim.api.nvim_buf_is_valid(buf) then
+    return false
+  end
+  if vim.api.nvim_win_get_buf(win) ~= buf then
+    return false
+  end
   if Preview.is_win(win) or vim.w[win].trouble then
     return false
   end
@@ -71,22 +80,14 @@ end
 function M.get(main)
   main = main or M._main
 
-  local valid = main
-    and main.win
-    and vim.api.nvim_win_is_valid(main.win)
-    and main.buf
-    and vim.api.nvim_buf_is_valid(main.buf)
-    and M._valid(main.win, main.buf)
+  local valid = main and M._valid(main.win, main.buf)
 
   if not valid then
     main = M._find()
   end
   -- Always return a main window even if it is not valid
   main = main or M._info(vim.api.nvim_get_current_win())
-  -- update the cursor, unless the preview is showing in the main window
-  if main and not Preview.is_win(main.win) and vim.api.nvim_win_get_buf(main.win) == main.buf then
-    main.cursor = vim.api.nvim_win_get_cursor(main.win)
-  end
+  main.cursor = vim.api.nvim_win_get_cursor(main.win)
   return main
 end
 

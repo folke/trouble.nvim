@@ -11,10 +11,12 @@ M.colors = {
   Preview           = "Visual",
 
   -- Item
-  FileName          = "Directory",
+  Filename          = "Directory",
+  Basename          = "TroubleFilename",
   Directory         = "Directory",
   IconDirectory     = "Special",
   Source            = "Comment",
+  Code              = "Special",
   Pos               = "LineNr",
   Count             = "TabLineSel",
 
@@ -81,7 +83,8 @@ end
 function M.source(source, links)
   ---@type table<string, string>
   links = vim.tbl_extend("force", {
-    FileName = "TroubleFileName",
+    Filename = "TroubleFilename",
+    Basename = "TroubleFilename",
     Source = "TroubleSource",
     Pos = "TroublePos",
     Count = "TroubleCount",
