@@ -52,8 +52,8 @@ function M.item(item)
       filename = item.cwd .. "/" .. filename
     end
   end
-  local word = item.text and item.text:sub(item.col):match("%S+")
-  local pos = (item.lnum and item.col) and { item.lnum, item.col - 1 } or nil
+  local word = item.text and item.col and item.text:sub(item.col):match("%S+")
+  local pos = item.lnum and { item.lnum, item.col and item.col - 1 or 0 } or nil
   return Item.new({
     source = "telescope",
     buf = item.bufnr,
