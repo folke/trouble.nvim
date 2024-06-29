@@ -43,7 +43,7 @@ jobs:
       - name: Generate docs
         run: |
           nvim --version
-          nvim --headless -u tests/init.lua -l "lua/trouble/docs.lua"
+          nvim -l tests/docs.lua
       - name: panvimdoc
         uses: kdheepak/panvimdoc@main
         with:
