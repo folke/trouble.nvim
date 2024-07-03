@@ -25,6 +25,25 @@ function M.default_hl(source, field)
   return hl
 end
 
+---@type (fun(file: string, ext: string): string, string)[]
+local icons = {
+  function(file)
+    return require("mini.icons").get("file", file)
+  end,
+  function(file, ext)
+    return require("nvim-web-devicons").get_icon(file, ext, { default = true })
+  end,
+}
+function M.get_icon(file, ext)
+  while #icons > 0 do
+    local ok, icon, hl = pcall(icons[1], file, ext)
+    if ok then
+      return icon, hl
+    end
+    table.remove(icons, 1)
+  end
+end
+
 ---@param fn trouble.Formatter
 ---@param field string
 function M.cached_formatter(fn, field)
@@ -95,14 +114,10 @@ M.formatters = {
   end,
   file_icon = function(ctx)
     local item = ctx.item --[[@as Diagnostic|trouble.Item]]
-    local ok, icons = pcall(require, "nvim-web-devicons")
-    if not ok then
-      return ""
-    end
-    local fname = vim.fn.fnamemodify(item.filename, ":t")
+    local file = vim.fn.fnamemodify(item.filename, ":t")
     local ext = vim.fn.fnamemodify(item.filename, ":e")
-    local icon, color = icons.get_icon(fname, ext, { default = true })
-    return { text = icon .. " ", hl = color }
+    local icon, color = M.get_icon(file, ext)
+    return icon and { text = icon .. " ", hl = color } or ""
   end,
   count = function(ctx)
     return {
