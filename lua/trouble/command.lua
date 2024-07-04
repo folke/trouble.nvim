@@ -36,7 +36,9 @@ function M.complete_opts()
   while #stack > 0 do
     local top = table.remove(stack)
     for k, v in pairs(top.t) do
-      if k:match("^[a-z_]+$") then
+      if type(k) == "number" then
+        k = "[" .. k .. "]"
+      elseif k:match("^[a-z_]+$") then
         k = "." .. k
       else
         k = ("[%q]"):format(k)
