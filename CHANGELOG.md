@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.5.1](https://github.com/folke/trouble.nvim/compare/v3.5.0...v3.5.1) (2024-07-04)
+
+
+### Bug Fixes
+
+* **command:** weird issue with number keys. no idea when this happens. oh well... Fixes [#528](https://github.com/folke/trouble.nvim/issues/528) ([95568c6](https://github.com/folke/trouble.nvim/commit/95568c61416ff3dea2b6177deeb8a51130d6fd7a))
+* **diagnostics:** ruff generates a `vim.NIL` diag code. Closes [#527](https://github.com/folke/trouble.nvim/issues/527) ([edd9684](https://github.com/folke/trouble.nvim/commit/edd9684089b19684d5dad90bd5fcfceb48719212))
+* **lsp:** use caller text for call locations in incoming lsp calls. Fixes [#529](https://github.com/folke/trouble.nvim/issues/529) ([12dc19a](https://github.com/folke/trouble.nvim/commit/12dc19a8aba6f964fc6c4060649782a2e57de0cf))
+
 ## [3.5.0](https://github.com/folke/trouble.nvim/compare/v3.4.3...v3.5.0) (2024-07-04)
 
 
