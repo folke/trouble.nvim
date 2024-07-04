@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.5.0](https://github.com/folke/trouble.nvim/compare/v3.4.3...v3.5.0) (2024-07-04)
+
+
+### Features
+
+* added explicit support for mini.icons ([42dcb58](https://github.com/folke/trouble.nvim/commit/42dcb58e95723f833135d5cf406c38bd54304389))
+
+
+### Bug Fixes
+
+* **telescope:** item path. Fixes [#521](https://github.com/folke/trouble.nvim/issues/521) ([6e19371](https://github.com/folke/trouble.nvim/commit/6e1937138b2c292ac0d3e8d9bfc36a29a515a380))
+* **telescope:** use (lnum, 0) for telescope item without col ([#524](https://github.com/folke/trouble.nvim/issues/524)) ([25204b7](https://github.com/folke/trouble.nvim/commit/25204b7e134005dfcb694a0b6d227c98ce3ad164))
+
 ## [3.4.3](https://github.com/folke/trouble.nvim/compare/v3.4.2...v3.4.3) (2024-06-23)
 
 
