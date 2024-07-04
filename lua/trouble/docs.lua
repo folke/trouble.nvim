@@ -106,6 +106,7 @@ require("trouble").%s(opts)]]):format(desc, k)
 end
 
 M.update()
+print("Updated docs")
 -- M.api()
 
 return M
