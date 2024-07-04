@@ -92,7 +92,7 @@ for _, mode in ipairs({ "incoming_calls", "outgoing_calls" }) do
     title = "{hl:Title}" .. Util.camel(mode, " ") .. "{hl} {count}",
     desc = Util.camel(mode, " "),
     source = "lsp." .. mode,
-    format = "{kind_icon} {chi.name} {text:ts} {pos} {hl:Title}{item.client:Title}{hl}",
+    format = "{kind_icon} {text:ts} {pos} {hl:Title}{item.client:Title}{hl}",
   }
 end
 
@@ -251,28 +251,48 @@ function M.call_hierarchy(cb, incoming)
       ---@param responses trouble.lsp.Response<(lsp.CallHierarchyIncomingCall|lsp.CallHierarchyOutgoingCall)[]>[][]
       function(responses)
         local items = {} ---@type trouble.Item[]
+
         for _, results in ipairs(responses) do
           for _, res in ipairs(results) do
             local client = res.client
             local calls = res.result
             local todo = {} ---@type lsp.ResultItem[]
-            local chi = res.params.item
 
             for _, call in ipairs(calls) do
-              if incoming then
-                for _, r in ipairs(call.fromRanges or {}) do
-                  local t = vim.deepcopy(chi) --[[@as lsp.ResultItem]]
-                  t.location = { range = r or call.from.selectionRange or call.from.range, uri = call.from.uri }
-                  todo[#todo + 1] = t
-                end
-              else
-                todo[#todo + 1] = call.to
-              end
+              todo[#todo + 1] = call.to or call.from
             end
             vim.list_extend(items, M.results_to_items(client, todo))
           end
         end
         Item.add_text(items, { mode = "after" })
+
+        if incoming then
+          -- for incoming calls, we actually want the call locations, not just the caller
+          -- but we use the caller's item text as the call location text
+          local texts = {} ---@type table<lsp.CallHierarchyItem, string>
+          for _, item in ipairs(items) do
+            texts[item.item.symbol] = item.item.text
+          end
+
+          items = {}
+          for _, results in ipairs(responses) do
+            for _, res in ipairs(results) do
+              local client = res.client
+              local calls = res.result
+              local todo = {} ---@type lsp.ResultItem[]
+
+              for _, call in ipairs(calls) do
+                for _, r in ipairs(call.fromRanges or {}) do
+                  local t = vim.deepcopy(call.from) --[[@as lsp.ResultItem]]
+                  t.location = { range = r or call.from.selectionRange or call.from.range, uri = call.from.uri }
+                  t.text = texts[call.from]
+                  todo[#todo + 1] = t
+                end
+              end
+              vim.list_extend(items, M.results_to_items(client, todo))
+            end
+          end
+        end
         cb(items)
       end
     )
@@ -348,7 +368,7 @@ function M.range_to_item(client, range)
   })
 end
 
----@alias lsp.ResultItem lsp.Symbol|lsp.CallHierarchyItem
+---@alias lsp.ResultItem lsp.Symbol|lsp.CallHierarchyItem|{text?:string}
 ---@param client vim.lsp.Client
 ---@param results lsp.ResultItem[]
 ---@param default_uri? string
@@ -395,6 +415,7 @@ function M.results_to_items(client, results, default_uri)
     item.range = range and ranges[range] or nil
     item.item.kind = vim.lsp.protocol.SymbolKind[result.kind] or tostring(result.kind)
     item.item.symbol = result
+    item.item.text = result.text
     items[#items + 1] = item
     for _, child in ipairs(result.children or {}) do
       item:add_child(add(child))
