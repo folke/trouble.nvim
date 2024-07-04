@@ -69,7 +69,7 @@ M.formatters = {
     }
   end,
   code = function(ctx)
-    if not ctx.item.code then
+    if not ctx.item.code or ctx.item.code == vim.NIL then
       return
     end
     return {
