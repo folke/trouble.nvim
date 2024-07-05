@@ -1,4 +1,4 @@
-std = "vim"
+std="vim"
 
 [lints]
-mixed_table = "allow"
+mixed_table="allow"
