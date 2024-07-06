@@ -12,4 +12,3 @@ jobs:
     with:
       plugin: trouble.nvim
       repo: folke/trouble.nvim
-      tests: true
