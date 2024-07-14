@@ -43,9 +43,9 @@ function M.notify(msg, opts)
     replace = opts.id and notif_ids[opts.id] or nil,
     title = opts.title or "Trouble",
     on_open = function(win)
-      vim.wo.conceallevel = 3
-      vim.wo.concealcursor = "n"
-      vim.wo.spell = false
+      vim.wo[win].conceallevel = 3
+      vim.wo[win].concealcursor = "n"
+      vim.wo[win].spell = false
       vim.treesitter.start(vim.api.nvim_win_get_buf(win), "markdown")
     end,
   })
