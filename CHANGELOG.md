@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.5.2](https://github.com/folke/trouble.nvim/compare/v3.5.1...v3.5.2) (2024-07-19)
+
+
+### Bug Fixes
+
+* **util:** concealcursor ([e01c99e](https://github.com/folke/trouble.nvim/commit/e01c99eb36c93c77e8985ce9615a75bb73c8c7cf))
+
+
+### Performance Improvements
+
+* **treesitter:** incremental parsing for highlighter ([85154ce](https://github.com/folke/trouble.nvim/commit/85154cedf9b5bf64e56046d493cad7afc3416621))
+
 ## [3.5.1](https://github.com/folke/trouble.nvim/compare/v3.5.0...v3.5.1) (2024-07-04)
 
 
