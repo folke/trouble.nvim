@@ -178,6 +178,9 @@ function M:render(buf)
   local changetick = vim.b[buf].changetick
 
   vim.schedule(function()
+    if not vim.api.nvim_buf_is_valid(buf) then
+      return
+    end
     if vim.b[buf].changetick ~= changetick then
       return
     end
