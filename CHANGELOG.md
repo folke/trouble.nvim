@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.6.0](https://github.com/folke/trouble.nvim/compare/v3.5.2...v3.6.0) (2024-07-21)
+
+
+### Features
+
+* allow disabling a key ([891e76d](https://github.com/folke/trouble.nvim/commit/891e76df4628d5bb3ad41edb4269592c19b35537))
+
+
+### Bug Fixes
+
+* **text:** skip treesitter when buf is no longer valid. Fixes [#556](https://github.com/folke/trouble.nvim/issues/556) ([05694b4](https://github.com/folke/trouble.nvim/commit/05694b4e7d67fe1c46503e92a7b812fa58d92702))
+
 ## [3.5.2](https://github.com/folke/trouble.nvim/compare/v3.5.1...v3.5.2) (2024-07-19)
 
 
