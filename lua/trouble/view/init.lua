@@ -196,7 +196,9 @@ function M:on_mount()
   end, { pattern = "foldlevel", buffer = false })
 
   for k, v in pairs(self.opts.keys) do
-    self:map(k, v)
+    if v ~= false then
+      self:map(k, v)
+    end
   end
 
   self.win:map("<leftmouse>", function()

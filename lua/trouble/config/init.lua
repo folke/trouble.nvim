@@ -50,7 +50,7 @@ local defaults = {
   },
   -- Key mappings can be set to the name of a builtin action,
   -- or you can define your own custom action.
-  ---@type table<string, trouble.Action.spec>
+  ---@type table<string, trouble.Action.spec|false>
   keys = {
     ["?"] = "help",
     r = "refresh",
