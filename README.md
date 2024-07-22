@@ -334,16 +334,16 @@ Some examples:
   - `Trouble diagnostics toggle focus=false filter.buf=0`
 - Show document symbols on the right of the current window.
   Keep the document symbols in sync with the buffer you started the command in.
-  - `Trouble symbols toggle pinned=true results.win.relative=win results.win.position=right`
+  - `Trouble symbols toggle pinned=true win.relative=win win.position=right`
 - You can use **lua** code in the options for the `Trouble` command.
   The examples below all do the same thing.
   - `Trouble diagnostics filter.severity=vim.diagnostic.severity.ERROR`
   - `Trouble diagnostics filter.severity = vim.diagnostic.severity.ERROR`
   - `Trouble diagnostics filter = { severity=vim.diagnostic.severity.ERROR }`
 - Merging of nested options, with or without quoting strings:
-  - `Trouble diagnostics results.win.type = split result.win.position=right`
-  - `Trouble diagnostics results.win = { type = split, position=right}`
-  - `Trouble diagnostics results.win = { type = "split", position='right'}`
+  - `Trouble diagnostics win.type = split win.position=right`
+  - `Trouble diagnostics win = { type = split, position=right}`
+  - `Trouble diagnostics win = { type = "split", position='right'}`
 
 Please refer to the API section for more information on the available actions and options.
 
