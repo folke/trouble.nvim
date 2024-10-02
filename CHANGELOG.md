@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.7.0](https://github.com/folke/trouble.nvim/compare/v3.6.0...v3.7.0) (2024-10-02)
+
+
+### Features
+
+* **config:** add `close` counterparts to jump split actions ([#584](https://github.com/folke/trouble.nvim/issues/584)) ([928e6d0](https://github.com/folke/trouble.nvim/commit/928e6d01c83b87137a7baf7221fdd070aed3b313))
+
+
+### Bug Fixes
+
+* **format:** for "attempt to index local 'signs' (a boolean value)" errors in nvim-0.10.1+ ([#579](https://github.com/folke/trouble.nvim/issues/579)) ([2e7cb80](https://github.com/folke/trouble.nvim/commit/2e7cb80e2a4f64373228b78cb2080c423d771ef8))
+
 ## [3.6.0](https://github.com/folke/trouble.nvim/compare/v3.5.2...v3.6.0) (2024-07-21)
 
 
