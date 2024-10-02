@@ -105,7 +105,7 @@ M.formatters = {
         signs = signs(0, 0) --[[@as vim.diagnostic.Opts.Signs]]
       end
       return {
-        text = signs.text and signs.text[severity] or sign and sign.text or name:sub(1, 1),
+        text = type(signs) == "table" and signs.text and signs.text[severity] or sign and sign.text or name:sub(1, 1),
         hl = "DiagnosticSign" .. name,
       }
     else
