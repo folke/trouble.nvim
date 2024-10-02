@@ -555,10 +555,20 @@ require("trouble").jump_only(opts)
 ---@return trouble.View
 require("trouble").jump_split(opts)
 
+-- Open the item in a split and close the trouble window
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").jump_split_close(opts)
+
 -- Open the item in a vsplit
 ---@param opts? trouble.Mode | { new? : boolean } | string
 ---@return trouble.View
 require("trouble").jump_vsplit(opts)
+
+-- Open the item in a vsplit and close the trouble window
+---@param opts? trouble.Mode | { new? : boolean } | string
+---@return trouble.View
+require("trouble").jump_vsplit_close(opts)
 
 -- Go to the last item
 ---@param opts? trouble.Mode | { new? : boolean } | string

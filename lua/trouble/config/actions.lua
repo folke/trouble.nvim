@@ -114,10 +114,24 @@ local M = {
       self:jump(ctx.item, { split = true })
     end
   end,
+  -- Open the item in a split and close the trouble window
+  jump_split_close = function(self, ctx)
+    if ctx.item then
+      self:jump(ctx.item, { split = true })
+      self:close()
+    end
+  end,
   -- Open the item in a vsplit
   jump_vsplit = function(self, ctx)
     if ctx.item then
       self:jump(ctx.item, { vsplit = true })
+    end
+  end,
+  -- Open the item in a vsplit and close the trouble window
+  jump_vsplit_close = function(self, ctx)
+    if ctx.item then
+      self:jump(ctx.item, { vsplit = true })
+      self:close()
     end
   end,
   -- Dump the item to the console
