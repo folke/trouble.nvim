@@ -65,13 +65,14 @@ function M._attach_lang(buf, lang, regions)
   M.cache[buf] = M.cache[buf] or {}
 
   if not M.cache[buf][lang] then
-    local ok, parser = pcall(vim.treesitter.get_parser, buf, lang)
+    local ok, parser = pcall(vim.treesitter.languagetree.new, buf, lang)
     if not ok then
       local msg = "nvim-treesitter parser missing `" .. lang .. "`"
       vim.notify_once(msg, vim.log.levels.WARN, { title = "trouble.nvim" })
       return
     end
 
+    parser:set_included_regions(vim.deepcopy(regions))
     M.cache[buf][lang] = {
       parser = parser,
       highlighter = TSHighlighter.new(parser),
@@ -80,7 +81,7 @@ function M._attach_lang(buf, lang, regions)
   M.cache[buf][lang].enabled = true
   local parser = M.cache[buf][lang].parser
 
-  parser:set_included_regions(regions)
+  parser:set_included_regions(vim.deepcopy(regions))
 end
 
 return M
