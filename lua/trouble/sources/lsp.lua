@@ -368,6 +368,24 @@ function M.range_to_item(client, range)
   })
 end
 
+local kinds = nil ---@type table<lsp.SymbolKind, string>
+
+--- Gets the original symbol kind name from its number.
+--- Some plugins override the symbol kind names, so this function is needed to get the original name.
+---@param kind lsp.SymbolKind
+---@return string
+function M.symbol_kind(kind)
+  if not kinds then
+    kinds = {}
+    for k, v in pairs(vim.lsp.protocol.SymbolKind) do
+      if type(v) == "number" then
+        kinds[v] = k
+      end
+    end
+  end
+  return kinds[kind]
+end
+
 ---@alias lsp.ResultItem lsp.Symbol|lsp.CallHierarchyItem|{text?:string}
 ---@param client vim.lsp.Client
 ---@param results lsp.ResultItem[]
@@ -413,7 +431,7 @@ function M.results_to_items(client, results, default_uri)
     -- item.text = nil
     -- the range enclosing this symbol. Useful to get the symbol of the current cursor position
     item.range = range and ranges[range] or nil
-    item.item.kind = vim.lsp.protocol.SymbolKind[result.kind] or tostring(result.kind)
+    item.item.kind = M.symbol_kind(result.kind) or tostring(result.kind)
     item.item.symbol = result
     item.item.text = result.text
     items[#items + 1] = item
