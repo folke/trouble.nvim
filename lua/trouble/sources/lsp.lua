@@ -400,7 +400,9 @@ function M.results_to_items(client, results, default_uri)
     local uri = result.location and result.location.uri or result.uri or default_uri
     local loc = result.location or { range = result.selectionRange or result.range, uri = uri }
     loc.uri = loc.uri or uri
-    assert(loc.uri, "missing uri in result:\n" .. vim.inspect(result))
+    if not loc.uri then
+      assert(loc.uri, "missing uri in result:\n" .. vim.inspect(result))
+    end
     -- the range enclosing this symbol. Useful to get the symbol of the current cursor position
     ---@type lsp.Location?
     local range = result.range and { range = result.range, uri = uri } or nil

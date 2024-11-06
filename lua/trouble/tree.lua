@@ -180,7 +180,9 @@ function M.build(items, section)
     local node = root
     for _, group in ipairs(section.groups) do
       local builder = M.builders[group.directory and "directory" or "fields"]
-      assert(builder, "unknown group type: " .. vim.inspect(group))
+      if not builder then
+        assert(builder, "unknown group type: " .. vim.inspect(group))
+      end
       node = builder.group(item, node, group)
     end
     node_items[node] = node_items[node] or {}
