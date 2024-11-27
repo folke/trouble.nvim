@@ -6,10 +6,11 @@ local Util = require("trouble.util")
 ---@field config? trouble.Config
 ---@field setup? fun()
 ---@field get trouble.Source.get|table<string, trouble.Source.get>
+---@field preview? fun(item:trouble.Item, ctx:trouble.Preview)
 
 ---@alias trouble.Source.ctx {main: trouble.Main, opts:trouble.Mode}
 ---@alias trouble.Source.Callback fun(items:trouble.Item[])
----@alias trouble.Source.get fun(cb:trouble.Source.Callback, ctx:trouble.Source.ctx)
+---@alias trouble.Source.get fun(cb:trouble.Source.Callback, ctx:trouble.Preview)
 
 local M = {}
 ---@type table<string, trouble.Source>
@@ -45,7 +46,7 @@ function M.get(source)
   elseif child and type(s.get[child]) ~= "function" then
     error("source does not support sub-source: " .. source .. "." .. child)
   end
-  return child and s.get[child] or s.get
+  return (child and s.get[child] or s.get), s
 end
 
 function M.load()

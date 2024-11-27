@@ -1,8 +1,10 @@
 local Render = require("trouble.view.render")
 local Util = require("trouble.util")
 
+---@alias trouble.Preview {item:trouble.Item, win:number, buf: number, close:fun()}
+
 local M = {}
-M.preview = nil ---@type {item:trouble.Item, win:number, buf: number, close:fun()}?
+M.preview = nil ---@type trouble.Preview?
 
 function M.is_open()
   return M.preview ~= nil
@@ -122,6 +124,10 @@ function M.open(view, item, opts)
     strict = false,
     priority = 160,
   })
+  local _, source = require("trouble.sources").get(item.source)
+  if source and source.preview then
+    source.preview(item, M.preview)
+  end
 
   -- no autocmds should be triggered. So LSP's etc won't try to attach in the preview
   Util.noautocmd(function()
