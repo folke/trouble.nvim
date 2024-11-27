@@ -10,12 +10,15 @@ local Util = require("trouble.util")
 ---@param encoding string utf-8|utf-16|utf-32| defaults to utf-16
 ---@return integer byte (utf-8) index of `encoding` index `index` in `line`
 local function get_line_col(line, index, encoding)
-  if vim.str_byteindex then
-    -- FIXME: uses old-style func signature, since there's no way to
-    -- properly detect if new style is available
-    return vim.str_byteindex(line, index, encoding == "utf-16")
+  local function get()
+    if vim.str_byteindex then
+      -- FIXME: uses old-style func signature, since there's no way to
+      -- properly detect if new style is available
+      return vim.str_byteindex(line, index, encoding == "utf-16")
+    end
+    return vim.lsp.util._str_byteindex_enc(line, index, encoding)
   end
-  local ok, ret = pcall(vim.lsp.util._str_byteindex_enc, line, index, encoding)
+  local ok, ret = pcall(get)
   return ok and ret or #line
 end
 
