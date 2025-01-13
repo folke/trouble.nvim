@@ -10,7 +10,7 @@ local Util = require("trouble.util")
 
 ---@alias trouble.Source.ctx {main: trouble.Main, opts:trouble.Mode}
 ---@alias trouble.Source.Callback fun(items:trouble.Item[])
----@alias trouble.Source.get fun(cb:trouble.Source.Callback, ctx:trouble.Preview)
+---@alias trouble.Source.get fun(cb:trouble.Source.Callback, ctx:trouble.Source.ctx)
 
 local M = {}
 ---@type table<string, trouble.Source>
