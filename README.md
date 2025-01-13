@@ -367,6 +367,8 @@ Modes:
 - **lsp_type_definitions**: type definitions
 - **qflist**: Quickfix List
 - **quickfix**: Quickfix List
+- **snacks**: Snacks results previously opened with `require('trouble.sources.snacks').open()`.
+- **snacks_files**: Snacks results previously opened with `require('trouble.sources.snacks').open()`.
 - **symbols**: document symbols
 - **telescope**: Telescope results previously opened with `require('trouble.sources.telescope').open()`.
 - **telescope_files**: Telescope results previously opened with `require('trouble.sources.telescope').open()`.

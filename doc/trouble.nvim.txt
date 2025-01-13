@@ -1,4 +1,4 @@
-*trouble.nvim.txt*           For Neovim          Last change: 2024 November 27
+*trouble.nvim.txt*           For Neovim           Last change: 2025 January 13
 
 ==============================================================================
 Table of Contents                             *trouble.nvim-table-of-contents*
@@ -384,6 +384,8 @@ Modes:
 - **lsp_type_definitions**type definitions
 - **qflist**Quickfix List
 - **quickfix**Quickfix List
+- **snacks**Snacks results previously opened with `require('trouble.sources.snacks').open()`.
+- **snacks_files**Snacks results previously opened with `require('trouble.sources.snacks').open()`.
 - **symbols**document symbols
 - **telescope**Telescope results previously opened with `require('trouble.sources.telescope').open()`.
 - **telescope_files**Telescope results previously opened with `require('trouble.sources.telescope').open()`.
