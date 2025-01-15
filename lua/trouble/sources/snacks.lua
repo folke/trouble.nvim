@@ -76,7 +76,7 @@ function M.open(picker, opts)
     opts.type = #selected == 0 and "all" or "selected"
   end
   if opts.type == "all" then
-    vim.list_extend(sitems, picker.finder.items)
+    vim.list_extend(sitems, picker:items())
   else
     vim.list_extend(sitems, selected)
   end
