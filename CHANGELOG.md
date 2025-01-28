@@ -1,5 +1,30 @@
 # Changelog
 
+## [3.7.0](https://github.com/folke/trouble.nvim/compare/v3.6.0...v3.7.0) (2025-01-15)
+
+
+### Features
+
+* **config:** add `close` counterparts to jump split actions ([#584](https://github.com/folke/trouble.nvim/issues/584)) ([928e6d0](https://github.com/folke/trouble.nvim/commit/928e6d01c83b87137a7baf7221fdd070aed3b313))
+* **preview:** allow sources to decorate the preview buffer/window ([affd249](https://github.com/folke/trouble.nvim/commit/affd249ab579c1380da8513b9f850463c6408e9b))
+* **sources:** added snacks picker source ([fa32f71](https://github.com/folke/trouble.nvim/commit/fa32f71be4d6c7c2cd4db5bf89cd836248c7bd67))
+
+
+### Bug Fixes
+
+* **format:** for "attempt to index local 'signs' (a boolean value)" errors in nvim-0.10.1+ ([#579](https://github.com/folke/trouble.nvim/issues/579)) ([2e7cb80](https://github.com/folke/trouble.nvim/commit/2e7cb80e2a4f64373228b78cb2080c423d771ef8))
+* **lsp:** always use actual symbol kind names. See [#568](https://github.com/folke/trouble.nvim/issues/568) ([11bcbc0](https://github.com/folke/trouble.nvim/commit/11bcbc0361420875b8bd803267cd532a350c398b))
+* **lsp:** handle invalid line positions ([1a2efaf](https://github.com/folke/trouble.nvim/commit/1a2efaf06d2966ffe3a1ef4a90d0bd8b9d870643))
+* **lsp:** use new vim.str_byteindex if available to calculate start positions of LSP ranges ([86746d2](https://github.com/folke/trouble.nvim/commit/86746d2b5890139a0270c6693ece219912fd73c0))
+* **lsp:** use old-style args for vim.str_byteindex. Fixes [#604](https://github.com/folke/trouble.nvim/issues/604) ([c633e85](https://github.com/folke/trouble.nvim/commit/c633e8559adf529b85167a4cb489d7358e9efb1a))
+* **snacks:** use filtered items instead of all ([2423cd2](https://github.com/folke/trouble.nvim/commit/2423cd20ae2faadec9edd7013617f7b80a3ae628))
+
+
+### Performance Improvements
+
+* **debug:** don't create obj dumps ([1fe80c7](https://github.com/folke/trouble.nvim/commit/1fe80c7cdf86d6a92ab83c0d1dac1cf8aff68b0d))
+* **treesitter:** set regions early ([#587](https://github.com/folke/trouble.nvim/issues/587)) ([20aa858](https://github.com/folke/trouble.nvim/commit/20aa858a86a09458c3851464eab0c5560b5249c0))
+
 ## [3.6.0](https://github.com/folke/trouble.nvim/compare/v3.5.2...v3.6.0) (2024-07-21)
 
 
