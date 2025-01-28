@@ -117,7 +117,7 @@ end
 ---@class trouble.lsp.Response<R,P>: {client: vim.lsp.Client, result: R, err: lsp.ResponseError, params: P}
 
 ---@param method string
----@param params? table
+---@param params? table|fun(client:vim.lsp.Client):table
 ---@param opts? {client?:vim.lsp.Client}
 function M.request(method, params, opts)
   opts = opts or {}
@@ -143,8 +143,9 @@ function M.request(method, params, opts)
   ---@param client vim.lsp.Client
   return Promise.all(vim.tbl_map(function(client)
     return Promise.new(function(resolve)
-      client.request(method, params, function(err, result)
-        resolve({ client = client, result = result, err = err, params = params })
+      local p = type(params) == "function" and params(client) or params --[[@as table]]
+      client.request(method, p, function(err, result)
+        resolve({ client = client, result = result, err = err, params = p })
       end, buf)
     end)
   end, clients)):next(function(results)
@@ -171,12 +172,16 @@ function M.get_locations(method, cb, ctx, opts)
   end
 
   opts = opts or {}
-  ---@type lsp.TextDocumentPositionParams
-  local params = opts.params or vim.lsp.util.make_position_params(win)
-  ---@diagnostic disable-next-line: inject-field
-  params.context = params.context or opts.context or nil
+  ---@type fun(client:vim.lsp.Client):lsp.TextDocumentPositionParams
+  local params = function(client)
+    local ret = opts.params or vim.lsp.util.make_position_params(win, client.offset_encoding)
+    ---@diagnostic disable-next-line: inject-field
+    ret.context = ret.context or opts.context or nil
+    return ret
+  end
 
-  local id = table.concat({ buf, cursor[1], col, method, vim.inspect(params) }, "-")
+  local id =
+    table.concat({ buf, cursor[1], col, method, vim.inspect(vim.lsp.util.make_position_params(win, "utf-16")) }, "-")
   if Cache.locations[id] then
     return cb(Cache.locations[id])
   end
@@ -235,10 +240,10 @@ end
 
 ---@param cb trouble.Source.Callback
 function M.call_hierarchy(cb, incoming)
-  ---@type lsp.CallHierarchyPrepareParams
-  local params = vim.lsp.util.make_position_params()
-
-  M.request("textDocument/prepareCallHierarchy", params)
+  local win = vim.api.nvim_get_current_win()
+  M.request("textDocument/prepareCallHierarchy", function(client)
+    return vim.lsp.util.make_position_params(win, client.offset_encoding)
+  end)
     :next(
       ---@param results trouble.lsp.Response<lsp.CallHierarchyItem[]>[]
       function(results)
