@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.1](https://github.com/folke/trouble.nvim/compare/v3.7.0...v3.7.1) (2025-01-28)
+
+
+### Bug Fixes
+
+* **lsp:** make_position_params with offset encoding. Closes [#606](https://github.com/folke/trouble.nvim/issues/606) ([6f380b8](https://github.com/folke/trouble.nvim/commit/6f380b8826fb819c752c8fd7daaee9ef96d4c689))
+
 ## [3.7.0](https://github.com/folke/trouble.nvim/compare/v3.6.0...v3.7.0) (2025-01-15)
 
 
