@@ -38,7 +38,7 @@ function M.item(item)
   return Item.new({
     source = "snacks",
     buf = item.buf,
-    filename = item.file,
+    filename = vim.fs.joinpath(item.cwd, item.file),
     pos = item.pos,
     end_pos = item.end_pos,
     text = item.line or item.comment or item.label or item.name or item.detail or false,
