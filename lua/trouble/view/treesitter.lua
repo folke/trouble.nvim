@@ -29,10 +29,18 @@ function M.setup()
   end
   M.did_setup = true
 
-  vim.api.nvim_set_decoration_provider(ns, {
-    on_win = wrap("_on_win"),
-    on_line = wrap("_on_line"),
-  })
+  -- https://github.com/neovim/neovim/commit/5edbabdbec0ac3fba33be8afc008845130158583
+  if vim.fn.has("nvim-0.12.0") == 1 then
+    vim.api.nvim_set_decoration_provider(ns, {
+      on_win = wrap("_on_win"),
+      on_range = wrap("_on_range"),
+    })
+  else
+    vim.api.nvim_set_decoration_provider(ns, {
+      on_win = wrap("_on_win"),
+      on_line = wrap("_on_line"),
+    })
+  end
 
   vim.api.nvim_create_autocmd("BufWipeout", {
     group = vim.api.nvim_create_augroup("trouble.treesitter.hl", { clear = true }),
