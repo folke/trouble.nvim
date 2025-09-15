@@ -12,8 +12,9 @@ local Util = require("trouble.util")
 local function get_line_col(line, index, encoding)
   local function get()
     if vim.str_byteindex then
-      -- FIXME: uses old-style func signature, since there's no way to
-      -- properly detect if new style is available
+      if vim.fn.has("nvim-0.11") == 0 then
+        return vim.str_byteindex(line, encoding, index, false)
+      end
       return vim.str_byteindex(line, index, encoding == "utf-16")
     end
     return vim.lsp.util._str_byteindex_enc(line, index, encoding)
@@ -144,7 +145,12 @@ function M.request(method, params, opts)
   return Promise.all(vim.tbl_map(function(client)
     return Promise.new(function(resolve)
       local p = type(params) == "function" and params(client) or params --[[@as table]]
-      client.request(method, p, function(err, result)
+      local request = vim.fn.has("nvim-0.11") == 0
+          and function(_, ...)
+            return client.request(...)
+          end
+        or client.request
+      request(client, method, p, function(err, result)
         resolve({ client = client, result = result, err = err, params = p })
       end, buf)
     end)
