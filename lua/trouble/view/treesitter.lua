@@ -30,7 +30,7 @@ function M.setup()
   M.did_setup = true
 
   -- https://github.com/neovim/neovim/commit/5edbabdbec0ac3fba33be8afc008845130158583
-  if vim.fn.has("nvim-0.12.0") == 1 then
+  if TSHighlighter._on_range then
     vim.api.nvim_set_decoration_provider(ns, {
       on_win = wrap("_on_win"),
       on_range = wrap("_on_range"),
