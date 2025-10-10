@@ -17,6 +17,7 @@ local Util = require("trouble.util")
 ---@field source string
 ---@field cache table<string,any>
 ---@field range? trouble.Range
+---@field cwd? string
 local M = {}
 
 ---@param opts trouble.Item | {filename?:string}
@@ -36,7 +37,8 @@ function M.new(opts)
   end
   assert(self.filename, "filename is required")
   if self.filename then
-    self.filename = vim.fs.normalize(self.filename)
+    local normalized = vim.fs.normalize(self.filename)
+    self.filename = self.cwd and vim.fs.joinpath(vim.fs.normalize(self.cwd), normalized) or normalized
     local parts = vim.split(self.filename, "/", { plain = true })
     self.basename = table.remove(parts)
     self.dirname = table.concat(parts, "/")
