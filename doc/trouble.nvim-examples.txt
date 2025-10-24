@@ -1,0 +1,202 @@
+*trouble.nvim-examples.txt*       For Neovim      Last change: 2025 October 24
+
+==============================================================================
+Table of Contents                    *trouble.nvim-examples-table-of-contents*
+
+1. Window Options                       |trouble.nvim-examples-window-options|
+  - Preview in small float top right|trouble.nvim-examples-window-options-preview-in-small-float-top-right|
+  - Preview in a split to the right of the trouble list|trouble.nvim-examples-window-options-preview-in-a-split-to-the-right-of-the-trouble-list|
+  - Make Trouble look like v2|trouble.nvim-examples-window-options-make-trouble-look-like-v2|
+2. Filtering                                 |trouble.nvim-examples-filtering|
+  - Diagnostics for the current buffer only|trouble.nvim-examples-filtering-diagnostics-for-the-current-buffer-only|
+  - Diagnostics for the current buffer and errors from the current project|trouble.nvim-examples-filtering-diagnostics-for-the-current-buffer-and-errors-from-the-current-project|
+  - Diagnostics Cascade  |trouble.nvim-examples-filtering-diagnostics-cascade|
+3. Other                                         |trouble.nvim-examples-other|
+  - Automatically Open Trouble Quickfix|trouble.nvim-examples-other-automatically-open-trouble-quickfix|
+  - Open Trouble Quickfix when the qf list opens|trouble.nvim-examples-other-open-trouble-quickfix-when-the-qf-list-opens|
+4. Links                                         |trouble.nvim-examples-links|
+
+==============================================================================
+1. Window Options                       *trouble.nvim-examples-window-options*
+
+
+PREVIEW IN SMALL FLOAT TOP RIGHT*trouble.nvim-examples-window-options-preview-in-small-float-top-right*
+
+>lua
+    {
+      modes = {
+        preview_float = {
+          mode = "diagnostics",
+          preview = {
+            type = "float",
+            relative = "editor",
+            border = "rounded",
+            title = "Preview",
+            title_pos = "center",
+            position = { 0, -2 },
+            size = { width = 0.3, height = 0.3 },
+            zindex = 200,
+          },
+        },
+      },
+    }
+<
+
+
+PREVIEW IN A SPLIT TO THE RIGHT OF THE TROUBLE LIST*trouble.nvim-examples-window-options-preview-in-a-split-to-the-right-of-the-trouble-list*
+
+>lua
+    {
+      modes = {
+        test = {
+          mode = "diagnostics",
+          preview = {
+            type = "split",
+            relative = "win",
+            position = "right",
+            size = 0.3,
+          },
+        },
+      },
+    }
+<
+
+
+MAKE TROUBLE LOOK LIKE V2*trouble.nvim-examples-window-options-make-trouble-look-like-v2*
+
+>lua
+    {
+      icons = {
+        indent = {
+          middle = " ",
+          last = " ",
+          top = " ",
+          ws = "│  ",
+        },
+      },
+      modes = {
+        diagnostics = {
+          groups = {
+            { "filename", format = "{file_icon} {basename:Title} {count}" },
+          },
+        },
+      },
+    }
+<
+
+
+==============================================================================
+2. Filtering                                 *trouble.nvim-examples-filtering*
+
+
+DIAGNOSTICS FOR THE CURRENT BUFFER ONLY*trouble.nvim-examples-filtering-diagnostics-for-the-current-buffer-only*
+
+>lua
+    {
+      modes = {
+        diagnostics_buffer = {
+          mode = "diagnostics", -- inherit from diagnostics mode
+          filter = { buf = 0 }, -- filter diagnostics to the current buffer
+        },
+      }
+    }
+<
+
+
+DIAGNOSTICS FOR THE CURRENT BUFFER AND ERRORS FROM THE CURRENT PROJECT*trouble.nvim-examples-filtering-diagnostics-for-the-current-buffer-and-errors-from-the-current-project*
+
+>lua
+    {
+      modes = {
+        mydiags = {
+          mode = "diagnostics", -- inherit from diagnostics mode
+          filter = {
+            any = {
+              buf = 0, -- current buffer
+              {
+                severity = vim.diagnostic.severity.ERROR, -- errors only
+                -- limit to files in the current project
+                function(item)
+                  return item.filename:find((vim.loop or vim.uv).cwd(), 1, true)
+                end,
+              },
+            },
+          },
+        }
+      }
+    }
+<
+
+
+DIAGNOSTICS CASCADE      *trouble.nvim-examples-filtering-diagnostics-cascade*
+
+The following example shows how to create a new mode that shows only the most
+severe diagnostics.
+
+Once those are resolved, less severe diagnostics will be shown.
+
+>lua
+    {
+      modes = {
+        cascade = {
+          mode = "diagnostics", -- inherit from diagnostics mode
+          filter = function(items)
+            local severity = vim.diagnostic.severity.HINT
+            for _, item in ipairs(items) do
+              severity = math.min(severity, item.severity)
+            end
+            return vim.tbl_filter(function(item)
+              return item.severity == severity
+            end, items)
+          end,
+        },
+      },
+    }
+<
+
+
+==============================================================================
+3. Other                                         *trouble.nvim-examples-other*
+
+
+AUTOMATICALLY OPEN TROUBLE QUICKFIX*trouble.nvim-examples-other-automatically-open-trouble-quickfix*
+
+>lua
+    vim.api.nvim_create_autocmd("QuickFixCmdPost", {
+      callback = function()
+        vim.cmd([[Trouble qflist open]])
+      end,
+    })
+<
+
+Test with something like `:silent grep vim %`
+
+
+OPEN TROUBLE QUICKFIX WHEN THE QF LIST OPENS*trouble.nvim-examples-other-open-trouble-quickfix-when-the-qf-list-opens*
+
+
+  This is **NOT** recommended, since you won’t be able to use the quickfix list
+  for other things.
+>lua
+    
+    vim.api.nvim_create_autocmd("BufRead", {
+      callback = function(ev)
+        if vim.bo[ev.buf].buftype == "quickfix" then
+          vim.schedule(function()
+            vim.cmd([[cclose]])
+            vim.cmd([[Trouble qflist open]])
+          end)
+        end
+      end,
+    })
+<
+
+==============================================================================
+4. Links                                         *trouble.nvim-examples-links*
+
+1. *image*: https://github.com/folke/trouble.nvim/assets/292349/f422b8fd-579e-427b-87d3-62daab85d2e0
+2. *image*: https://github.com/folke/trouble.nvim/assets/292349/adfa02df-b3dd-4c90-af3c-41683c0b5356
+
+Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>
+
+vim:tw=78:ts=8:noet:ft=help:norl:
