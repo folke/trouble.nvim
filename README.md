@@ -266,7 +266,6 @@ local defaults = {
       },
     },
   },
-  -- stylua: ignore
   icons = {
     ---@type trouble.Indent.symbols
     indent = {
