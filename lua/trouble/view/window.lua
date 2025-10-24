@@ -311,6 +311,7 @@ function M:mount_float(opts)
   config.focusable = true
   config.height = opts.size.height <= 1 and math.floor(parent_size.height * opts.size.height) or opts.size.height
   config.width = opts.size.width <= 1 and math.floor(parent_size.width * opts.size.width) or opts.size.width
+  config.border = opts.border or "none"
 
   config.row = math.abs(opts.position[1]) <= 1 and math.floor((parent_size.height - config.height) * opts.position[1])
     or opts.position[1]
