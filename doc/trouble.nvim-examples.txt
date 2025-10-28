@@ -1,4 +1,4 @@
-*trouble.nvim-examples.txt*       For Neovim      Last change: 2025 October 24
+*trouble.nvim-examples.txt*                         trouble.nvim examples docs
 
 ==============================================================================
 Table of Contents                    *trouble.nvim-examples-table-of-contents*

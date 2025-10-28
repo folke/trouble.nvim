@@ -1,4 +1,4 @@
-*trouble.nvim-filter.txt*        For Neovim       Last change: 2025 October 24
+*trouble.nvim-filter.txt*                             trouble.nvim filter docs
 
 ==============================================================================
 Table of Contents                      *trouble.nvim-filter-table-of-contents*
