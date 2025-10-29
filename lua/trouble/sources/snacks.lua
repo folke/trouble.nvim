@@ -38,6 +38,7 @@ function M.item(item)
   return Item.new({
     source = "snacks",
     buf = item.buf,
+    cwd = item.cwd,
     filename = item.file,
     pos = item.pos,
     end_pos = item.end_pos,
