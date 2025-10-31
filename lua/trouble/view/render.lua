@@ -150,7 +150,7 @@ function M:node(node, section, indent, is_last)
   if node.item then
     ---@type trouble.Indent.type
     local symbol = self:is_folded(node) and "fold_closed"
-      or node:depth() == 1 and "fold_open"
+      or not node:is_leaf() and "fold_open"
       or is_last and "last"
       or "middle"
     symbol = node:depth() == 1 and node:is_leaf() and "ws" or symbol
