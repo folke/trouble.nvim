@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.7.2](https://github.com/folke/trouble.nvim/compare/v3.7.1...v3.7.2) (2025-10-31)
+
+
+### Bug Fixes
+
+* **float:** respect latest option `vim.o.winborder` ([#666](https://github.com/folke/trouble.nvim/issues/666)) ([c5fd07b](https://github.com/folke/trouble.nvim/commit/c5fd07b72b69c35074f894b6b1217a821b7fb435))
+* **lsp:** better vim.str_byteindex usage. Closes [#670](https://github.com/folke/trouble.nvim/issues/670) ([bd67efe](https://github.com/folke/trouble.nvim/commit/bd67efe408d4816e25e8491cc5ad4088e708a69a))
+* **lsp:** deprecated warnings ([7fe0ca6](https://github.com/folke/trouble.nvim/commit/7fe0ca639f28e937c3dd6c192fab06c8a14f5a1a))
+* **treesitter:** better check for decoration provider `on_range`. Fixes [#661](https://github.com/folke/trouble.nvim/issues/661) ([20189f0](https://github.com/folke/trouble.nvim/commit/20189f0e0cb87c543f1948d62e9d09169d1b2dcb))
+* **view:** adapt to the changes for "nvim_set_decoration_provider" ([#656](https://github.com/folke/trouble.nvim/issues/656)) ([3fb3bd7](https://github.com/folke/trouble.nvim/commit/3fb3bd737be8866e5f3a170abc70b4da8b5dd45a))
+
 ## [3.7.1](https://github.com/folke/trouble.nvim/compare/v3.7.0...v3.7.1) (2025-01-28)
 
 
