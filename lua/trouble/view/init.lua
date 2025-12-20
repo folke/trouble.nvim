@@ -409,12 +409,14 @@ end
 ---@param opts? table
 function M:action(action, opts)
   action = Spec.action(action)
+  local count1 = vim.v.count1;
   self:wait(function()
     local at = self:at() or {}
     action.action(self, {
       item = at.item,
       node = at.node,
       opts = type(opts) == "table" and opts or {},
+      count1 = count1,
     })
   end)
 end
