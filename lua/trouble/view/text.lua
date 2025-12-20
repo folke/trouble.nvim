@@ -119,7 +119,13 @@ function M:statusline(opts)
     end
     table.insert(lines, table.concat(parts, ""))
   end
-  return table.concat(lines, sep)
+  local filtered_lines = {}
+  for _, line in ipairs(lines) do
+    if line ~= "" then
+      table.insert(filtered_lines, line)
+    end
+  end
+  return table.concat(filtered_lines, sep)
 end
 
 function M:render(buf)
