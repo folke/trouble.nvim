@@ -1,6 +1,6 @@
 local Util = require("trouble.util")
 
----@alias trouble.Action.ctx {item?: trouble.Item, node?: trouble.Node, opts?: table}
+---@alias trouble.Action.ctx {item?: trouble.Item, node?: trouble.Node, opts?: table, count1?: integer}
 ---@alias trouble.ActionFn fun(view:trouble.View, ctx:trouble.Action.ctx)
 ---@alias trouble.Action {action: trouble.ActionFn, desc?: string, mode?: string}
 ---@alias trouble.Action.spec string|trouble.ActionFn|trouble.Action|{action: string}
@@ -73,19 +73,23 @@ local M = {
   end,
   -- Go to the next item
   next = function(self, ctx)
-    self:move({ down = vim.v.count1, jump = ctx.opts.jump })
+    local count = ctx.count1 or vim.v.count1;
+    self:move({ down = count, jump = ctx.opts.jump })
   end,
   -- Go to the previous item
   prev = function(self, ctx)
-    self:move({ up = vim.v.count1, jump = ctx.opts.jump })
+    local count = ctx.count1 or vim.v.count1;
+    self:move({ up = count, jump = ctx.opts.jump })
   end,
   -- Go to the first item
   first = function(self, ctx)
-    self:move({ idx = vim.v.count1, jump = ctx.opts.jump })
+    local count = ctx.count1 or vim.v.count1;
+    self:move({ idx = count, jump = ctx.opts.jump })
   end,
   -- Go to the last item
   last = function(self, ctx)
-    self:move({ idx = -vim.v.count1, jump = ctx.opts.jump })
+    local count = ctx.count1 or vim.v.count1;
+    self:move({ idx = -count, jump = ctx.opts.jump })
   end,
   -- Jump to the item if on an item, otherwise do nothing
   jump_only = function(self, ctx)
@@ -138,14 +142,16 @@ local M = {
   inspect = function(_, ctx)
     vim.print(ctx.item or (ctx.node and ctx.node.item))
   end,
-  fold_reduce = function(self)
-    self:fold_level({ add = vim.v.count1 })
+  fold_reduce = function(self, ctx)
+    local count = ctx.count1 or vim.v.count1;
+    self:fold_level({ add = count })
   end,
   fold_open_all = function(self)
     self:fold_level({ level = 1000 })
   end,
-  fold_more = function(self)
-    self:fold_level({ add = -vim.v.count1 })
+  fold_more = function(self, ctx)
+    local count = ctx.count1 or vim.v.count1;
+    self:fold_level({ add = -count })
   end,
   fold_close_all = function(self)
     self:fold_level({ level = 0 })
