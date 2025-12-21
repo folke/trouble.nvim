@@ -119,13 +119,14 @@ function M:statusline(opts)
     end
     table.insert(lines, table.concat(parts, ""))
   end
-  local filtered_lines = {}
-  for _, line in ipairs(lines) do
-    if line ~= "" then
-      table.insert(filtered_lines, line)
-    end
-  end
-  return table.concat(filtered_lines, sep)
+  lines = vim.tbl_filter(
+    ---@param line string
+    function(line)
+      return line ~= ""
+    end,
+    lines
+  )
+  return table.concat(lines, sep)
 end
 
 function M:render(buf)
