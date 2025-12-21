@@ -119,6 +119,13 @@ function M:statusline(opts)
     end
     table.insert(lines, table.concat(parts, ""))
   end
+  lines = vim.tbl_filter(
+    ---@param line string
+    function(line)
+      return line ~= ""
+    end,
+    lines
+  )
   return table.concat(lines, sep)
 end
 
