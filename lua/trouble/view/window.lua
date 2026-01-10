@@ -281,12 +281,12 @@ function M:mount_split(opts)
     self.opts.win = 0
   end
   local parent_size = self:parent_size()
+  local vertical = opts.position == "left" or opts.position == "right"
   local size = opts.size
   if type(size) == "table" then
     size = opts.position == "left" or opts.position == "right" and size.width or size.height
   end
   if size <= 1 then
-    local vertical = opts.position == "left" or opts.position == "right"
     size = math.floor(parent_size[vertical and "width" or "height"] * size)
   end
   local cmd = split_commands[opts.relative][opts.position]
@@ -295,6 +295,14 @@ function M:mount_split(opts)
       vim.cmd("silent noswapfile " .. cmd .. " " .. size .. "split")
       vim.api.nvim_win_set_buf(0, self.buf)
       self.win = vim.api.nvim_get_current_win()
+      -- Enforce the requested size after the split to avoid window equalization.
+      if type(size) == "number" then
+        if vertical then
+          pcall(vim.api.nvim_win_set_width, self.win, size)
+        else
+          pcall(vim.api.nvim_win_set_height, self.win, size)
+        end
+      end
     end)
   end)
 end
