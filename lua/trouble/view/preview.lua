@@ -36,9 +36,10 @@ end
 function M.create(item, opts)
   opts = opts or {}
 
-  local buf = item.buf or vim.fn.bufnr(item.filename)
+  local full_path = item:get_full_path()
+  local buf = item.buf or vim.fn.bufnr(full_path)
 
-  if item.filename and vim.fn.isdirectory(item.filename) == 1 then
+  if item.filename and vim.fn.isdirectory(full_path) == 1 then
     return
   end
 
@@ -48,7 +49,7 @@ function M.create(item, opts)
       buf = vim.api.nvim_create_buf(false, true)
       vim.bo[buf].bufhidden = "wipe"
       vim.bo[buf].buftype = "nofile"
-      local lines = Util.get_lines({ path = item.filename, buf = item.buf })
+      local lines = Util.get_lines({ path = full_path, buf = item.buf })
       if not lines then
         return
       end
@@ -61,7 +62,7 @@ function M.create(item, opts)
         end
       end
     else
-      item.buf = vim.fn.bufadd(item.filename)
+      item.buf = vim.fn.bufadd(full_path)
       buf = item.buf
 
       if not vim.api.nvim_buf_is_loaded(item.buf) then

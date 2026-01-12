@@ -253,7 +253,7 @@ function M:jump(item, opts)
     return
   end
 
-  item.buf = item.buf or vim.fn.bufadd(item.filename)
+  item.buf = item.buf or vim.fn.bufadd(item:get_full_path())
 
   if not vim.api.nvim_buf_is_loaded(item.buf) then
     vim.fn.bufload(item.buf)

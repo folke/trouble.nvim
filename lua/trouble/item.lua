@@ -17,6 +17,7 @@ local Util = require("trouble.util")
 ---@field source string
 ---@field cache table<string,any>
 ---@field range? trouble.Range
+---@field cwd? string
 local M = {}
 
 ---@param opts trouble.Item | {filename?:string}
@@ -37,6 +38,9 @@ function M.new(opts)
   assert(self.filename, "filename is required")
   if self.filename then
     self.filename = vim.fs.normalize(self.filename)
+    if self.cwd then
+      self.cwd = vim.fs.normalize(self.cwd)
+    end
     local parts = vim.split(self.filename, "/", { plain = true })
     self.basename = table.remove(parts)
     self.dirname = table.concat(parts, "/")
@@ -66,6 +70,14 @@ function M.add_id(items, fields)
   end
 end
 
+---@return string
+function M:get_full_path()
+  if self.cwd then
+    return vim.fs.joinpath(self.cwd, self.filename)
+  end
+  return self.filename
+end
+
 ---@return string?
 function M:get_ft(buf)
   if self.buf and vim.api.nvim_buf_is_loaded(self.buf) then
@@ -74,12 +86,13 @@ function M:get_ft(buf)
   if not self.filename then
     return
   end
-  local ft = Cache.ft[self.filename]
+  local full_path = self:get_full_path()
+  local ft = Cache.ft[full_path]
   if ft == nil then
     -- HACK: make sure we always pass a valid buf,
     -- otherwise some detectors will fail hard (like ts)
-    ft = vim.filetype.match({ filename = self.filename, buf = buf or 0 })
-    Cache.ft[self.filename] = ft or false -- cache misses too
+    ft = vim.filetype.match({ filename = full_path, buf = buf or 0 })
+    Cache.ft[full_path] = ft or false -- cache misses too
   end
   return ft
 end
@@ -136,10 +149,11 @@ function M.add_text(items, opts)
   for _, item in ipairs(items) do
     if not item.item.text and item.filename then
       -- schedule to get the lines
-      todo[item.filename] = todo[item.filename] or { rows = {} }
-      todo[item.filename].buf = todo[item.filename].buf or item.buf
+      local full_path = item:get_full_path()
+      todo[full_path] = todo[full_path] or { rows = {} }
+      todo[full_path].buf = todo[full_path].buf or item.buf
       for r = item.pos[1], item.end_pos and item.end_pos[1] or item.pos[1] do
-        table.insert(todo[item.filename].rows, r)
+        table.insert(todo[full_path].rows, r)
         if not opts.multiline then
           break
         end
@@ -158,9 +172,10 @@ function M.add_text(items, opts)
   end
   for _, item in ipairs(items) do
     if not item.item.text and item.filename then
+      local full_path = item:get_full_path()
       local lines = {} ---@type string[]
       for row = item.pos[1], item.end_pos[1] do
-        local line = buf_lines[item.filename][row] or ""
+        local line = buf_lines[full_path][row] or ""
         if row == item.pos[1] and row == item.end_pos[1] then
           if opts.mode == "after" then
             line = line:sub(item.pos[2] + 1)
