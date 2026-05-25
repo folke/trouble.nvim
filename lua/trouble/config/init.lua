@@ -70,6 +70,8 @@ local defaults = {
     -- k = "prev",
     ["{"] = "prev",
     ["[["] = "prev",
+    ["]f"] = "next_file",
+    ["[f"] = "prev_file",
     dd = "delete",
     d = { action = "delete", mode = "v" },
     i = "inspect",

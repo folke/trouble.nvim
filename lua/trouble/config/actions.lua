@@ -87,6 +87,13 @@ local M = {
   last = function(self, ctx)
     self:move({ idx = -vim.v.count1, jump = ctx.opts.jump })
   end,
+  -- next/prev file
+  next_file = function(self)
+    self:move({ next_file = true })
+  end,
+  prev_file = function(self)
+    self:move({ prev_file = true })
+  end,
   -- Jump to the item if on an item, otherwise do nothing
   jump_only = function(self, ctx)
     if ctx.item then
