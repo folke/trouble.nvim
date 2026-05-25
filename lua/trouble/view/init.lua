@@ -367,7 +367,7 @@ function M:map(key, action)
   end, { desc = action.desc, mode = action.mode })
 end
 
----@param opts? {idx?: number, up?:number, down?:number, jump?:boolean}
+---@param opts? {idx?: number, up?:number, down?:number, next_file?:boolean, prev_file?:boolean, jump?:boolean}
 function M:move(opts)
   -- start the moving timer. Will stop any previous timers,
   -- so this acts as a debounce.
@@ -383,11 +383,32 @@ function M:move(opts)
   if opts.idx and opts.idx < 0 then
     from, to = to, 1
     todo = math.abs(todo)
-  elseif opts.down then
+  elseif opts.down or opts.next_file then
     from = cursor[1] + 1
-  elseif opts.up then
+  elseif opts.up or opts.prev_file then
     from = cursor[1] - 1
     to = 1
+  end
+
+  if opts.next_file or opts.prev_file then
+    local cur_loc = self:at()
+    local cur_filename = (cur_loc.item and cur_loc.item.filename)
+      or (cur_loc.node and cur_loc.node.item and cur_loc.node.item.filename)
+
+    if not cur_filename then
+      return Util.warn("No file found for current item")
+    end
+
+    for row = from, to, opts.next_file and 1 or -1 do
+      local info = self.renderer:at(row)
+      if info.node and info.node.group and info.node.item and info.node.item.filename ~= cur_filename then
+        vim.api.nvim_win_set_cursor(self.win.win, { row, cursor[2] })
+        return
+      end
+    end
+
+    local file = opts.next_file and "next" or "previous"
+    return Util.warn("No " .. file .. " file found")
   end
 
   for row = from, to, from > to and -1 or 1 do
