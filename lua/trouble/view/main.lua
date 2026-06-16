@@ -53,7 +53,7 @@ end
 
 ---@private
 function M._find()
-  local wins = vim.api.nvim_list_wins()
+  local wins = vim.api.nvim_tabpage_list_wins(0)
   table.insert(wins, 1, vim.api.nvim_get_current_win())
   for _, win in ipairs(wins) do
     local b = vim.api.nvim_win_get_buf(win)
