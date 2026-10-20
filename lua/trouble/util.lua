@@ -133,60 +133,77 @@ function M.throttle(fn, opts)
   opts.ms = opts.ms or 20
   local last = 0
   local args = nil ---@type {n?:number}?
-  local timer = assert(uv.new_timer())
+  local timer
   local pending = false -- from run() till end of fn
   local running = false -- from run() till end of fn with is_running()
+  local schedule
 
-  local t = {}
+  local function finish()
+    if not running or pending then
+      return
+    end
+    running = false
+    if args then -- schedule if there are pending args
+      schedule()
+    end
+  end
 
-  function t.run()
+  local function check()
+    if not running or pending then
+      return
+    end
+    if opts.is_running and opts.is_running() then
+      -- Fallback for asynchronous callbacks that do not return a promise.
+      vim.defer_fn(check, 10)
+    else
+      finish()
+    end
+  end
+
+  local function run()
+    timer = nil
     pending = true
     running = true
-    timer:stop()
     last = uv.now()
     vim.schedule(function()
-      xpcall(function()
-        if not args then
+      local ok, result = xpcall(function()
+        local current = args
+        args = nil
+        if not current then
           return M.debug("Empty args. This should not happen.")
         end
-        fn(vim.F.unpack_len(args))
-        args = nil
+        return fn(vim.F.unpack_len(current))
       end, function(err)
         vim.schedule(function()
           M.error(err)
         end)
       end)
       pending = false
-      t.check()
+      if ok and opts.is_running and type(result) == "table" and type(result.next) == "function" then
+        result:next(finish, finish)
+      else
+        check()
+      end
     end)
   end
 
-  function t.schedule()
+  function schedule()
+    if timer and not timer:is_closing() then
+      timer:stop()
+      timer:close()
+    end
     local now = uv.now()
     local delay = opts.debounce and opts.ms or (opts.ms - (now - last))
-    timer:stop()
-    timer:start(math.max(0, delay), 0, t.run)
+    timer = vim.defer_fn(run, math.max(0, delay))
   end
-
-  function t.check()
-    if running and not pending and not (opts.is_running and opts.is_running()) then
-      running = false
-      if args then -- schedule if there are pending args
-        t.schedule()
-      end
-    end
-  end
-
-  local check = assert(uv.new_check())
-  check:start(t.check)
 
   return function(...)
     args = vim.F.pack_len(...)
 
-    if timer:is_active() and not opts.debounce then
+    if timer and timer:is_active() and not opts.debounce then
       return
     elseif not running then
-      t.schedule()
+      schedule()
     end
   end
 end
